@@ -15,18 +15,25 @@ const images = {
 
 import config from '../../config'
 
-const { socials } = config.PROJECT
+const {
+	colors,
+	socials,
+} = config.PROJECT
 
 const sx = {
 	root: {
 		width: '40px',
 		height: '40px',
-		backgroundColor: 'primary.main',
+		backgroundColor: colors.text,
 		borderRadius: '50%',
 		cursor: 'pointer',
 		display: 'flex',
 		justifyContent: 'center',
 		alignItems: 'center',
+	},
+	img: {
+		width: '60%',
+		filter: config.PROJECT.id === 'chimerapillars' ? 'invert(100%)' : 'none',
 	},
 };
 
@@ -59,7 +66,7 @@ const SocialButton = ({ variant, style }) => {
 	return (
 		<a href={url} target='_blank' rel='noopener noreferrer'>
 			<Box sx={sx.root} style={{ ...style }}>
-				<img src={image} style={{ width: '60%' }} alt={variant} />
+				<img src={image} style={sx.img} alt={variant} />
 			</Box>
 		</a>
 	);

@@ -3,6 +3,10 @@ import { Box, Typography } from '@mui/material';
 import discord from '../../assets/images/social/discord.svg';
 import Divider from './Divider';
 
+import config from '../../config'
+
+const { colors } = config.PROJECT
+
 const BP1 = '@media (max-width: 1079px)';
 
 const sx = {
@@ -15,7 +19,7 @@ const sx = {
 		width: '100%',
 		maxWidth: '280px',
 		height: '45px',
-		backgroundColor: 'primary.main',
+		backgroundColor: colors.text,
 		borderRadius: '30px',
 		mt: '24px',
 		mb: '80px',
@@ -27,6 +31,7 @@ const sx = {
 	},
 	img: {
 		height: '36px',
+		filter: config.PROJECT.id === 'chimerapillars' ? 'invert(100%)' : 'none',
 	},
 	divider: {
 		mt: '80px',

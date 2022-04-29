@@ -80,6 +80,10 @@ const sx = {
 		// 	px: 2
 		// },
 	},
+	logoImg: {
+		width: '100%',
+		scale: config.PROJECT.id === 'chimerapillars' ? '0.85' : 'initial',
+	}
 };
 
 const theme = createTheme({
@@ -187,7 +191,7 @@ function App() {
 					<HashRouter basename='/'>
 						<Box sx={sx.logoContainer}>
 							<Box sx={sx.logo}>
-								<a href="/"><img src={logo} style={{ width: '100%' }} alt='Logo' /></a>
+								<a href="/"><img src={logo} style={sx.logoImg} alt='Logo' /></a>
 							</Box>
 						</Box>
 						<Header />

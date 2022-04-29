@@ -278,6 +278,8 @@ const sx = {
 		boxShadow: '2px 2px 2px 3px rgba(0, 0, 0, 0.2)',
 		pt: '0',
 		pb: '0',
+		borderLeft: `1px solid ${colors.highlight}FF`,
+		borderRight: `1px solid ${colors.highlight}FF`,
 	},
 	menuListVertical: {
 		ml: '45px',
