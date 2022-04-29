@@ -13,7 +13,17 @@ const config = {
           highlight: '#5deffb',
      },
      nav: ['About', 'Roadmap', 'Hi-res', 'Rarity', 'OpenSea', 'Merch'],
-     socials: ['instagram', 'twitter', 'discord']
+     socials: {
+          instagram: {
+               url: 'https://instagram.com/toddlerpillars',
+          },
+          twitter: {
+               url: 'https://twitter.com/toddlerpillars',
+          },
+          discord: {
+               url: 'https://discord.gg/toddlerpillars',
+          },
+     },
 }
 
 export default config

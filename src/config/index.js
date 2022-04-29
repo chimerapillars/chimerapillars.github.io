@@ -48,7 +48,7 @@ let envConfig = prod;// process.env.NODE_ENV === "development" ? dev : prod
 let config = {
     ...envConfig,
     ...common,
-    PROJECT: projects[process.env.REACT_APP_PROJECT || 'toddlerpillars']
+    PROJECT: projects[process.env.REACT_APP_PROJECT_ID || 'toddlerpillars']
 }
 
 export default config;

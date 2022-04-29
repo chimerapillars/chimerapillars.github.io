@@ -25,8 +25,8 @@ const sx = {
 const Footer = () => (
 	<Box sx={sx.root}>
 		<Box sx={sx.socialContainer}>
-			{config.PROJECT.socials.map((platform) => (
-				<SocialButton variant={platform} />
+			{Object.keys(config.PROJECT.socials).map((network) => (
+				<SocialButton key={network} variant={network} />
 			))}
 		</Box>
 		<Typography variant='text' sx={{ textAlign: 'center' }}>Copyright © {new Date().getFullYear()}, Toddlerpillars</Typography>

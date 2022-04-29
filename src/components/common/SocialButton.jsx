@@ -6,6 +6,17 @@ import twitter from '../../assets/images/social/twitter.svg';
 import email from '../../assets/images/social/email.svg';
 import discord from '../../assets/images/social/discordicon.svg';
 
+const images = {
+	instagram,
+	twitter,
+	email,
+	discord,
+}
+
+import config from '../../config'
+
+const { socials } = config.PROJECT
+
 const sx = {
 	root: {
 		width: '40px',
@@ -23,23 +34,28 @@ const BUTTONS = {
 	instagram: {
 		url: 'https://instagram.com/toddlerpillars',
 		image: instagram,
+		...socials.instagram,
 	},
 	twitter: {
 		url: 'https://twitter.com/toddlerpillars',
 		image: twitter,
+		...socials.twitter,
 	},
 	email: {
 		url: 'mailto:jon@beinart.org',
 		image: email,
+		...socials.email,
 	},
 	discord: {
 		url: 'https://discord.gg/toddlerpillars',
 		image: discord,
+		...socials.discord,
 	},
 };
 
 const SocialButton = ({ variant, style }) => {
 	const { url, image } = BUTTONS[variant];
+
 	return (
 		<a href={url} target='_blank' rel='noopener noreferrer'>
 			<Box sx={sx.root} style={{ ...style }}>

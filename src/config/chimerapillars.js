@@ -13,7 +13,14 @@ const config = {
           highlight: '#545284',
      },
      nav: ['Toddlerpillars', 'About', 'Roadmap', 'OpenSea'],
-     socials: ['twitter', 'discord']
+     socials: {
+          twitter: {
+               url: 'https://twitter.com/chimerapillars',
+          },
+          discord: {
+               url: 'https://discord.gg/toddlerpillars',
+          },
+     },
 }
 
 export default config

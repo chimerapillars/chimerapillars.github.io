@@ -442,8 +442,8 @@ const Header = () => {
 					</Box>
 					<Box sx={sx.socialButtonContainer}>
 						<Box sx={sx.socialContainer}>
-							{socials.map((platform) => (
-								<SocialButton key={platform} variant={platform} style={{ width: '27px', height: '27px' }} />
+							{Object.keys(socials).map((network) => (
+								<SocialButton key={network} variant={network} style={{ width: '27px', height: '27px' }} />
 							))}
 						</Box>
 						{!address && (
