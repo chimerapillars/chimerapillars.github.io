@@ -142,8 +142,8 @@ const sx = {
   },
   connectBtn: {
     ...baseBtn,
-    backgroundColor: colors.background,
-    color: colors.highlight,
+    backgroundColor: colors.highlight,
+    color: colors.text,
     "&:hover": {
       backgroundColor: colors.highlight,
       color: colors.highlight,
@@ -480,45 +480,14 @@ const SaleCard = ({ mintOnClick, setMainSaleStarted }) => {
 
             {project.id === 'chimerapillars' ? (
               <>
-                Only Toddlerpillar holders can mint during our presale.
-                <TextLink href="https://opensea.io/collection/toddlerpillars">Adopt a TP on OpenSea now!</TextLink>
+                Only Toddlerpillar holders can mint during our presale. <a style={{ textDecoration: 'underline', color: colors.highlight, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt a TP on OpenSea now!</a>
+                <br/>
+                <br/>
                 You can mint up to 3 Chimerapillarsfor 0.03 ETH each per TP holding wallet.
                 Presale runs from May 16 - May 22. Public sale for non TP holders begins May 23 for 0.05 ETH.
               </>
             ) : null}
           </Typography>
-
-          <Box
-            sx={{
-              ...sx.roleContainer,
-              ...(omniToddlerActive && { justifyContent: "" }),
-            }}
-          >
-            {omniActive && (
-              <Typography
-                component="span"
-                sx={{ ...sx.mintRole, ...(omniToddlerActive && sx.mintRole2) }}
-                gutterBottom
-              >
-                Omnipillars
-              </Typography>
-            )}
-            {toddlerActive && (
-              <Typography component="span" sx={sx.mintRole} gutterBottom>
-                {project.name}
-              </Typography>
-            )}
-            {earlyActive && (
-              <Typography component="span" sx={sx.mintRole} gutterBottom>
-                Early Supporter
-              </Typography>
-            )}
-            {presaleActive && (
-              <Typography component="span" sx={sx.mintRole} gutterBottom>
-                Ether Cards
-              </Typography>
-            )}
-          </Box>
 
           <Box sx={sx.roleContainer}>
             <Box component="span" sx={sx.mintRole} gutterBottom>
