@@ -386,7 +386,7 @@ const Header = () => {
 			<Box sx={{ ...sx.root, backgroundColor: isFixed ? colors.background : 'unset', boxShadow: isFixed ? '0 4px 6px 0 rgba(0,0,0,0.25)' : 'unset' }} ref={rootRef}>
 				<Box sx={sx.content}>
 					<Box sx={sx.menuBtn} onClick={() => setMenuOpened(true)}>
-						<img src={menu} style={{ width: '100%' }} alt='Menu' />
+						<img src={menu} style={{ width: '100%', filter: config.PROJECT.id === 'chimerapillars' ? 'invert(100%)' : 'none', }} alt='Menu' />
 					</Box>
 					<Box sx={sx.btnContainer}>
 						{BUTTONS.map((btn, i) => {
@@ -476,7 +476,7 @@ const Header = () => {
 				>
 					<>
 						<Box sx={sx.closeBtn} onClick={() => setMenuOpened(false)}>
-							<img src={close} style={{ width: '100%' }} alt='Close' />
+							<img src={close} style={{ width: '100%', filter: config.PROJECT.id === 'chimerapillars' ? 'invert(100%)' : 'none', }} alt='Close' />
 						</Box>
 						<Box sx={{ px: '48px' }}>
 							{MOBILEBUTTONS.map((btn, i) => {
@@ -519,10 +519,9 @@ const Header = () => {
 								return (<HeaderButton key={btn} text={btn} active={activeTab === i} onClick={() => handleNavigation(i)} vertical />);
 							})}
 							<Box sx={sx.socialMobileContainer}>
-								<SocialButton variant='instagram' />
-								<SocialButton variant='twitter' />
-								<SocialButton variant='email' />
-								<SocialButton variant='discord' />
+								{Object.keys(socials).map((network) => (
+									<SocialButton key={network} variant={network} />
+								))}
 							</Box>
 						</Box>
 					</>
