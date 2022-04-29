@@ -1,0 +1,36 @@
+import React from 'react';
+import { Box, Typography } from '@mui/material';
+import SocialButton from './SocialButton';
+import config from '../../config'
+
+const { colors } = config.PROJECT;
+
+const sx = {
+	root: {
+		width: '100%',
+		p: '24px',
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center',
+		gap: '24px',
+		backgroundColor: colors.highlight,
+	},
+	socialContainer: {
+		display: 'flex',
+		flexDirection: 'row',
+		gap: '24px 24px',
+	},
+};
+
+const Footer = () => (
+	<Box sx={sx.root}>
+		<Box sx={sx.socialContainer}>
+			{config.PROJECT.socials.map((platform) => (
+				<SocialButton variant={platform} />
+			))}
+		</Box>
+		<Typography variant='text' sx={{ textAlign: 'center' }}>Copyright © {new Date().getFullYear()}, Toddlerpillars</Typography>
+	</Box>
+);
+
+export default Footer;
