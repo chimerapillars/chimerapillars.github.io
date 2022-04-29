@@ -37,8 +37,8 @@
     "static/js/17.b76b5623.chunk.js": "/static/js/17.b76b5623.chunk.js",
     "static/js/17.b76b5623.chunk.js.map": "/static/js/17.b76b5623.chunk.js.map",
     "main.css": "/static/css/main.8bd86f65.chunk.css",
-    "main.js": "/static/js/main.f87c82aa.chunk.js",
-    "main.js.map": "/static/js/main.f87c82aa.chunk.js.map",
+    "main.js": "/static/js/main.9918f3ce.chunk.js",
+    "main.js.map": "/static/js/main.9918f3ce.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.e89c671d.js",
     "runtime-main.js.map": "/static/js/runtime-main.e89c671d.js.map",
     "static/js/20.1ff5011e.chunk.js": "/static/js/20.1ff5011e.chunk.js",
@@ -203,7 +203,7 @@
     "static/js/35.065bea40.chunk.js.LICENSE.txt": "/static/js/35.065bea40.chunk.js.LICENSE.txt",
     "static/js/6.c8258195.chunk.js.LICENSE.txt": "/static/js/6.c8258195.chunk.js.LICENSE.txt",
     "static/js/9.aba3cff6.chunk.js.LICENSE.txt": "/static/js/9.aba3cff6.chunk.js.LICENSE.txt",
-    "static/media/Chimerapillars-Logo.b6cc5be6.png": "/static/media/Chimerapillars-Logo.b6cc5be6.png",
+    "static/media/Chimerapillars-Logo.1078a5f7.png": "/static/media/Chimerapillars-Logo.1078a5f7.png",
     "static/media/Jon-Beinart.2887efe8.png": "/static/media/Jon-Beinart.2887efe8.png",
     "static/media/index.css": "/static/media/Roboto-Regular.a8d6ac03.ttf",
     "static/media/App.css": "/static/media/Teko-SemiBold.3374e10e.ttf",
@@ -266,6 +266,6 @@
     "static/js/runtime-main.e89c671d.js",
     "static/js/20.1ff5011e.chunk.js",
     "static/css/main.8bd86f65.chunk.css",
-    "static/js/main.f87c82aa.chunk.js"
+    "static/js/main.9918f3ce.chunk.js"
   ]
 }
