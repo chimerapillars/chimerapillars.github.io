@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import navPrev from '../../../assets/images/slider-prev.svg';
 import navNext from '../../../assets/images/slider-next.svg';
 import close from '../../../assets/images/close.svg';
+import config from '../../../config';
 
 const BP1 = '@media (max-width: 899px)';
 const BP2 = '@media (max-width: 719px)';
@@ -46,6 +47,7 @@ const sx = {
 		cursor: 'pointer',
 		pointerEvents: 'auto',
 		transition: 'all .3s',
+		filter: config.PROJECT.id === 'chimerapillars' ? 'invert(100%)' : 'none',
 		[BP1]: {
 			width: '40px',
 			minWidth: '40px',

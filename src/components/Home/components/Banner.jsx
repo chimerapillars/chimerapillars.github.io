@@ -93,6 +93,7 @@ const sx = {
 	sliderNavBtn: {
 		width: '40px',
 		cursor: 'pointer',
+		filter: config.PROJECT.id === 'chimerapillars' ? 'invert(100%)' : 'none',
 	},
 	discordBtn: {
 		width: '100%',
