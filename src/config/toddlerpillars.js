@@ -12,7 +12,13 @@ const config = {
           primary: '#19A8B4',
           highlight: '#5deffb',
      },
-     nav: ['About', 'Roadmap', 'Hi-res', 'Rarity', 'OpenSea', 'Merch'],
+     nav: {
+          BUTTONS: ['About', 'Roadmap', 'Hi-res', 'Rarity', 'OpenSea', 'Merch'],
+          MOBILEBUTTONS: ['About', 'Roadmap', 'Hi-res', 'Rarity', 'OpenSea', 'Merch'],
+          PATHS: ['/about', '/roadmap', '/collections', null, null, null],
+          DROPMENU: ['About Toddlerpillars', 'Mythology', 'History'],
+          DROPMENUPATHS: ['/about', '/mythology', '/history'],
+     },
      socials: {
           instagram: {
                url: 'https://instagram.com/toddlerpillars',

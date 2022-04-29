@@ -12,7 +12,13 @@ const config = {
           primary: '#c2c0fd',
           highlight: '#545284',
      },
-     nav: ['Toddlerpillars', 'About', 'Roadmap', 'OpenSea'],
+     nav: {
+          BUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'OpenSea'],
+          MOBILEBUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'OpenSea'],
+          PATHS: [null, '/about', '/roadmap', null],
+          DROPMENU: ['About Toddlerpillars', 'Mythology', 'History'],
+          DROPMENUPATHS: ['/about', '/mythology', '/history'],
+     },
      socials: {
           twitter: {
                url: 'https://twitter.com/chimerapillars',

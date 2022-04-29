@@ -291,11 +291,13 @@ const sx = {
 	},
 };
 
-const BUTTONS = nav;
-const MOBILEBUTTONS = nav;
-const PATHS = ['/about', '/roadmap', '/collections', null, null, null];
-const DROPMENU = ['About Toddlerpillars', 'Mythology', 'History'];
-const DROPMENUPATHS = ['/about', '/mythology', '/history'];
+const {
+	BUTTONS,
+	MOBILEBUTTONS,
+	PATHS,
+	DROPMENU,
+	DROPMENUPATHS,
+} = nav
 const urlToddlerpillars = 'https://toddlerpillars.com';
 const urlRarity = 'https://rarity.tools/toddlerpillars';
 const urlOpensea = 'https://opensea.io/collection/toddlerpillars';
