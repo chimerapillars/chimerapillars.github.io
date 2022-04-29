@@ -303,12 +303,23 @@ const Banner = () => {
 				{config.PROJECT.id === 'chimerapillars' ? (
 					<>
 						<Box sx={sx.col}>
-							<Typography variant='heading2' sx={sx.title}>Chimerapillars Are Minting Soon</Typography>
+							<Typography variant='heading2' sx={sx.title}>Chimerapillars Are Here!</Typography>
+
 							{vertical && <Divider titleDivider />}
-							<Typography variant='text' sx={{ ...sx.text1, mb: 2 }}>Toddlerpillars sold out on November 2021 and are now available on the secondary market on <a style={{ textDecoration: 'none', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">OpenSea</a>. <br /><br />
-							Our companion creatures, The <a style={{ textDecoration: 'none', color: colors.primary, fontWeight: '700' }} href="https://twitter.com/chimerapillars" target="_blank">Chimerapillars</a> will be summoned soon to rescue the Toddlerpillars from the corruption of the lonely Pillar!<br /><br />
-							All Toddlerpillar parents will get a FREE Chimerapillars mint and a discount on additional mints during the Chimerapillar presale!<br /><br />
-							<a style={{ textDecoration: 'none', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt a Toddlerpillar</a> today to secure your place!</Typography>
+
+							<Typography variant='text' sx={{ ...sx.text1, mb: 2 }}>
+								<strong>8888 Chimerapillars with 888 traits</strong> have been summoned to save humanity from the Toddlerpillar apocalypse. Madness and mayhem have plagued the world since the 6 armed bebehs tore a hole in our reality! Can the Chimerapillars rescue their infantile cousins from the corruption of the lonely pillar? <strong>Help save humanity by minting a Chimerapillar today!</strong>
+								<br/>
+								<br/>
+								Mint multiple Chimerapillars for our upcoming merge and burn utility. Holders will select their favourite traits from 2 NFTs and merge them into 1 while reducing the supply with a burn mechanism.
+								<br/>
+								<br/>
+								Members who hold both a Toddler and a Chimera will be rewarded with a 100+ page multimedia graphic novel exploring our lore in late 2022.
+								<br/>
+								<br/>
+								TP holders who submitted their wallets via discord before May 10 can mint 1 FREE Chimerapillar during our presale.
+							</Typography>
+
 							<SaleCard
 								mintOnClick={(mintInfo) => {
 									setCheckoutVisible(true);

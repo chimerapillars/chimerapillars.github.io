@@ -48,7 +48,7 @@ const baseBtn = {
   transition: "all .3s",
   textTransform: "unset",
   "&:focus": {
-    outlineColor: colors.primary,
+    outlineColor: colors.highlight,
   },
   "&:disabled": {
     backgroundColor: "primary.main",
@@ -59,7 +59,7 @@ const baseBtn = {
 
 const sx = {
   root: {
-    backgroundColor: `${colors.highlight}3F`,
+    backgroundColor: "#dbe3ed",
     minHeight: 300,
     display: "flex",
     justifyContent: "center",
@@ -68,13 +68,17 @@ const sx = {
     width: "100%",
   },
   title: {
+    color: colors.highlight,
     [BP1]: {
       textAlign: "center",
     },
   },
+  text1: {
+    color: colors.highlight,
+  },
   textLink: {
     cursor: "pointer",
-    color: colors.primary,
+    color: colors.highlight,
   },
   roleContainer: {
     display: "flex",
@@ -112,12 +116,12 @@ const sx = {
     fontSize: 32,
     fontFamily: "roboto-bold",
     fontWeight: 900,
-    color: colors.primary,
+    color: colors.highlight,
     lineHeight: 1.2,
   },
   saleSubText: {
     fontSize: 14,
-    color: colors.primary,
+    color: colors.highlight,
     lineHeight: 1,
   },
   img: {
@@ -131,19 +135,23 @@ const sx = {
   },
   mintBtn: {
     ...baseBtn,
+    backgroundColor: colors.primary,
+    "&:disabled": {
+      backgroundColor: colors.highlight,
+    },
   },
   connectBtn: {
     ...baseBtn,
     backgroundColor: colors.background,
-    color: colors.primary,
+    color: colors.highlight,
     "&:hover": {
-      backgroundColor: colors.primary,
-      color: "#fff",
-      borderColor: colors.primary,
+      backgroundColor: colors.highlight,
+      color: colors.highlight,
+      borderColor: colors.highlight,
     },
     "&:focus": {
-      backgroundColor: colors.primary,
-      color: "#fff",
+      backgroundColor: colors.highlight,
+      color: colors.highlight,
       outlineColor: "#000",
       opacity: 0.8,
     },
@@ -360,6 +368,7 @@ const SaleCard = ({ mintOnClick, setMainSaleStarted }) => {
       setMainSaleStarted(Math.floor(Number(info._saleStart)) - now < 0);
       // setSaleEnded(Math.floor(Number(info._saleEnd)) - now < 0);
       setSaleEnded(true);
+      // setSaleEnded(false);
       setPresaleStarted(Math.floor(Number(info._presaleStart)) - now < 0);
       setPresaleEnded(Math.floor(Number(info._presaleEnd)) - now < 0);
 
@@ -447,7 +456,7 @@ const SaleCard = ({ mintOnClick, setMainSaleStarted }) => {
     <Card sx={sx.root}>
       {loading && (
         <Box display="flex" sx={{ justifyContent: "center" }}>
-          <SpinnerDotted color={colors.primary} />
+          <SpinnerDotted color={colors.highlight} />
         </Box>
       )}
       {!loading && toddlerAndPresaleActive && (
@@ -455,14 +464,28 @@ const SaleCard = ({ mintOnClick, setMainSaleStarted }) => {
           <Typography variant="heading1" sx={sx.title}>
             {PRESALE_HEADER}
           </Typography>
+
           <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
-            Connect your wallet and if you are part of the whitelist you will be
-            able to mint {`${project.name}`}. You can check the full set of
-            conditions on our <TextLink onClick={gotoRoadmap}>Roadmap</TextLink>{" "}
-            page.{" "}
-            {communityActive
-              ? "Presale is currently open for:"
-              : <Typography component="span" color="red">Presale will start soon.</Typography>}
+            {project.id === 'toddlerpillars' ? (
+              <>
+                Connect your wallet and if you are part of the whitelist you will be
+                able to mint {`${project.name}`}. You can check the full set of
+                conditions on our <TextLink onClick={gotoRoadmap}>Roadmap</TextLink>{" "}
+                page.{" "}
+                {communityActive
+                  ? "Presale is currently open for:"
+                  : <Typography component="span" color="red">Presale will start soon.</Typography>}
+              </>
+            ) : null}
+
+            {project.id === 'chimerapillars' ? (
+              <>
+                Only Toddlerpillar holders can mint during our presale.
+                <TextLink href="https://opensea.io/collection/toddlerpillars">Adopt a TP on OpenSea now!</TextLink>
+                You can mint up to 3 Chimerapillarsfor 0.03 ETH each per TP holding wallet.
+                Presale runs from May 16 - May 22. Public sale for non TP holders begins May 23 for 0.05 ETH.
+              </>
+            ) : null}
           </Typography>
 
           <Box

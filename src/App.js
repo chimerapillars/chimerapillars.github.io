@@ -82,10 +82,6 @@ const sx = {
 	},
 };
 
-const COLORS = {
-	dark: '#000',
-};
-
 const theme = createTheme({
 	typography: {
 		fontFamily: 'roboto',
@@ -93,7 +89,7 @@ const theme = createTheme({
 		heading1: {
 			fontFamily: 'roboto-bold',
 			fontSize: '32px',
-			color: COLORS.dark,
+			color: colors.text,
 			lineHeight: '42px',
 			transition: 'all .3s',
 			[BP1]: {
@@ -103,22 +99,22 @@ const theme = createTheme({
 		heading2: {
 			fontFamily: 'roboto-bold',
 			fontSize: '24px',
-			color: COLORS.dark,
+			color: colors.text,
 			lineHeight: '34px',
 		},
 		text: {
 			fontFamily: 'roboto',
 			fontSize: '16px',
-			color: COLORS.dark,
+			color: colors.text,
 			lineHeight: '26px',
 		},
 	},
 	palette: {
 		primary: {
-			main: COLORS.dark,
+			main: colors.text,
 		},
 		text: {
-			primary: COLORS.dark,
+			primary: colors.text,
 		},
 		blue: {
 			main: colors.highlight,

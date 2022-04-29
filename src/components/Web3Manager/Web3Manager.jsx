@@ -200,7 +200,7 @@ const Web3Manager = ({ children }) => {
     return (
       <div
         className="row"
-        style={{ height: "100%", weight: "100%", background: "#fff" }}
+        style={{ height: "100%", weight: "100%", background: colors.background }}
       >
         <div className="col m-auto text-center">
           <SpinnerDotted color={colors.primary} />

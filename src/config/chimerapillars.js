@@ -7,9 +7,10 @@ const config = {
      name: 'Chimerapillars',
      logo,
      colors: {
-          background: '#302f3f',
-          primary: '#663399',
-          highlight: '#c2c0fd',
+          background: '#000',
+          text: '#ffffff',
+          primary: '#c2c0fd',
+          highlight: '#545284',
      },
      nav: ['Toddlerpillars', 'About', 'Roadmap', 'OpenSea'],
      socials: ['twitter', 'discord']

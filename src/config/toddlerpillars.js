@@ -8,6 +8,7 @@ const config = {
      logo,
      colors: {
           background: '#ffffff',
+          text: '#000000',
           primary: '#19A8B4',
           highlight: '#5deffb',
      },
