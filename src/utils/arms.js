@@ -26,6 +26,8 @@ import armHistory5 from '../assets/images/arms/history/arm5.png';
 import armHome1Chimera from '../assets/images/arms/home/chimerapillars/arm1.png';
 import armHome2Chimera from '../assets/images/arms/home/chimerapillars/arm2.png';
 import armHome3Chimera from '../assets/images/arms/home/chimerapillars/arm3.png';
+import armHome4Chimera from '../assets/images/arms/home/chimerapillars/arm4.png';
+import armHome5Chimera from '../assets/images/arms/home/chimerapillars/arm5.png';
 
 import config from '../config'
 
@@ -153,6 +155,16 @@ if (config.PROJECT.id === 'chimerapillars') {
 			left: true,
 			top: 1439,
 			image: armHome3Chimera,
+		},
+		{
+			left: false,
+			top: 2116,
+			image: armHome4Chimera,
+		},
+		{
+			left: true,
+			top: 2664,
+			image: armHome5Chimera,
 		},
 	]
 }
