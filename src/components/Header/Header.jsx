@@ -299,9 +299,9 @@ const {
 	DROPMENUPATHS,
 } = nav
 const urlToddlerpillars = 'https://toddlerpillars.com';
-const urlRarity = 'https://rarity.tools/toddlerpillars';
-const urlOpensea = 'https://opensea.io/collection/toddlerpillars';
-const urlMaddies = 'https://maddies.co/official/toddlerpillars/'
+const urlRarity = `https://rarity.tools/${config.PROJECT.slug}`;
+const urlOpensea = `https://opensea.io/collection/${config.PROJECT.slug}`;
+const urlMaddies = `https://maddies.co/official/${config.PROJECT.slug}`
 
 const Header = () => {
 	const {

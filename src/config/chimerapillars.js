@@ -5,6 +5,7 @@ import logo from '../assets/images/Chimerapillars-Logo.png';
 const config = {
      id: 'chimerapillars',
      name: 'Chimerapillars',
+     slug: 'chimerapillars',
      logo,
      colors: {
           background: '#000',

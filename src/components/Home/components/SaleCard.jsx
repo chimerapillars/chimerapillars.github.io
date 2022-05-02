@@ -47,6 +47,8 @@ const baseBtn = {
   fontFamily: "roboto-bold",
   transition: "all .3s",
   textTransform: "unset",
+  outline: "none",
+  border: "none",
   "&:focus": {
     outlineColor: colors.highlight,
   },
@@ -59,26 +61,26 @@ const baseBtn = {
 
 const sx = {
   root: {
-    backgroundColor: "#dbe3ed",
-    minHeight: 300,
+    backgroundColor: colors.background,
+    minHeight: 200,
     display: "flex",
     justifyContent: "center",
+    border: `1px solid ${colors.highlight}`,
+    borderRadius: 2,
+    marginTop: 4,
   },
   cardContent: {
     width: "100%",
   },
   title: {
-    color: colors.highlight,
     [BP1]: {
       textAlign: "center",
     },
   },
   text1: {
-    color: colors.highlight,
   },
   textLink: {
     cursor: "pointer",
-    color: colors.highlight,
   },
   roleContainer: {
     display: "flex",
@@ -108,6 +110,7 @@ const sx = {
     },
   },
   errorText: {
+    mt: 3,
     fontSize: 14,
     fontWeight: 500,
     color: COLOR_RED,
@@ -116,22 +119,21 @@ const sx = {
     fontSize: 32,
     fontFamily: "roboto-bold",
     fontWeight: 900,
-    color: colors.highlight,
     lineHeight: 1.2,
   },
   saleSubText: {
     fontSize: 14,
-    color: colors.highlight,
     lineHeight: 1,
   },
   img: {
     height: "22px",
     alignSelf: "center",
     marginRight: "5px",
+    filter: config.PROJECT.id === 'chimerapillars' ? 'saturate(0%)' : 'none',
   },
   btnsContainer: {
-    mt: 3,
-    mb: 3,
+    mt: -2,
+    mb: 0,
   },
   mintBtn: {
     ...baseBtn,
@@ -143,16 +145,14 @@ const sx = {
   connectBtn: {
     ...baseBtn,
     backgroundColor: colors.highlight,
-    color: colors.text,
+    border: 'none',
     "&:hover": {
       backgroundColor: colors.highlight,
-      color: colors.highlight,
-      borderColor: colors.highlight,
+      border: 'none',
     },
     "&:focus": {
       backgroundColor: colors.highlight,
-      color: colors.highlight,
-      outlineColor: "#000",
+      outlineColor: colors.text,
       opacity: 0.8,
     },
     "&:active": {
@@ -163,7 +163,7 @@ const sx = {
 
 const PRESALE_HEADER = `${project.name} Presale`;
 
-const SALE_HEADER = `${project.name} Main Sale`;
+const SALE_HEADER = `${project.name} Public Sale`;
 
 const SALE_ENDED_HEADER = `${project.name} Sale Ended`;
 
@@ -406,6 +406,15 @@ const SaleCard = ({ mintOnClick, setMainSaleStarted }) => {
       // // console.log("_timedSale", info._timedSale);
       // console.log("_totalDiscount", Number(info._totalDiscount));
       // console.log("_totalFreeEC", Number(info._totalFreeEC));
+
+
+      // @TEMP: CHIMERAPILLARS DEV OVERRIDES FOR TESTING UI
+      // setSaleEnded(false)
+      // setSaleActive(true)
+      // setPresaleEnded(false)
+      // setMaxToken(8888)
+      // setSold(1359)
+      // setPrice(0.05)
     }
     // if (address) setLoading(false);
   };
@@ -480,11 +489,7 @@ const SaleCard = ({ mintOnClick, setMainSaleStarted }) => {
 
             {project.id === 'chimerapillars' ? (
               <>
-                Only Toddlerpillar holders can mint during our presale. <a style={{ textDecoration: 'underline', color: colors.highlight, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt a TP on OpenSea now!</a>
-                <br/>
-                <br/>
-                You can mint up to 3 Chimerapillarsfor 0.03 ETH each per TP holding wallet.
-                Presale runs from May 16 - May 22. Public sale for non TP holders begins May 23 for 0.05 ETH.
+                Only Toddlerpillar holders can mint at presale. <a style={{ textDecoration: 'underline', color: colors.text, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a> Mint up to 3 Chimerapillars per wallet (with TP) for 0.03 ETH each. Presale runs May 16 - May 22. Public sale begins May 23 for 0.05 ETH.
               </>
             ) : null}
           </Typography>
@@ -493,7 +498,7 @@ const SaleCard = ({ mintOnClick, setMainSaleStarted }) => {
             <Box component="span" sx={sx.mintRole} gutterBottom>
               <Typography sx={sx.saleText}>{maxToken}</Typography>
               <Typography sx={sx.saleSubText} gutterBottom>
-                Items
+                {project.name}
               </Typography>
             </Box>
             <Box component="span" sx={sx.mintRole} gutterBottom>
@@ -568,14 +573,24 @@ const SaleCard = ({ mintOnClick, setMainSaleStarted }) => {
           </Typography>
 
           <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
-            {`Connect your wallet and you will be able to mint ${project.name}.`}
+            {project.id === 'toddlerpillars' ? (
+              <>
+                {`Connect your wallet and you will be able to mint ${project.name}.`}
+              </>
+            ) : null}
+
+            {project.id === 'chimerapillars' ? (
+              <>
+                Toddlerpillar holders can mint for a discounted 0.03 ETH. <a style={{ textDecoration: 'underline', color: colors.text, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a>
+              </>
+            ) : null}
           </Typography>
 
           <Box sx={sx.roleContainer}>
             <Box component="span" sx={sx.mintRole} gutterBottom>
               <Typography sx={sx.saleText}>{maxToken}</Typography>
               <Typography sx={sx.saleSubText} gutterBottom>
-                Items
+                {project.name}
               </Typography>
             </Box>
             <Box component="span" sx={sx.mintRole} gutterBottom>
@@ -641,7 +656,7 @@ const SaleCard = ({ mintOnClick, setMainSaleStarted }) => {
             <Box component="span" sx={sx.mintRole} gutterBottom>
               <Typography sx={sx.saleText}>{maxToken}</Typography>
               <Typography sx={sx.saleSubText} gutterBottom>
-                Items
+                {project.name}
               </Typography>
             </Box>
             <Box component="span" sx={sx.mintRole} gutterBottom>

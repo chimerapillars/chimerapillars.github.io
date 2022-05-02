@@ -5,6 +5,7 @@ import logo from '../assets/images/Toddlerpillars-Logo.png';
 const config = {
      id: 'toddlerpillars',
      name: 'Toddlerpillars',
+     slug: 'toddlerpillars',
      logo,
      colors: {
           background: '#ffffff',
