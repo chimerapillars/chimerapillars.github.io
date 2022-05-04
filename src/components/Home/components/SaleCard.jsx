@@ -489,7 +489,7 @@ const SaleCard = ({ mintOnClick, setMainSaleStarted }) => {
 
             {project.id === 'chimerapillars' ? (
               <>
-                Only Toddlerpillar holders can mint at presale. <a style={{ textDecoration: 'underline', color: colors.text, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a> Mint up to 3 Chimerapillars per wallet (with TP) for 0.03 ETH each. Presale runs May 16 - May 22. Public sale begins May 23 for 0.05 ETH.
+                Only Toddlerpillar holders can mint at presale. <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a> Mint up to 3 Chimerapillars per wallet (with TP) for 0.03 ETH each. Presale runs May 16 - May 22. Public sale begins May 23 for 0.05 ETH.
               </>
             ) : null}
           </Typography>
@@ -581,7 +581,7 @@ const SaleCard = ({ mintOnClick, setMainSaleStarted }) => {
 
             {project.id === 'chimerapillars' ? (
               <>
-                Toddlerpillar holders can mint for a discounted 0.03 ETH. <a style={{ textDecoration: 'underline', color: colors.text, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a>
+                Toddlerpillar holders can mint for a discounted 0.03 ETH. <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a>
               </>
             ) : null}
           </Typography>
