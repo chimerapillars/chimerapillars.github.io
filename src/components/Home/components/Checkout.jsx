@@ -18,7 +18,7 @@ const { colors } = config.PROJECT;
 const sx = {
 	root: {
 		height: '100%',
-		backgroundColor: 'rgba(255,255,255,1)',
+		backgroundColor: colors.background,
 		py: '44px',
 		px: '125px',
 		position: 'relative',
@@ -57,6 +57,7 @@ const sx = {
 		right: '20px',
 		cursor: 'pointer',
 		pointerEvents: 'auto',
+		filter: config.PROJECT.id === 'chimerapillars' ? 'invert(100%)' : 'none',
 	},
 	url: {
 		textDecoration: 'none',
@@ -306,7 +307,6 @@ const Checkout = ({ isOpen, setOpen, mintInfo }) => {
 
 				{!txInProgress && (
 					<Box sx={sx.closeBtn} onClick={() => !txInProgress && setOpen(false)}>
-						// eslint-disable-next-line jsx-quotes
 						<img src={close} style={{ width: '100%' }} alt='Close' />
 					</Box>
 				)}

@@ -55,8 +55,8 @@ const sx = {
     fontSize: 16,
     minWidth: "150px",
     height: "40px",
-    color: "#fff",
-    backgroundColor: "primary.main",
+    backgroundColor: colors.highlight,
+    color: colors.text,
     borderRadius: "22px",
     cursor: "pointer",
     display: "flex",
@@ -66,11 +66,13 @@ const sx = {
     fontFamily: "roboto-bold",
     transition: "all .3s",
     textTransform: "unset",
+    "&:hover": {
+      backgroundColor: colors.highlight,
+    },
     "&:focus": {
       outlineColor: colors.primary,
     },
     "&:disabled": {
-      backgroundColor: "primary.main",
       cursor: "not-allowed",
       opacity: 0.5,
     },
