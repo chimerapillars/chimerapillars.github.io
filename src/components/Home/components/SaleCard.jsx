@@ -414,7 +414,7 @@ const SaleCard = ({ mintOnClick, setMainSaleStarted }) => {
       // setPresaleEnded(false)
       // setMaxToken(8888)
       // setSold(1359)
-      // setPrice(0.05)
+      // setPrice(0.03)
     }
     // if (address) setLoading(false);
   };
@@ -489,7 +489,7 @@ const SaleCard = ({ mintOnClick, setMainSaleStarted }) => {
 
             {project.id === 'chimerapillars' ? (
               <>
-                Only Toddlerpillar holders can mint at presale. <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a> Mint up to 3 Chimerapillars per wallet (with TP) for 0.03 ETH each. Presale runs May 16 - May 22. Public sale begins May 23 for 0.05 ETH.
+                Only wallets holding <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale. <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a> <strong>Mint multiples for upcoming merge & burn utility!</strong> Presale runs from May 16 - May 22. Public sale for non TP holders begins May 23.
               </>
             ) : null}
           </Typography>
@@ -581,7 +581,7 @@ const SaleCard = ({ mintOnClick, setMainSaleStarted }) => {
 
             {project.id === 'chimerapillars' ? (
               <>
-                Toddlerpillar holders can mint for a discounted 0.03 ETH. <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a>
+                Mint multiple Chimerapillars for our upcoming merge and burn utility. Holders will select their favourite traits from 2 NFTs and merge them into 1 while reducing the supply with a burn mechanism.
               </>
             ) : null}
           </Typography>

@@ -6,6 +6,8 @@ import Team from './components/Team';
 import Divider from '../common/Divider';
 import Discord from '../common/Discord';
 
+import config from '../../config'
+
 const Home = () => {
 	useEffect(() => {
 		window.scrollTo(0, 0);
@@ -15,10 +17,16 @@ const Home = () => {
 		<>
 			<Banner />
 			<Divider style={{ mt: '56px' }} />
-			<Typography variant='heading1' sx={{ mt: '80px', textAlign: 'center' }}>Overview</Typography>
-			<Divider titleDivider />
-			<Overview />
-			<Divider style={{ mt: '80px' }} />
+
+			{config.PROJECT.id === 'toddlerpillars' ? (
+				<>
+					<Typography variant='heading1' sx={{ mt: '80px', textAlign: 'center' }}>Overview</Typography>
+					<Divider titleDivider />
+					<Overview />
+					<Divider style={{ mt: '80px' }} />
+				</>
+			) : null}
+
 			<Typography variant='heading1' sx={{ mt: '80px', textAlign: 'center' }}>Our Team</Typography>
 			<Divider titleDivider />
 			<Team />

@@ -393,7 +393,7 @@ const Header = () => {
 							if (btn === 'Toddlerpillars') {
 								return (
 									<a href={urlToddlerpillars} style={{ textDecoration: 'none' }}>
-										<HeaderButton key={btn} text='← Back to Toddlerpillars' vertical />
+										<HeaderButton key={btn} text='← Toddlerpillars.com' vertical />
 									</a>
 								);
 							}

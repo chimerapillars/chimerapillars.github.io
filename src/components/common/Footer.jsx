@@ -29,7 +29,7 @@ const Footer = () => (
 				<SocialButton key={network} variant={network} />
 			))}
 		</Box>
-		<Typography variant='text' sx={{ textAlign: 'center' }}>Copyright © {new Date().getFullYear()}, Toddlerpillars</Typography>
+		<Typography variant='text' sx={{ textAlign: 'center' }}>Copyright © {new Date().getFullYear()}, {config.PROJECT.name}</Typography>
 	</Box>
 );
 

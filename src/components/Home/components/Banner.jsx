@@ -309,16 +309,13 @@ const Banner = () => {
 							{vertical && <Divider titleDivider />}
 
 							<Typography variant='text' sx={{ ...sx.text1, mb: 2 }}>
-								<strong>8888 Chimerapillars with 888 traits</strong> have been summoned to save humanity from the Toddlerpillar apocalypse. Madness and mayhem have plagued the world since the 6 armed bebehs tore a hole in our reality! Can the Chimerapillars rescue their infantile cousins from the corruption of the lonely pillar? <strong>Help save humanity by minting a Chimerapillar today!</strong>
-								<br/>
-								<br/>
-								Mint multiple Chimerapillars for our upcoming merge and burn utility. Holders will select their favourite traits from 2 NFTs and merge them into 1 while reducing the supply with a burn mechanism.
+								<strong>8888 Chimerapillars with 888 traits</strong> have been summoned to save humanity from the Toddlerpillar apocalypse. Madness and mayhem have plagued the world since the 6 armed bebehs tore a hole in our reality! Can the Chimerapillars rescue their infantile cousins from the corruption of the lonely pillar?
 								<br/>
 								<br/>
 								Members who hold both a Toddler and a Chimera will be rewarded with a 100+ page multimedia graphic novel exploring our lore in late 2022.
 								<br/>
 								<br/>
-								TP holders who submitted their wallets via discord before May 10 can mint 1 FREE Chimerapillar during our presale.
+								TP holders who submitted their wallets via discord before May 10 can mint 1 FREE Chimera during our presale or 2 FREE Chimeras if they hold 9+ TPs.
 							</Typography>
 
 							<SaleCard
@@ -330,7 +327,7 @@ const Banner = () => {
 							/>
 						</Box>
 
-						{/* <Typography variant='text' sx={{ ...sx.text2, mt: '16px' }}>
+						<Typography variant='text' sx={{ ...sx.text2, mt: '16px' }}>
 							{bold(
 								<>
 									Check collection on
@@ -344,9 +341,9 @@ const Banner = () => {
 									>
 										OpenSea
 									</Box>
-								</>,
+								</>
 							)}
-						</Typography> */}
+						</Typography>
 
 						{/*
 						<Typography variant='text' sx={{ mt: '16px' }}>{DISCORD_TEXT}</Typography>
