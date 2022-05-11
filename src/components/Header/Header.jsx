@@ -366,8 +366,14 @@ const Header = () => {
 	}, [isMobileView]);
 
 	const handleNavigation = (i) => {
-		setMenuOpened(false);
-		history.push(PATHS[i]);
+		const path = PATHS[i]
+
+		if (/^http/i.test(path)) {
+			window.open(path)
+		} else {
+			setMenuOpened(false);
+			history.push(path);
+		}
 	};
 	const handleNavigationAbout = (i) => {
 		setMenuOpened(false);
@@ -397,7 +403,7 @@ const Header = () => {
 									</a>
 								);
 							}
-							if (btn === 'About') {
+							if (btn === 'About' && DROPMENU.length) {
 								return (
 									<>
 										<Box onMouseLeave={() => setOpenAbout(false)}>
@@ -480,7 +486,14 @@ const Header = () => {
 						</Box>
 						<Box sx={{ px: '48px' }}>
 							{MOBILEBUTTONS.map((btn, i) => {
-								if (btn === 'About') {
+								if (btn === 'Toddlerpillars') {
+									return (
+										<a href={urlToddlerpillars} style={{ textDecoration: 'none' }}>
+											<HeaderButton key={btn} text='← Toddlerpillars.com' vertical />
+										</a>
+									);
+								}
+								if (btn === 'About' && DROPMENU.length) {
 									return (
 										<>
 											<HeaderButton text='About' key={btn} active={activeTab === i} onClick={openMenu} vertical />

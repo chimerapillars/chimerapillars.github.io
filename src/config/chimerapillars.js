@@ -14,11 +14,16 @@ const config = {
           highlight: '#545284',
      },
      nav: {
-          BUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'OpenSea'],
-          MOBILEBUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'OpenSea'],
-          PATHS: [null, '/about', '/roadmap', null],
-          DROPMENU: ['About Toddlerpillars', 'Mythology', 'History'],
-          DROPMENUPATHS: ['/about', '/mythology', '/history'],
+          BUTTONS: ['Toddlerpillars', 'About', 'Mythology', 'History', 'Roadmap'],
+          MOBILEBUTTONS: ['Toddlerpillars', 'About', 'Mythology', 'History', 'Roadmap'],
+          PATHS: [null, 'https://toddlerpillars.com/#/about', 'https://toddlerpillars.com/#/mythology', 'https://toddlerpillars.com/#/history', 'https://toddlerpillars.com/#/roadmap'],
+          DROPMENU: [],
+          DROPMENUPATHS: [],
+          // BUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'OpenSea'],
+          // MOBILEBUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'OpenSea'],
+          // PATHS: [null, '/about', '/roadmap', null],
+          // DROPMENU: ['About Toddlerpillars', 'Mythology', 'History'],
+          // DROPMENUPATHS: ['/about', '/mythology', '/history'],
      },
      socials: {
           twitter: {

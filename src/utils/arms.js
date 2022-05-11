@@ -153,7 +153,7 @@ if (config.PROJECT.id === 'chimerapillars') {
 		},
 		{
 			left: true,
-			top: 1439,
+			top: 1339,
 			image: armHome3Chimera,
 		},
 		{
