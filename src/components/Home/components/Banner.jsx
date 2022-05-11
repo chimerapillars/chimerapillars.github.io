@@ -318,15 +318,17 @@ const Banner = () => {
 								TP holders who submitted their wallets via discord before May 10 can mint 1 FREE Chimera during our presale or 2 FREE Chimeras if they hold 9+ TPs.
 							</Typography>
 
+							{/* @TEMP un-comment to show mint panel
 							<SaleCard
 								mintOnClick={(mintInfo) => {
 									setCheckoutVisible(true);
 									setMintInfo(mintInfo);
 								}}
 								setMainSaleStarted={setMainSaleStarted}
-							/>
+							/>*/}
 						</Box>
 
+						{/* @TEMP un-comment to show OS link
 						<Typography variant='text' sx={{ ...sx.text2, mt: '16px' }}>
 							{bold(
 								<>
@@ -343,7 +345,7 @@ const Banner = () => {
 									</Box>
 								</>
 							)}
-						</Typography>
+						</Typography>*/}
 
 						{/*
 						<Typography variant='text' sx={{ mt: '16px' }}>{DISCORD_TEXT}</Typography>
