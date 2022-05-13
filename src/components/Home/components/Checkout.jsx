@@ -256,15 +256,15 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 									onClickMint={handleClaim}
 								/>
 							)}
-							{isPresaleActive && (
+							{isPresaleActive ? (
 								<MintQuantity
 									title='Presale Mint'
 									price={ethPrice}
 									maxAmount={canMintPresale}
 									onClickMint={handlePresaleMint}
 								/>
-							)}
-							{isMainsaleActive && (
+							):
+							(isMainsaleActive && (
 								<MintQuantity
 									title='Main Sale Mint'
 									price={ethPrice}
@@ -272,7 +272,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 									maxAmount={8} // hardcoded limit 10
 									onClickMint={handleMainsaleMint}
 								/>
-							)}
+							))}
 						</>
 					) : (
 						<>

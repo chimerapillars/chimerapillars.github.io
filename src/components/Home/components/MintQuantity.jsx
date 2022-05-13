@@ -79,7 +79,6 @@ const sx = {
   },
 };
 const MintQuantity = ({ title, price, maxAmount, onClickMint }) => {
-  debugger;
   const [quantity, setQuantity] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
 
