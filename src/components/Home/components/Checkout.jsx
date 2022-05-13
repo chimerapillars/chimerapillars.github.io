@@ -105,11 +105,10 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 		canMintPresale = 4 - configs.ownerConfig.purchased;
 	}
 
-	const handleClaim = async () => {
-		debugger;
-
+	const handleClaim = async (quantity, totalPrice) => {
 		setApproveInProgress(true);
-		console.log(quantity, totalPrice);
+
+		console.log('claim', quantity, totalPrice);
 
 		const payingAmount = ethers.utils.parseEther(totalPrice.toString());
 
@@ -125,9 +124,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 					if (receipt && receipt.status === 1) {
 						toast.success('Successfully Bought NFT');
 						history.replace({ ...history.location, state: null });
-						history.push({
-							pathname: '/collections',
-						});
+						setOpen(false);
 						setTxEtherScan(null);
 					} else {
 						toast.error('Transaction Failed');
@@ -142,18 +139,17 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 		setApproveInProgress(false);
 	};
 
-	
+
 	const handlePresaleMint = async (quantity, totalPrice) => {
-		debugger;
-
 		setApproveInProgress(true);
-		console.log(quantity, totalPrice);
-		console.log('start mint with EC');
 
+		console.log('presale', quantity, totalPrice);
+
+		const signature = '0x00'
 		const payingAmount = ethers.utils.parseEther(totalPrice.toString());
 
-		await saleContract
-			.mint(quantity, { value: payingAmount })
+		await chimeraContract
+			.mint(quantity, signature, { value: payingAmount })
 			.then((tx) => {
 				setApproveInProgress(false);
 				setTxInProgress(true);
@@ -164,9 +160,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 					if (receipt && receipt.status === 1) {
 						toast.success('Successfully Bought NFT');
 						history.replace({ ...history.location, state: null });
-						history.push({
-							pathname: '/collections',
-						});
+						setOpen(false);
 						setTxEtherScan(null);
 					} else {
 						toast.error('Transaction Failed');
@@ -184,13 +178,14 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 
 	const handleMainsaleMint = async (quantity, totalPrice) => {
 		setApproveInProgress(true);
-		console.log(quantity, totalPrice);
-		console.log('start mint with EC');
 
+		console.log('main', quantity, totalPrice);
+
+		const signature = '0x00'
 		const payingAmount = ethers.utils.parseEther(totalPrice.toString());
 
-		await saleContract
-			.mint(quantity, { value: payingAmount })
+		await chimeraContract
+			.mint(quantity, signature, { value: payingAmount })
 			.then((tx) => {
 				setApproveInProgress(false);
 				setTxInProgress(true);
@@ -201,9 +196,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 					if (receipt && receipt.status === 1) {
 						toast.success('Successfully Bought NFT');
 						history.replace({ ...history.location, state: null });
-						history.push({
-							pathname: '/collections',
-						});
+						setOpen(false);
 						setTxEtherScan(null);
 					} else {
 						toast.error('Transaction Failed');
@@ -219,6 +212,8 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 	};
 
 	const handleError = (e) => {
+		console.error(e)
+
 		if (e.error && e.error.message) {
 			toast.error(e.error.message);
 		} else if (e.message) {
