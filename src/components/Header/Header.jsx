@@ -398,7 +398,7 @@ const Header = () => {
 						{BUTTONS.map((btn, i) => {
 							if (btn === 'Toddlerpillars') {
 								return (
-									<a href={urlToddlerpillars} style={{ textDecoration: 'none' }}>
+									<a href={urlToddlerpillars} style={{ textDecoration: 'none' }} target="_blank">
 										<HeaderButton key={btn} text='← Toddlerpillars.com' vertical />
 									</a>
 								);
