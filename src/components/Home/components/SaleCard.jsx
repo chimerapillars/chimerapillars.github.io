@@ -340,7 +340,11 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
     //sale pending
     else if( !( contractConfig.isClaimActive || contractConfig.isPresaleActive || contractConfig.isMainsaleActive ) ){
       return (
-        <>Please Wait</>
+        <Card sx={sx.root}>
+          <Box display="flex" sx={{ justifyContent: "center", alignItems: "center" }}>
+            Minting is not live yet, check back soon...
+          </Box>
+        </Card>
       );
     }
 
