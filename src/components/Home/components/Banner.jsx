@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Box, Typography, useMediaQuery } from '@mui/material';
 import Slider from 'react-slick';
+import Countdown from 'react-countdown';
 import discord from '../../../assets/images/social/discord.svg';
 import Divider from '../../common/Divider';
 import navPrev from '../../../assets/images/slider-prev.svg';
@@ -33,6 +34,50 @@ const BP2 = '@media (max-width: 1480px) and (min-width:1199px)';
 
 const { colors } = config.PROJECT;
 
+const presaleStart = 1652698800 * 1000;
+
+const countdownRenderer = ({ days, hours, minutes, seconds, completed }) => {
+  if (completed) {
+    // Render a completed state
+    return null;
+  } else {
+    // Render a countdown
+    return (
+			<div
+				style={sx.countdownWrapper}
+			>
+				<div
+					style={sx.countdownComponent}
+				>
+					<span style={sx.countdownValue}>{days}</span>
+					<span>Days</span>
+				</div>
+
+				<div
+					style={sx.countdownComponent}
+				>
+					<span style={sx.countdownValue}>{hours}</span>
+					<span>Hrs</span>
+				</div>
+
+				<div
+					style={sx.countdownComponent}
+				>
+					<span style={sx.countdownValue}>{minutes}</span>
+					<span>Mins</span>
+				</div>
+
+				<div
+					style={sx.countdownComponent}
+				>
+					<span style={sx.countdownValue}>{seconds}</span>
+					<span>Secs</span>
+				</div>
+			</div>
+		)
+  }
+}
+
 const sx = {
 	root: {
 		width: '100%',
@@ -47,6 +92,23 @@ const sx = {
 		[BP2]: {
 			flexWrap: 'wrap',
 		},
+	},
+	countdownWrapper: {
+		display: 'flex',
+		alignItems: 'center',
+		margin: '1rem 0 2rem 0',
+	},
+	countdownComponent: {
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center',
+		margin: '0 5px',
+		padding: '10px 10px 5px 10px',
+		border: `1px solid ${colors.primary}`,
+		borderRadius: '4px',
+	},
+	countdownValue: {
+		fontSize: '1.75rem',
 	},
 	content: {
 		width: '100%',
@@ -316,6 +378,25 @@ const Banner = () => {
 								<br/>
 								<br/>
 								TP holders who submitted their wallets via discord before May 10 can mint 1 FREE Chimera during our presale or 2 FREE Chimeras if they hold 9+ TPs.
+								<br/>
+								<br/>
+								<strong>OUR 1 WEEK PRESALE BEGINS IN:</strong>
+
+								{presaleStart > Date.now() ? (
+									<Countdown
+										date={presaleStart}
+										onComplete={() => window.location.reload()}
+										renderer={countdownRenderer}
+									/>
+								) : null}
+
+								<strong>Chimerapillars Mint price: 0.03 ETH.
+								<br/>
+								<br/>
+								Only wallets holding Toddlerpillars can mint during Chimerapillar presale. <a style={{ textDecoration: 'none', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt a Toddlerpillar!</a>
+								<br/>
+								<br/>
+								Public sale starts May 23.</strong>
 							</Typography>
 
 							{/* @TEMP un-comment to show mint panel
