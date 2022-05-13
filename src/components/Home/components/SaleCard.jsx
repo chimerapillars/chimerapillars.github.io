@@ -232,7 +232,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
       maxMint:   parseInt( tmpConfig.maxMint.toString() ),
       maxOrder:  parseInt( tmpConfig.maxOrder.toString() ),
       maxSupply: parseInt( tmpConfig.maxSupply.toString() ),
-  
+
       isClaimActive:    tmpConfig.isClaimActive,
       isPresaleActive:  tmpConfig.isPresaleActive,
       isMainsaleActive: tmpConfig.isMainsaleActive
@@ -360,7 +360,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
             <Typography variant="heading1" sx={sx.title}>
               {PRESALE_HEADER}
             </Typography>
-  
+
             <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
               {/*project.id === 'toddlerpillars' ? (
                 <>
@@ -373,17 +373,17 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
                     : <Typography component="span" color="red">Presale will start soon.</Typography>}
                 </>
               ) : null */}
-  
+
               {project.id === 'chimerapillars' ? (
                 <>
                   Only wallets holding <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale. <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a> <strong>Mint multiples for upcoming merge & burn utility!</strong> Presale runs from May 16 - May 22. Public sale for non TP holders begins May 23.
                 </>
               ) : null}
             </Typography>
-  
+
             <Box sx={sx.roleContainer}>
               <Box component="span" sx={sx.mintRole} gutterBottom>
-                <Typography sx={sx.saleText}>{contractConfig.maxMint}</Typography>
+                <Typography sx={sx.saleText}>{contractConfig.maxSupply}</Typography>
                 <Typography sx={sx.saleSubText} gutterBottom>
                   {project.name}
                 </Typography>
@@ -404,7 +404,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
                 </Typography>
               </Box>
             </Box>
-  
+
             {ownerConfig.toddlers ? (
               <Grid container spacing={3} sx={sx.btnsContainer}>
                 <Grid item xs="auto">
@@ -446,7 +446,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
         </Card>
       );
     }
-  
+
     if( contractConfig.isMainsaleActive ){
       cards.push(
         <Card key="isMainsaleActive" sx={sx.root}>
@@ -454,24 +454,24 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
             <Typography variant="heading1" sx={sx.title}>
               {SALE_HEADER}
             </Typography>
-  
+
             <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
               {project.id === 'toddlerpillars' ? (
                 <>
                   {`Connect your wallet and you will be able to mint ${project.name}.`}
                 </>
               ) : null}
-  
+
               {project.id === 'chimerapillars' ? (
                 <>
                   Mint multiple Chimerapillars for our upcoming merge and burn utility. Holders will select their favourite traits from 2 NFTs and merge them into 1 while reducing the supply with a burn mechanism.
                 </>
               ) : null}
             </Typography>
-  
+
             <Box sx={sx.roleContainer}>
               <Box component="span" sx={sx.mintRole} gutterBottom>
-                <Typography sx={sx.saleText}>{contractConfig.maxOrder}</Typography>
+                <Typography sx={sx.saleText}>{contractConfig.maxSupply}</Typography>
                 <Typography sx={sx.saleSubText} gutterBottom>
                   {project.name}
                 </Typography>
@@ -492,7 +492,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
                 </Typography>
               </Box>
             </Box>
-  
+
             <Grid container spacing={3} sx={sx.btnsContainer}>
               <Grid item xs="auto">
                 <Button
@@ -504,6 +504,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
                   Mint NFT
                 </Button>
               </Grid>
+
               <Grid item xs="auto">
                 {!address && (
                   <Button
