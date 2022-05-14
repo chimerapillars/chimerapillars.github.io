@@ -352,7 +352,23 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
     const cards = [];
     if( contractConfig.isClaimActive ){
       cards.push(
-        <div key="isClaimActive">Claim Here</div>
+        <Card key="isClaimActive" sx={{
+          ...sx.root,
+          minHeight: 0,
+          padding: '1em',
+        }}>
+          <Box display="flex" sx={{ justifyContent: "center", alignItems: "center" }}>
+            <span>
+              <Typography variant="heading3">
+                <strong>Free claims are live!</strong>
+              </Typography>
+
+              <Typography>
+                Click "Mint NFT" below then select your Free Claim quantity.
+              </Typography>
+            </span>
+          </Box>
+        </Card>
       );
     }
 
@@ -449,9 +465,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
           </CardContent>
         </Card>
       );
-    }
-
-    if( contractConfig.isMainsaleActive ){
+    } else if( contractConfig.isMainsaleActive ){
       cards.push(
         <Card key="isMainsaleActive" sx={sx.root}>
           <CardContent sx={sx.cardContent}>

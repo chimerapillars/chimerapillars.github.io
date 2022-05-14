@@ -19,6 +19,7 @@ const { colors } = config.PROJECT;
 const sx = {
 	root: {
 		height: '100%',
+		overflow: 'auto',
 		backgroundColor: colors.background,
 		py: '44px',
 		px: '125px',
@@ -76,6 +77,21 @@ const sx = {
 		bottom: 0,
 		backgroundColor: 'rgba(0,0,0,0.8)',
 	},
+	noFreeClaims: {
+		display: "flex",
+		flexDirection: "column",
+		maxWidth: "458px",
+		width: "100%",
+		margin: "auto",
+		mb: 3,
+		padding: '0 2em 1.5em 2em',
+		backgroundColor: colors.background,
+		display: "flex",
+		justifyContent: "center",
+		border: `1px solid ${colors.highlight}`,
+		borderRadius: 2,
+		marginTop: 4,
+	},
 };
 
 const Checkout = ({ isOpen, setOpen, configs }) => {
@@ -109,17 +125,17 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 		canMintPresale = 4 - configs.ownerConfig.purchased;
 	}
 
+	// Get signature for mint.
 	const getSignature = async (quantity) => {
 		let sig = '0x00'
 
-		if (isClaimActive) {
-			const resp = await fetch(`https://node.herodevelopment.com/signature?account=${account}&contract=${chimeraContract.address}&quantity=${quantity}`)
+		const resp = await fetch(`https://node.herodevelopment.com/signature?account=${account}&contract=${chimeraContract.address}&quantity=${quantity}`)
 
-			if (resp) {
-				const json = await resp.json()
-				if (json?.signature) {
-					sig = json.signature
-				}
+		if (resp) {
+			const json = await resp.json()
+
+			if (json?.signature) {
+				sig = json.signature
 			}
 		}
 
@@ -265,12 +281,25 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 								Please select the number of NFTs you want to mint.
 							</Typography>
 							{isClaimActive && (
-								<MintQuantity
-									title='Free Claims'
-									price="0"
-									maxAmount={canClaim}
-									onClickMint={handleClaim}
-								/>
+								<>
+									{canClaim ? (
+										<MintQuantity
+											title='Free Claims'
+											price="0"
+											maxAmount={canClaim}
+											onClickMint={handleClaim}
+										/>
+									) : (
+										<Box sx={sx.noFreeClaims}>
+											<Typography variant='heading2' sx={sx.title}>
+												Free Claims
+											</Typography>
+											<Typography>
+												{`Sorry, your wallet is not eligible for Free Claims, but you can still mint for ${ethPrice} below.`}
+											</Typography>
+										</Box>
+									)}
+								</>
 							)}
 							{isPresaleActive ? (
 								<MintQuantity
@@ -282,7 +311,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 							):
 							(isMainsaleActive && (
 								<MintQuantity
-									title='Main Sale Mint'
+									title='Public Sale Mint'
 									price={ethPrice}
 									// maxAmount={saleMaxToken}
 									maxAmount={8} // hardcoded limit 10

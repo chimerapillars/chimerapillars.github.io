@@ -106,6 +106,7 @@ const sx = {
 		padding: '10px 10px 5px 10px',
 		border: `1px solid ${colors.primary}`,
 		borderRadius: '4px',
+		minWidth: '58px',
 	},
 	countdownValue: {
 		fontSize: '1.75rem',
@@ -397,12 +398,12 @@ const Banner = () => {
 								Public sale starts May 23.</strong>
 							</Typography>
 
-							{/* @TEMP un-comment to show mint panel*/
+							{/* @TEMP un-comment to show mint panel */}
 							<SaleCard
 								setConfigs={setConfigs}
 								setCheckoutVisible={setCheckoutVisible}
 								setMainSaleStarted={setMainSaleStarted}
-							/>}
+							/>
 						</Box>
 
 						{/* @TEMP un-comment to show OS link
