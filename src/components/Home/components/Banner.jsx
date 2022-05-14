@@ -389,13 +389,15 @@ const Banner = () => {
 									/>
 								) : null}
 
-								<strong>Chimerapillars Mint price: 0.03 ETH.
-								<br/>
-								<br/>
-								Only wallets holding Toddlerpillars can mint during Chimerapillar presale. <a style={{ textDecoration: 'none', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt a Toddlerpillar!</a>
-								<br/>
-								<br/>
-								Public sale starts May 23.</strong>
+								<p>Chimerapillars Mint price: <strong>0.03 ETH</strong>.</p>
+								<p>
+									<strong>Presale</strong> runs from <strong>May 16 - May 22</strong>.
+									<br /><strong>Public sale</strong> for non-TP holders begins <strong>May 23</strong>.
+								</p>
+								<p>
+									Only wallets holding <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale. <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a>
+									<br /><strong>Mint multiples for upcoming merge &amp; burn utility!</strong>
+								</p>
 							</Typography>
 
 							{/* @TEMP un-comment to show mint panel */}

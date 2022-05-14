@@ -21,8 +21,6 @@ import {
 
 import useInterval from "../../../hooks/useInterval";
 
-import { sigs } from "../../../sig";
-
 const BP1 = "@media (max-width: 1079px)";
 const BP2 = "@media (max-width: 1480px) and (min-width:1199px)";
 
@@ -223,6 +221,16 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
     }
   }, checkInterval);
 
+  const hasSignature = async (quantity) => {
+    try{
+      const resp = await fetch(`https://node.herodevelopment.com/signature?account=${address}&contract=${chimeraContract.address}&quantity=${quantity}`)
+      return resp.ok;
+		}
+    catch( err ){
+      return false;
+    }
+	}
+
   const init = async () => {
     const tmpConfig = await chimeraContract.CONFIG();
     const config = {
@@ -249,6 +257,8 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
         toddlers: parseInt(toddlers.toString())
       };
 
+      owner.hasPresale = await hasSignature( 1 );
+
       setOwnerConfig( owner );
       setConfigs({
         contractConfig: config,
@@ -264,10 +274,6 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
 
     setMainSaleStarted( config.isMainsaleActive );
     setContractConfig( config );
-  };
-
-  const gotoRoadmap = () => {
-    history.push("/roadmap#earlyMidSection");
   };
 
   const handleMintClicked = () => {
@@ -363,42 +369,48 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
                 <strong>Free claims are live!</strong>
               </Typography>
 
-              <Typography>
-                Click "Mint NFT" below then select your Free Claim quantity.
-              </Typography>
+              {ownerConfig.toddlers ? (
+                (address ? (
+                  <Grid item xs="auto">
+                    <Button
+                      variant="contained"
+                      sx={sx.mintBtn}
+                      onClick={handleMintClicked}
+                      disabled={disableMintBtn}
+                    >
+                      Claim NFT
+                    </Button>
+                  </Grid>
+                ) : (
+                  <Grid item xs="auto">
+                    <Button
+                      variant="outlined"
+                      sx={sx.connectBtn}
+                      onClick={handleConnect}
+                    >
+                      Connect Wallet
+                    </Button>
+                  </Grid>
+                ))
+              ):(
+                <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
+                  Only wallets holding <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale.
+                </Typography>
+              )}
+
             </span>
           </Box>
         </Card>
       );
     }
 
-    //TODO: need signatures
+
     if( contractConfig.isPresaleActive ){
       cards.push(
         <Card key="isPresaleActive" sx={sx.root}>
           <CardContent sx={sx.cardContent}>
             <Typography variant="heading1" sx={sx.title}>
               {PRESALE_HEADER}
-            </Typography>
-
-            <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
-              {/*project.id === 'toddlerpillars' ? (
-                <>
-                  Connect your wallet and if you are part of the whitelist you will be
-                  able to mint {`${project.name}`}. You can check the full set of
-                  conditions on our <TextLink onClick={gotoRoadmap}>Roadmap</TextLink>{" "}
-                  page.{" "}
-                  {communityActive
-                    ? "Presale is currently open for:"
-                    : <Typography component="span" color="red">Presale will start soon.</Typography>}
-                </>
-              ) : null */}
-
-              {project.id === 'chimerapillars' ? (
-                <>
-                  Only wallets holding <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale. <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a> <strong>Mint multiples for upcoming merge & burn utility!</strong> Presale runs from May 16 - May 22. Public sale for non TP holders begins May 23.
-                </>
-              ) : null}
             </Typography>
 
             <Box sx={sx.roleContainer}>
@@ -425,41 +437,42 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
               </Box>
             </Box>
 
-            {ownerConfig.toddlers ? (
-              <Grid container spacing={3} sx={sx.btnsContainer}>
-                <Grid item xs="auto">
-                  <Button
-                    variant="contained"
-                    sx={sx.mintBtn}
-                    onClick={handleMintClicked}
-                    disabled={disableMintBtn}
-                  >
-                    Mint NFT
-                  </Button>
-                </Grid>
-                <Grid item xs="auto">
-                  {!address && (
+            {ownerConfig.hasPresale ? (
+              (ownerConfig.purchased >= 4 ? (
+                <Typography sx={sx.errorText}>
+                  Sorry, your wallet address doesn’t have permission to mint more
+                  tokens in presale, but don’t worry, the public sale will start
+                  soon.
+                </Typography>
+              ):(
+                <Grid container spacing={3} sx={sx.btnsContainer}>
+                  <Grid item xs="auto">
                     <Button
-                      variant="outlined"
-                      sx={sx.connectBtn}
-                      onClick={handleConnect}
+                      variant="contained"
+                      sx={sx.mintBtn}
+                      onClick={handleMintClicked}
+                      disabled={disableMintBtn}
                     >
-                      Connect Wallet
+                      Mint NFT
                     </Button>
-                  )}
+                  </Grid>
+                  <Grid item xs="auto">
+                    {!address && (
+                      <Button
+                        variant="outlined"
+                        sx={sx.connectBtn}
+                        onClick={handleConnect}
+                      >
+                        Connect Wallet
+                      </Button>
+                    )}
+                  </Grid>
                 </Grid>
-              </Grid>
+              ))
             ):(
               <Typography sx={sx.errorText}>
                 Sorry, your wallet address doesn’t have permission to mint yet,
                 but don’t worry the public sale will start soon.
-              </Typography>
-            )}
-            {ownerConfig.purchased >= 4 && (
-              <Typography sx={sx.errorText}>
-                Sorry, your wallet address doesn’t have permission to mint more
-                tokens in presale, but don’t worry, the public sale will start
-                soon.
               </Typography>
             )}
           </CardContent>

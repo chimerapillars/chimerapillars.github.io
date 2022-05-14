@@ -98,9 +98,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 	const [approveInProgress, setApproveInProgress] = useState(false);
 	const [txInProgress, setTxInProgress] = useState(false);
 	const [txEtherScan, setTxEtherScan] = useState(null);
-	const {
-        address: account,
-    } = useContext( Web3Ctx )
+	const { address } = useContext( Web3Ctx )
 
 	const history = useHistory();
 	const chimeraContract = useChimeraContract();
@@ -129,7 +127,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 	const getSignature = async (quantity) => {
 		let sig = '0x00'
 
-		const resp = await fetch(`https://node.herodevelopment.com/signature?account=${account}&contract=${chimeraContract.address}&quantity=${quantity}`)
+		const resp = await fetch(`https://node.herodevelopment.com/signature?account=${address}&contract=${chimeraContract.address}&quantity=${quantity}`)
 
 		if (resp) {
 			const json = await resp.json()
