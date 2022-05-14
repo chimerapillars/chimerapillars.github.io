@@ -245,7 +245,7 @@ const Banner = () => {
 	const [selectedSlide, setSelectedSlide] = useState(2);
 	const [explorerVisible, setExplorerVisible] = useState(false);
 	const [checkoutVisible, setCheckoutVisible] = useState(false);
-	const [mintInfo, setMintInfo] = useState({
+	const [configs, setConfigs] = useState({
 		role: null,
 		canMintEc: false,
 		canMintSale: false,
@@ -304,7 +304,7 @@ const Banner = () => {
 
 							<Typography variant='text' sx={{ ...sx.text1, mb: 2 }}>{HEADER3_TEXT}</Typography>
 
-							{/* {!mainSaleStarted
+							{/* {!configs.contractConfig.isMainsaleActive
 								&& (
 									<Typography variant='text' sx={{ ...sx.text2, my: '16px' }}>
 										{bold('Public Sale starts 12pm EST on Nov 19th.')}
@@ -322,10 +322,8 @@ const Banner = () => {
 							All Toddlerpillar parents will get a FREE Chimerapillars mint and a discount on additional mints during the Chimerapillar presale!<br /><br />
 							<a style={{ textDecoration: 'none', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt a Toddlerpillar</a> today to secure your place!</Typography>
 							{/* <SaleCard
-								mintOnClick={(mintInfo) => {
-									setCheckoutVisible(true);
-									setMintInfo(mintInfo);
-								}}
+								setConfigs={setConfigs}
+								setCheckoutVisible={setCheckoutVisible}
 								setMainSaleStarted={setMainSaleStarted}
 							/> */}
 						</Box>
@@ -399,14 +397,12 @@ const Banner = () => {
 								Public sale starts May 23.</strong>
 							</Typography>
 
-							{/* @TEMP un-comment to show mint panel
+							{/* @TEMP un-comment to show mint panel*/
 							<SaleCard
-								mintOnClick={(mintInfo) => {
-									setCheckoutVisible(true);
-									setMintInfo(mintInfo);
-								}}
+								setConfigs={setConfigs}
+								setCheckoutVisible={setCheckoutVisible}
 								setMainSaleStarted={setMainSaleStarted}
-							/>*/}
+							/>}
 						</Box>
 
 						{/* @TEMP un-comment to show OS link
@@ -443,7 +439,7 @@ const Banner = () => {
 					</>
 				) : null}
 			</Box>
-			<Checkout isOpen={checkoutVisible} setOpen={setCheckoutVisible} mintInfo={mintInfo} />
+			<Checkout isOpen={checkoutVisible} setOpen={setCheckoutVisible} configs={configs} />
 			<Explorer isOpen={explorerVisible} setOpen={setExplorerVisible} images={IMAGES} initialSlide={selectedSlide} />
 		</Box>
 	);

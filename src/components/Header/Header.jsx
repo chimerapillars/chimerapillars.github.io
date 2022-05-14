@@ -398,45 +398,43 @@ const Header = () => {
 						{BUTTONS.map((btn, i) => {
 							if (btn === 'Toddlerpillars') {
 								return (
-									<a href={urlToddlerpillars} style={{ textDecoration: 'none' }} target="_blank">
+									<a key={btn} href={urlToddlerpillars} style={{ textDecoration: 'none' }} target="_blank">
 										<HeaderButton key={btn} text='← Toddlerpillars.com' vertical />
 									</a>
 								);
 							}
 							if (btn === 'About' && DROPMENU.length) {
 								return (
-									<>
-										<Box onMouseLeave={() => setOpenAbout(false)}>
-											<HeaderButton key={btn} text='About' active={activeTab === i} onMouseOver={() => setOpenAbout(true)} vertical onClick={openMenu} />
-											{openAbout && (
-												<MenuList
-													sx={sx.menuList}
-													open={openAbout}
-												>
-													{DROPMENU.map((btna, k) => (<HeaderButton key={btna} active={activeTabAbout === k} onClick={() => handleNavigationAbout(k)} text={btna} vertical />))}
-												</MenuList>
-											)}
-										</Box>
-									</>
+									<Box key={btn} onMouseLeave={() => setOpenAbout(false)}>
+										<HeaderButton key={btn} text='About' active={activeTab === i} onMouseOver={() => setOpenAbout(true)} vertical onClick={openMenu} />
+										{openAbout && (
+											<MenuList
+												sx={sx.menuList}
+												open={openAbout}
+											>
+												{DROPMENU.map((btna, k) => (<HeaderButton key={btna} active={activeTabAbout === k} onClick={() => handleNavigationAbout(k)} text={btna} vertical />))}
+											</MenuList>
+										)}
+									</Box>
 								);
 							}
 							if (btn === 'Rarity') {
 								return (
-									<a href={urlRarity} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
+									<a key={btn} href={urlRarity} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
 										<HeaderButton key={btn} text='Rarity' vertical />
 									</a>
 								);
 							}
 							if (btn === 'OpenSea') {
 								return (
-									<a href={urlOpensea} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
+									<a key={btn} href={urlOpensea} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
 										<HeaderButton key={btn} text='OpenSea' vertical />
 									</a>
 								);
 							}
 							if (btn == 'Merch'){
 								return (
-									<a href={urlMaddies} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
+									<a key={btn} href={urlMaddies} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
 										<HeaderButton key={btn} text='Merch' vertical />
 									</a>
 								);
@@ -488,7 +486,7 @@ const Header = () => {
 							{MOBILEBUTTONS.map((btn, i) => {
 								if (btn === 'Toddlerpillars') {
 									return (
-										<a href={urlToddlerpillars} style={{ textDecoration: 'none' }}>
+										<a key={btn} href={urlToddlerpillars} style={{ textDecoration: 'none' }}>
 											<HeaderButton key={btn} text='← Toddlerpillars.com' vertical />
 										</a>
 									);
@@ -510,21 +508,21 @@ const Header = () => {
 								}
 								if (btn === 'Rarity') {
 									return (
-										<a href={urlRarity} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
+										<a key={btn} href={urlRarity} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
 											<HeaderButton key={btn} text='Rarity' vertical />
 										</a>
 									);
 								}
 								if (btn === 'OpenSea') {
 									return (
-										<a href={urlOpensea} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
+										<a key={btn} href={urlOpensea} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
 											<HeaderButton key={btn} text='OpenSea' vertical />
 										</a>
 									);
 								}
 								if (btn == 'Merch'){
 									return (
-										<a href={urlMaddies} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
+										<a key={btn} href={urlMaddies} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
 											<HeaderButton key={btn} text='Merch' vertical />
 										</a>
 									);

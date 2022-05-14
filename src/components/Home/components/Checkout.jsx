@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { toast } from 'react-toast';
 import { Box, Modal, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
 import { SpinnerRoundOutlined as Spinner } from 'spinners-react';
-import { useSaleContract } from '../../../hooks/useContract';
+import Web3Ctx from "../../../components/Context/Web3Ctx";
+import { useChimeraContract, useSaleContract } from '../../../hooks/useContract';
 import Divider from '../../common/Divider';
 import MintQuantity from './MintQuantity';
 import config from '../../../config';
@@ -77,41 +78,63 @@ const sx = {
 	},
 };
 
-const titles = ['Omnipillars', 'Toddlerpillars', 'Early Supporter'];
-const mintMax = [8, 6, 2];
-
-const Checkout = ({ isOpen, setOpen, mintInfo }) => {
-	const {
-		canMintSale, // Main Sale
-		saleMaxToken,
-		canMintEc, // Presale
-		ecMaxToken,
-		ecUserMinted,
-		role, // Community Sale
-		userMinted, // Community Minted
-		price,
-	} = mintInfo;
-
-	const title = role ? titles[role[1]] : '';
-	const maxAmount = role ? mintMax[role[1]] - userMinted : 0;
-	const maxEcAmount = ecMaxToken - ecUserMinted;
-
+const Checkout = ({ isOpen, setOpen, configs }) => {
 	const [approveInProgress, setApproveInProgress] = useState(false);
 	const [txInProgress, setTxInProgress] = useState(false);
 	const [txEtherScan, setTxEtherScan] = useState(null);
+	const {
+        address: account,
+    } = useContext( Web3Ctx )
 
 	const history = useHistory();
-	const saleContract = useSaleContract();
+	const chimeraContract = useChimeraContract();
 
-	const onClickMint = async (quantity, totalPrice) => {
+	const ethPrice = parseFloat( configs?.contractConfig?.ethPrice || '0.03' );
+	const isClaimActive = configs?.contractConfig?.isClaimActive || false;
+	const isPresaleActive = configs?.contractConfig?.isPresaleActive || false;
+	const isMainsaleActive = configs?.contractConfig?.isMainsaleActive || false;
+
+	let canClaim = 0;
+	if( configs?.ownerConfig?.toddlers > 0 ){
+		++canClaim;
+
+		if( configs.ownerConfig.toddlers > 8 )
+			++canClaim;
+
+		canClaim -= configs.ownerConfig.claimed;
+	}
+
+	let canMintPresale = 0;
+	if( configs?.ownerConfig?.toddlers > 0 ){
+		canMintPresale = 4 - configs.ownerConfig.purchased;
+	}
+
+	const getSignature = async (quantity) => {
+		let sig = '0x00'
+
+		if (isClaimActive) {
+			const resp = await fetch(`https://node.herodevelopment.com/signature?account=${account}&contract=${chimeraContract.address}&quantity=${quantity}`)
+
+			if (resp) {
+				const json = await resp.json()
+				if (json?.signature) {
+					sig = json.signature
+				}
+			}
+		}
+
+		return sig
+	}
+
+	const handleClaim = async (quantity, totalPrice) => {
 		setApproveInProgress(true);
-		// console.log(quantity, totalPrice, role);
-		console.log('start mint');
+
+		console.log('claim', quantity, totalPrice);
 
 		const payingAmount = ethers.utils.parseEther(totalPrice.toString());
 
-		await saleContract
-			.communityPurchase(quantity, role[0], role[1], { value: payingAmount })
+		await chimeraContract
+			.claim(quantity, { value: payingAmount })
 			.then((tx) => {
 				setApproveInProgress(false);
 				setTxInProgress(true);
@@ -122,9 +145,7 @@ const Checkout = ({ isOpen, setOpen, mintInfo }) => {
 					if (receipt && receipt.status === 1) {
 						toast.success('Successfully Bought NFT');
 						history.replace({ ...history.location, state: null });
-						history.push({
-							pathname: '/collections',
-						});
+						setOpen(false);
 						setTxEtherScan(null);
 					} else {
 						toast.error('Transaction Failed');
@@ -139,15 +160,17 @@ const Checkout = ({ isOpen, setOpen, mintInfo }) => {
 		setApproveInProgress(false);
 	};
 
-	const onClickMintWithEC = async (quantity, totalPrice) => {
-		setApproveInProgress(true);
-		console.log(quantity, totalPrice);
-		console.log('start mint with EC');
 
+	const handlePresaleMint = async (quantity, totalPrice) => {
+		setApproveInProgress(true);
+
+		console.log('presale', quantity, totalPrice);
+
+		const signature = await getSignature(quantity);
 		const payingAmount = ethers.utils.parseEther(totalPrice.toString());
 
-		await saleContract
-			.mintDiscountPresaleWithEtherCards(quantity, { value: payingAmount })
+		await chimeraContract
+			.mint(quantity, signature, { value: payingAmount })
 			.then((tx) => {
 				setApproveInProgress(false);
 				setTxInProgress(true);
@@ -158,9 +181,7 @@ const Checkout = ({ isOpen, setOpen, mintInfo }) => {
 					if (receipt && receipt.status === 1) {
 						toast.success('Successfully Bought NFT');
 						history.replace({ ...history.location, state: null });
-						history.push({
-							pathname: '/collections',
-						});
+						setOpen(false);
 						setTxEtherScan(null);
 					} else {
 						toast.error('Transaction Failed');
@@ -175,15 +196,17 @@ const Checkout = ({ isOpen, setOpen, mintInfo }) => {
 		setApproveInProgress(false);
 	};
 
-	const onClickMintSale = async (quantity, totalPrice) => {
-		setApproveInProgress(true);
-		console.log(quantity, totalPrice);
-		console.log('start mint with EC');
 
+	const handleMainsaleMint = async (quantity, totalPrice) => {
+		setApproveInProgress(true);
+
+		console.log('main', quantity, totalPrice);
+
+		const signature = await getSignature(quantity);
 		const payingAmount = ethers.utils.parseEther(totalPrice.toString());
 
-		await saleContract
-			.mint(quantity, { value: payingAmount })
+		await chimeraContract
+			.mint(quantity, signature, { value: payingAmount })
 			.then((tx) => {
 				setApproveInProgress(false);
 				setTxInProgress(true);
@@ -194,9 +217,7 @@ const Checkout = ({ isOpen, setOpen, mintInfo }) => {
 					if (receipt && receipt.status === 1) {
 						toast.success('Successfully Bought NFT');
 						history.replace({ ...history.location, state: null });
-						history.push({
-							pathname: '/collections',
-						});
+						setOpen(false);
 						setTxEtherScan(null);
 					} else {
 						toast.error('Transaction Failed');
@@ -212,6 +233,8 @@ const Checkout = ({ isOpen, setOpen, mintInfo }) => {
 	};
 
 	const handleError = (e) => {
+		console.error(e)
+
 		if (e.error && e.error.message) {
 			toast.error(e.error.message);
 		} else if (e.message) {
@@ -241,31 +264,31 @@ const Checkout = ({ isOpen, setOpen, mintInfo }) => {
 							<Typography variant='text' sx={{ my: 4 }}>
 								Please select the number of NFTs you want to mint.
 							</Typography>
-							{role && (
+							{isClaimActive && (
 								<MintQuantity
-									title={`${title} Mint`}
-									price={price}
-									maxAmount={maxAmount}
-									onClickMint={onClickMint}
+									title='Free Claims'
+									price="0"
+									maxAmount={canClaim}
+									onClickMint={handleClaim}
 								/>
 							)}
-							{canMintEc && (
+							{isPresaleActive ? (
 								<MintQuantity
-									title='Ether Cards Mint'
-									price={price}
-									maxAmount={maxEcAmount}
-									onClickMint={onClickMintWithEC}
+									title='Presale Mint'
+									price={ethPrice}
+									maxAmount={canMintPresale}
+									onClickMint={handlePresaleMint}
 								/>
-							)}
-							{canMintSale && (
+							):
+							(isMainsaleActive && (
 								<MintQuantity
 									title='Main Sale Mint'
-									price={price}
+									price={ethPrice}
 									// maxAmount={saleMaxToken}
-									maxAmount={10} // hardcoded limit 10
-									onClickMint={onClickMintSale}
+									maxAmount={8} // hardcoded limit 10
+									onClickMint={handleMainsaleMint}
 								/>
-							)}
+							))}
 						</>
 					) : (
 						<>
@@ -317,7 +340,7 @@ const Checkout = ({ isOpen, setOpen, mintInfo }) => {
 
 /* eslint-disable react/forbid-prop-types */
 Checkout.propTypes = {
-	mintInfo: PropTypes.object.isRequired,
+	configs: PropTypes.object.isRequired,
 	isOpen: PropTypes.bool.isRequired,
 	setOpen: PropTypes.any.isRequired,
 };

@@ -33,3 +33,8 @@ export const TODDLER_SALE_ADDRESSES = {
 
     [SupportedChainId.RINKEBY]: "0xaF598c8aE1F168B4ac463b277137487919072686",
 }
+
+export const CHIMERA_CONTRACT = {
+    //[SupportedChainId.MAINNET]: "0xd6f817fa3823038d9a95b94cb7ad5468a19727fe",
+    [SupportedChainId.RINKEBY]: "0xA0AF34DB9aCB7d41E7B00F679DfFC3B6Df66f671",
+}

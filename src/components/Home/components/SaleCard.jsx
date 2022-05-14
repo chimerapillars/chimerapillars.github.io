@@ -11,14 +11,12 @@ import {
   Grid,
 } from "@mui/material";
 import { SpinnerDotted } from "spinners-react";
-import { useHistory } from "react-router-dom";
 import ethIcon from "../../../assets/images/eth.svg";
 import config from '../../../config';
 
 import {
-  useSaleContract,
-  useCommunityContract,
-  useEcContract,
+  useChimeraContract,
+  useSaleContract
 } from "../../../hooks/useContract";
 
 import useInterval from "../../../hooks/useInterval";
@@ -27,7 +25,6 @@ import { sigs } from "../../../sig";
 
 const BP1 = "@media (max-width: 1079px)";
 const BP2 = "@media (max-width: 1480px) and (min-width:1199px)";
-const BP4 = "@media (min-width: 999px)";
 
 const project = config.PROJECT;
 const { colors } = project;
@@ -167,12 +164,6 @@ const SALE_HEADER = `${project.name} Public Sale`;
 
 const SALE_ENDED_HEADER = `${project.name} Sale Ended`;
 
-const COMMUNITY_MINT_LIMIT = [8, 6, 2];
-
-const EC_MINT_LIMIT = 6;
-
-const CHECK_INTERVAL = 20000;
-
 const TextLink = ({ onClick, children }) => {
   return (
     <Typography
@@ -186,512 +177,365 @@ const TextLink = ({ onClick, children }) => {
   );
 };
 
-const SaleCard = ({ mintOnClick, setMainSaleStarted }) => {
+const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
   const { handleConnect, address, isCorrectNetwork } = useContext(Web3Ctx);
+  const chimeraContract = useChimeraContract();
+  const toddlerContract = useSaleContract();
 
-  const [checkInterval, setCheckInterval] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [role, setRole] = useState(null);
-  const [userMinted, setUserMinted] = useState(0);
-  const [maxToken, setMaxToken] = useState(0);
-  const [ecMaxToken, setEcMaxToken] = useState(0);
-  const [saleMaxToken, setSaleMaxToken] = useState(0);
-  const [ecUserMinted, setEcUserMinted] = useState(0);
-  const [sold, setSold] = useState(0);
+  //10 seconds
+  const [checkInterval, setCheckInterval] = useState(10_000);
+  const [isLoading, setLoading] = useState(true);
+  const [contractConfig, setContractConfig] = useState({
+    ethPrice: "30000000000000000",
 
-  const [earlyActive, setEarlyActive] = useState(false);
-  const [omniActive, setOmniActive] = useState(false);
-  const [toddlerActive, setToddlerActive] = useState(false);
+    maxMint:      4,
+    maxOrder:     4,
+    maxSupply: 8888,
 
-  const [presaleActive, setPresaleActive] = useState(false);
-  const [presaleStarted, setPresaleStarted] = useState(false);
-  const [presaleEnded, setPresaleEnded] = useState(false);
-  const [saleActive, setSaleActive] = useState(false);
-  const [saleEnded, setSaleEnded] = useState(false);
+    isClaimActive:    false,
+    isPresaleActive:  false,
+    isMainsaleActive: false
+  });
 
-  const [price, setPrice] = useState(0);
+  const [ownerConfig, setOwnerConfig] = useState({
+    balance: 0,
+    claimed: 0,
+    purchased: 0,
+  });
 
-  const [canMint, setCanMint] = useState(null);
-  const [canMintEc, setCanMintEc] = useState(null);
-
-  const [showErrorText, setShowErrorText] = useState(false);
-
-  const [limitReached, setLimitReached] = useState(false);
-
-  const history = useHistory();
-  const ecContract = useEcContract();
-  const saleContract = useSaleContract();
-  const communityContract = useCommunityContract();
 
   useEffect(() => {
-    init();
+    if( isLoading ){
+      init();
+      setLoading( false );
+    }
   }, []);
+
 
   useInterval(() => {
     console.log("refreshing");
-    if (saleEnded) {
+    if( config.isClaimActive || config.isPresaleActive || config.isMainsaleActive ){
+      init();
+    }
+    else{
       console.log("end interval");
       setCheckInterval(null);
-    } else {
-      getTotalSupply()
-      checkActive();
-      checkAllInfo(address);
     }
   }, checkInterval);
 
-  useEffect(() => {
-    if (address) {
-      const key = Object.keys(sigs).find(
-        (key) => key.toLowerCase() == address.toLowerCase()
-      );
-      // console.log(key);
-      setRole(sigs[key]);
-    } else setRole(null);
+  const init = async () => {
+    const tmpConfig = await chimeraContract.CONFIG();
+    const config = {
+      weiPrice: tmpConfig.ethPrice.toString(),
+      ethPrice: ethers.utils.formatEther( tmpConfig.ethPrice.toString() ),
 
-    checkAllInfo(address);
-  }, [address]);
+      maxMint:   parseInt( tmpConfig.maxMint.toString() ),
+      maxOrder:  parseInt( tmpConfig.maxOrder.toString() ),
+      maxSupply: parseInt( tmpConfig.maxSupply.toString() ),
 
-  useEffect(() => {
-    // console.log("canMint", canMint);
-    // console.log("canMintEc", canMintEc);
-    // When prepresale started and presale started
-    if (canMint != null && canMintEc != null && address) {
-      const communityFinish =
-        canMint && userMinted >= COMMUNITY_MINT_LIMIT[role[1]];
-      const ecFinish = canMintEc && ecUserMinted >= EC_MINT_LIMIT;
-      if (communityFinish && ecFinish) {
-        setLimitReached(true);
-        setShowErrorText(false);
-      } else {
-        setShowErrorText(!(canMint || canMintEc));
-        setLimitReached(false);
-      }
-    }
-    // When prepresale started and b4 presale starts
-    else if (canMint != null && canMintEc == null && address) {
-      setShowErrorText(!(canMint || canMintEc));
-    } else {
-      // prepresale not started, set false
-      setShowErrorText(false);
-      setLimitReached(false);
-    }
-  }, [address, canMint, canMintEc, userMinted, ecUserMinted]);
+      isClaimActive:    tmpConfig.isClaimActive,
+      isPresaleActive:  tmpConfig.isPresaleActive,
+      isMainsaleActive: tmpConfig.isMainsaleActive
+    };
+    config.totalSupply = parseInt((await chimeraContract.totalSupply()).toString());
 
-  // OMNIPILLAR    = 0;
-  // TODDLERPILLAR = 1;
-  // Early access   = 2;
-  useEffect(() => {
-    if (!(omniActive || toddlerActive || earlyActive)) {
-      setCanMint(null);
-    } else if (role) {
-      const userRole = role[1];
-      if (userRole == 0 && omniActive) {
-        setCanMint(true);
-      } else if (userRole == 1 && toddlerActive) {
-        setCanMint(true);
-      } else if (userRole == 2 && earlyActive) {
-        setCanMint(true);
-      } else {
-        setCanMint(false);
-      }
-    } else {
-      setCanMint(false);
-    }
-  }, [role, earlyActive, omniActive, toddlerActive, userMinted]);
+    if( address ){
+      const tmpOwner = await chimeraContract.owners( address );
+      const toddlers = await toddlerContract.balanceOf( address );
+      const owner = {
+        balance:   parseInt(tmpOwner.balance.toString()),
+        claimed:   parseInt(tmpOwner.claimed.toString()),
+        purchased: parseInt(tmpOwner.purchased.toString()),
+        toddlers: parseInt(toddlers.toString())
+      };
 
-  useEffect(() => {
-    if (presaleActive && address) {
-      ecContract.balanceOf(address).then((length) => {
-        console.log(Number(length));
-        if (length > 0) {
-          setCanMintEc(true);
-        } else {
-          setCanMintEc(false);
-        }
+      setOwnerConfig( owner );
+      setConfigs({
+        contractConfig: config,
+        ownerConfig: owner
       });
     }
-  }, [presaleActive, address, ecUserMinted]);
-
-  const init = async () => {
-    setLoading(true);
-    const promises = [];
-
-    promises.push(
-      new Promise(async (resolve) => {
-        await getTotalSupply();
-        resolve();
-      })
-    );
-
-    promises.push(
-      new Promise(async (resolve) => {
-        await checkActive();
-        resolve();
-      })
-    );
-
-    // promises.push(
-    //   new Promise(async (resolve) => {
-    //     await checkAllInfo(address);
-    //     resolve();
-    //   })
-    // );
-
-    await Promise.all(promises).catch((e) => console.error(e));
-    setLoading(false);
-    console.log("init interval");
-    if (!checkInterval) setCheckInterval(CHECK_INTERVAL);
-  };
-
-  const checkAllInfo = async (address) => {
-    // if (address) setLoading(true);
-    const info =
-      saleContract &&
-      (await saleContract.tellEverything(address || saleContract.address));
-    // console.log(info);
-    if (info) {
-      setPrice(
-        ethers.utils.commify(
-          Number(ethers.utils.formatEther(info._fullPrice, 18))
-        )
-      );
-      // setSold(Number(info._userMinted));
-      setMaxToken(Number(info._maxSupply));
-      setUserMinted(Number(info._communityMinted));
-
-      setEcMaxToken(Number(info._discountedPerAddress));
-      setEcUserMinted(Number(info._discountedClaimed));
-
-      setSaleMaxToken(Number(info._maxPerSaleMint));
-
-      let now = Date.parse(new Date()) / 1000;
-      setMainSaleStarted(Math.floor(Number(info._saleStart)) - now < 0);
-      // setSaleEnded(Math.floor(Number(info._saleEnd)) - now < 0);
-      setSaleEnded(true);
-      // setSaleEnded(false);
-      setPresaleStarted(Math.floor(Number(info._presaleStart)) - now < 0);
-      setPresaleEnded(Math.floor(Number(info._presaleEnd)) - now < 0);
-
-      // console.log("_maxSupply", Number(info._maxSupply));
-
-      console.log("_communityMinted", Number(info._communityMinted));
-      console.log("_userMinted", Number(info._userMinted));
-
-      // console.log("_communityPrice", Number(info._communityPrice));
-
-      console.log("_presaleActive", info._presaleActive);
-      console.log("_saleActive", info._saleActive);
-
-      console.log("_presaleStart", new Date(Number(info._presaleStart) * 1000));
-      console.log("_presaleEnd", new Date(Number(info._presaleEnd) * 1000));
-      console.log("_saleStart", new Date(Number(info._saleStart) * 1000));
-      console.log("_saleEnd", new Date(Number(info._saleEnd) * 1000));
-
-      // console.log("_discountPrice", Number(info._discountPrice));
-      // console.log("_discountedClaimed", Number(info._discountedClaimed));
-      // console.log("_discountedPerAddress", Number(info._discountedPerAddress));
-
-      // // console.log("_dustMintActive", info._dustMintActive);
-      // // console.log("_dustMintAvailable", info._dustMintAvailable);
-      // // console.log("_dustPrice", Number(info._dustPrice));
-      // // console.log("_freeClaimed", Number(info._freeClaimed));
-      // // console.log("_freePerAddress", Number(info._freePerAddress));
-      // // console.log("_fullPrice", Number(info._fullPrice));
-      // // console.log("_maxDiscount", Number(info._maxDiscount));
-      // // console.log("_maxSupply", Number(info._maxSupply));
-      // // console.log("_maxUserMintable", Number(info._maxUserMintable));
-      // console.log("_maxPerSaleMint", Number(info._maxPerSaleMint));
-      // // console.log("_mintPointer", Number(info._mintPointer));
-      // // console.log("_timedPresale", info._timedPresale);
-      // // console.log("_timedSale", info._timedSale);
-      // console.log("_totalDiscount", Number(info._totalDiscount));
-      // console.log("_totalFreeEC", Number(info._totalFreeEC));
-
-
-      // @TEMP: CHIMERAPILLARS DEV OVERRIDES FOR TESTING UI
-      // setSaleEnded(false)
-      // setSaleActive(true)
-      // setPresaleEnded(false)
-      // setMaxToken(8888)
-      // setSold(1359)
-      // setPrice(0.03)
+    else{
+      setConfigs({
+        contractConfig: config,
+        ownerConfig
+      });
     }
-    // if (address) setLoading(false);
-  };
 
-  const checkActive = async () => {
-    if (communityContract) {
-      communityContract
-        .early_adopters_active()
-        .then((active) => setEarlyActive(active));
-      communityContract
-        .omnipillars_active()
-        .then((active) => setOmniActive(active));
-      communityContract
-        .toddlerpillars_active()
-        .then((active) => setToddlerActive(active));
-      saleContract
-        .checkPresaleIsActive()
-        .then((active) => setPresaleActive(active));
-      saleContract.checkSaleIsActive().then((active) => setSaleActive(active));
-    }
-  };
-
-  const getTotalSupply = async () => {
-    if (saleContract) {
-      const supply = await saleContract.totalSupply();
-      // setSold(Number(supply));
-      setSold(9999);
-    }
+    setMainSaleStarted( config.isMainsaleActive );
+    setContractConfig( config );
   };
 
   const gotoRoadmap = () => {
     history.push("/roadmap#earlyMidSection");
   };
 
-  const toddlerAndPresaleActive = !saleActive && !presaleEnded && !saleEnded;
+  const handleMintClicked = () => {
+    setCheckoutVisible( true );
+  }
 
-  const communityActive =
-    earlyActive || omniActive || toddlerActive || presaleActive;
+  const limitReached = !(ownerConfig.purchased < contractConfig.maxMint);
+  const disableMintBtn = !isCorrectNetwork || limitReached || !address;
 
-  const omniToddlerActive = omniActive && toddlerActive && !earlyActive;
-
-  const mainSaleActive = saleActive && !saleEnded;
-
-  const disableMintBtn =
-    !(canMint || canMintEc) || !isCorrectNetwork || limitReached || !address;
-
-  return (
-    <Card sx={sx.root}>
-      {loading && (
-        <Box display="flex" sx={{ justifyContent: "center" }}>
-          <SpinnerDotted color={colors.highlight} />
-        </Box>
-      )}
-      {!loading && toddlerAndPresaleActive && (
-        <CardContent sx={sx.cardContent}>
-          <Typography variant="heading1" sx={sx.title}>
-            {PRESALE_HEADER}
-          </Typography>
-
-          <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
-            {project.id === 'toddlerpillars' ? (
-              <>
-                Connect your wallet and if you are part of the whitelist you will be
-                able to mint {`${project.name}`}. You can check the full set of
-                conditions on our <TextLink onClick={gotoRoadmap}>Roadmap</TextLink>{" "}
-                page.{" "}
-                {communityActive
-                  ? "Presale is currently open for:"
-                  : <Typography component="span" color="red">Presale will start soon.</Typography>}
-              </>
-            ) : null}
-
-            {project.id === 'chimerapillars' ? (
-              <>
-                Only wallets holding <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale. <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a> <strong>Mint multiples for upcoming merge & burn utility!</strong> Presale runs from May 16 - May 22. Public sale for non TP holders begins May 23.
-              </>
-            ) : null}
-          </Typography>
-
-          <Box sx={sx.roleContainer}>
-            <Box component="span" sx={sx.mintRole} gutterBottom>
-              <Typography sx={sx.saleText}>{maxToken}</Typography>
-              <Typography sx={sx.saleSubText} gutterBottom>
-                {project.name}
-              </Typography>
-            </Box>
-            <Box component="span" sx={sx.mintRole} gutterBottom>
-              <Typography sx={sx.saleText}>{sold}</Typography>
-              <Typography sx={sx.saleSubText} gutterBottom>
-                Sold
-              </Typography>
-            </Box>
-            <Box component="span" sx={sx.mintRole} gutterBottom>
-              <Box display="flex">
-                <img src={ethIcon} style={sx.img} alt="Eth" />
-                <Typography sx={sx.saleText}>{price}</Typography>
-              </Box>
-              <Typography sx={{ ...sx.saleSubText, ml: 2 }} gutterBottom>
-                Price
-              </Typography>
-            </Box>
+  const render = () => {
+    if( isLoading ){
+      return (
+        <Card sx={sx.root}>
+          <Box display="flex" sx={{ justifyContent: "center" }}>
+            <SpinnerDotted color={colors.highlight} />
           </Box>
+        </Card>
+      );
+    }
 
-          <Grid container spacing={3} sx={sx.btnsContainer}>
-            <Grid item xs="auto">
-              <Button
-                variant="contained"
-                sx={sx.mintBtn}
-                onClick={() =>
-                  mintOnClick({
-                    canMintEc: canMintEc,
-                    ecUserMinted: ecUserMinted,
-                    ecMaxToken: ecMaxToken,
-                    userMinted: userMinted,
-                    price: price,
-                    role: role,
-                  })
-                }
-                disabled={disableMintBtn}
-              >
-                Mint NFT
-              </Button>
-            </Grid>
-            <Grid item xs="auto">
-              {!address && (
-                <Button
-                  variant="outlined"
-                  sx={sx.connectBtn}
-                  onClick={handleConnect}
-                >
-                  Connect Wallet
-                </Button>
-              )}
-            </Grid>
-          </Grid>
-          {showErrorText && (
-            <Typography sx={sx.errorText}>
-              Sorry, your wallet address doesn’t have permission to mint yet,
-              but don’t worry the public sale will start soon.
+
+    //sale ended
+    if( contractConfig.totalSupply >= contractConfig.maxSupply ){
+      return (
+        <Card sx={sx.root}>
+          <CardContent sx={sx.cardContent}>
+            <Typography variant="heading1" sx={sx.title}>
+              {SALE_ENDED_HEADER}
             </Typography>
-          )}
-          {limitReached && (
-            <Typography sx={sx.errorText}>
-              Sorry, your wallet address doesn’t have permission to mint more
-              tokens in presale, but don’t worry, the public sale will start
-              soon.
+
+            <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
+              Sale has ended!
             </Typography>
-          )}
-        </CardContent>
-      )}
 
-      {!loading && mainSaleActive && (
-        <CardContent sx={sx.cardContent}>
-          <Typography variant="heading1" sx={sx.title}>
-            {SALE_HEADER}
-          </Typography>
-
-          <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
-            {project.id === 'toddlerpillars' ? (
-              <>
-                {`Connect your wallet and you will be able to mint ${project.name}.`}
-              </>
-            ) : null}
-
-            {project.id === 'chimerapillars' ? (
-              <>
-                Mint multiple Chimerapillars for our upcoming merge and burn utility. Holders will select their favourite traits from 2 NFTs and merge them into 1 while reducing the supply with a burn mechanism.
-              </>
-            ) : null}
-          </Typography>
-
-          <Box sx={sx.roleContainer}>
-            <Box component="span" sx={sx.mintRole} gutterBottom>
-              <Typography sx={sx.saleText}>{maxToken}</Typography>
-              <Typography sx={sx.saleSubText} gutterBottom>
-                {project.name}
-              </Typography>
-            </Box>
-            <Box component="span" sx={sx.mintRole} gutterBottom>
-              <Typography sx={sx.saleText}>{sold}</Typography>
-              <Typography sx={sx.saleSubText} gutterBottom>
-                Sold
-              </Typography>
-            </Box>
-            <Box component="span" sx={sx.mintRole} gutterBottom>
-              <Box display="flex">
-                <img src={ethIcon} style={sx.img} alt="Eth" />
-                <Typography sx={sx.saleText}>{price}</Typography>
+            <Box sx={sx.roleContainer}>
+              <Box component="span" sx={sx.mintRole} gutterBottom>
+                <Typography sx={sx.saleText}>{maxToken}</Typography>
+                <Typography sx={sx.saleSubText} gutterBottom>
+                  {project.name}
+                </Typography>
               </Box>
-              <Typography sx={{ ...sx.saleSubText, ml: 2 }} gutterBottom>
-                Price
-              </Typography>
+              <Box component="span" sx={sx.mintRole} gutterBottom>
+                <Typography sx={sx.saleText}>{sold}</Typography>
+                <Typography sx={sx.saleSubText} gutterBottom>
+                  Sold
+                </Typography>
+              </Box>
+              <Box component="span" sx={sx.mintRole} gutterBottom>
+                <Box display="flex">
+                  <img src={ethIcon} style={sx.img} alt="Eth" />
+                  <Typography sx={sx.saleText}>{price}</Typography>
+                </Box>
+                <Typography sx={{ ...sx.saleSubText, ml: 2 }} gutterBottom>
+                  Price
+                </Typography>
+              </Box>
             </Box>
-          </Box>
 
-          <Grid container spacing={3} sx={sx.btnsContainer}>
-            <Grid item xs="auto">
-              <Button
-                variant="contained"
-                sx={sx.mintBtn}
-                onClick={() =>
-                  mintOnClick({
-                    canMintSale: saleActive,
-                    saleMaxToken: saleMaxToken,
-                    price: price,
-                  })
-                }
-                disabled={!address || !isCorrectNetwork}
-              >
-                Mint NFT
-              </Button>
-            </Grid>
-            <Grid item xs="auto">
-              {!address && (
-                <Button
-                  variant="outlined"
-                  sx={sx.connectBtn}
-                  onClick={handleConnect}
-                >
-                  Connect Wallet
+            <Grid container spacing={3} sx={sx.btnsContainer}>
+              <Grid item xs="auto">
+                <Button variant="contained" sx={sx.mintBtn} disabled={true}>
+                  Sold Out
                 </Button>
-              )}
+              </Grid>
             </Grid>
-          </Grid>
-        </CardContent>
-      )}
-
-      {!loading && saleEnded && (
-        <CardContent sx={sx.cardContent}>
-          <Typography variant="heading1" sx={sx.title}>
-            {SALE_ENDED_HEADER}
-          </Typography>
-
-          <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
-            Sale has ended!
-          </Typography>
-
-          <Box sx={sx.roleContainer}>
-            <Box component="span" sx={sx.mintRole} gutterBottom>
-              <Typography sx={sx.saleText}>{maxToken}</Typography>
-              <Typography sx={sx.saleSubText} gutterBottom>
-                {project.name}
-              </Typography>
-            </Box>
-            <Box component="span" sx={sx.mintRole} gutterBottom>
-              <Typography sx={sx.saleText}>{sold}</Typography>
-              <Typography sx={sx.saleSubText} gutterBottom>
-                Sold
-              </Typography>
-            </Box>
-            <Box component="span" sx={sx.mintRole} gutterBottom>
-              <Box display="flex">
-                <img src={ethIcon} style={sx.img} alt="Eth" />
-                <Typography sx={sx.saleText}>{price}</Typography>
-              </Box>
-              <Typography sx={{ ...sx.saleSubText, ml: 2 }} gutterBottom>
-                Price
-              </Typography>
-            </Box>
+          </CardContent>
+        </Card>
+      );
+    }
+    //sale pending
+    else if( !( contractConfig.isClaimActive || contractConfig.isPresaleActive || contractConfig.isMainsaleActive ) ){
+      return (
+        <Card sx={sx.root}>
+          <Box display="flex" sx={{ justifyContent: "center", alignItems: "center" }}>
+            Minting is not live yet, check back soon...
           </Box>
+        </Card>
+      );
+    }
 
-          <Grid container spacing={3} sx={sx.btnsContainer}>
-            <Grid item xs="auto">
-              <Button variant="contained" sx={sx.mintBtn} disabled={true}>
-                Sold Out
-              </Button>
+
+    const cards = [];
+    if( contractConfig.isClaimActive ){
+      cards.push(
+        <div key="isClaimActive">Claim Here</div>
+      );
+    }
+
+    //TODO: need signatures
+    if( contractConfig.isPresaleActive ){
+      cards.push(
+        <Card key="isPresaleActive" sx={sx.root}>
+          <CardContent sx={sx.cardContent}>
+            <Typography variant="heading1" sx={sx.title}>
+              {PRESALE_HEADER}
+            </Typography>
+
+            <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
+              {/*project.id === 'toddlerpillars' ? (
+                <>
+                  Connect your wallet and if you are part of the whitelist you will be
+                  able to mint {`${project.name}`}. You can check the full set of
+                  conditions on our <TextLink onClick={gotoRoadmap}>Roadmap</TextLink>{" "}
+                  page.{" "}
+                  {communityActive
+                    ? "Presale is currently open for:"
+                    : <Typography component="span" color="red">Presale will start soon.</Typography>}
+                </>
+              ) : null */}
+
+              {project.id === 'chimerapillars' ? (
+                <>
+                  Only wallets holding <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale. <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a> <strong>Mint multiples for upcoming merge & burn utility!</strong> Presale runs from May 16 - May 22. Public sale for non TP holders begins May 23.
+                </>
+              ) : null}
+            </Typography>
+
+            <Box sx={sx.roleContainer}>
+              <Box component="span" sx={sx.mintRole} gutterBottom>
+                <Typography sx={sx.saleText}>{contractConfig.maxSupply}</Typography>
+                <Typography sx={sx.saleSubText} gutterBottom>
+                  {project.name}
+                </Typography>
+              </Box>
+              <Box component="span" sx={sx.mintRole} gutterBottom>
+                <Typography sx={sx.saleText}>{contractConfig.totalSupply}</Typography>
+                <Typography sx={sx.saleSubText} gutterBottom>
+                  Sold
+                </Typography>
+              </Box>
+              <Box component="span" sx={sx.mintRole} gutterBottom>
+                <Box display="flex">
+                  <img src={ethIcon} style={sx.img} alt="Eth" />
+                  <Typography sx={sx.saleText}>{contractConfig.ethPrice}</Typography>
+                </Box>
+                <Typography sx={{ ...sx.saleSubText, ml: 2 }} gutterBottom>
+                  Price
+                </Typography>
+              </Box>
+            </Box>
+
+            {ownerConfig.toddlers ? (
+              <Grid container spacing={3} sx={sx.btnsContainer}>
+                <Grid item xs="auto">
+                  <Button
+                    variant="contained"
+                    sx={sx.mintBtn}
+                    onClick={handleMintClicked}
+                    disabled={disableMintBtn}
+                  >
+                    Mint NFT
+                  </Button>
+                </Grid>
+                <Grid item xs="auto">
+                  {!address && (
+                    <Button
+                      variant="outlined"
+                      sx={sx.connectBtn}
+                      onClick={handleConnect}
+                    >
+                      Connect Wallet
+                    </Button>
+                  )}
+                </Grid>
+              </Grid>
+            ):(
+              <Typography sx={sx.errorText}>
+                Sorry, your wallet address doesn’t have permission to mint yet,
+                but don’t worry the public sale will start soon.
+              </Typography>
+            )}
+            {ownerConfig.purchased >= 4 && (
+              <Typography sx={sx.errorText}>
+                Sorry, your wallet address doesn’t have permission to mint more
+                tokens in presale, but don’t worry, the public sale will start
+                soon.
+              </Typography>
+            )}
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if( contractConfig.isMainsaleActive ){
+      cards.push(
+        <Card key="isMainsaleActive" sx={sx.root}>
+          <CardContent sx={sx.cardContent}>
+            <Typography variant="heading1" sx={sx.title}>
+              {SALE_HEADER}
+            </Typography>
+
+            <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
+              {project.id === 'toddlerpillars' ? (
+                <>
+                  {`Connect your wallet and you will be able to mint ${project.name}.`}
+                </>
+              ) : null}
+
+              {project.id === 'chimerapillars' ? (
+                <>
+                  Mint multiple Chimerapillars for our upcoming merge and burn utility. Holders will select their favourite traits from 2 NFTs and merge them into 1 while reducing the supply with a burn mechanism.
+                </>
+              ) : null}
+            </Typography>
+
+            <Box sx={sx.roleContainer}>
+              <Box component="span" sx={sx.mintRole} gutterBottom>
+                <Typography sx={sx.saleText}>{contractConfig.maxSupply}</Typography>
+                <Typography sx={sx.saleSubText} gutterBottom>
+                  {project.name}
+                </Typography>
+              </Box>
+              <Box component="span" sx={sx.mintRole} gutterBottom>
+                <Typography sx={sx.saleText}>{contractConfig.totalSupply}</Typography>
+                <Typography sx={sx.saleSubText} gutterBottom>
+                  Sold
+                </Typography>
+              </Box>
+              <Box component="span" sx={sx.mintRole} gutterBottom>
+                <Box display="flex">
+                  <img src={ethIcon} style={sx.img} alt="Eth" />
+                  <Typography sx={sx.saleText}>{contractConfig.ethPrice}</Typography>
+                </Box>
+                <Typography sx={{ ...sx.saleSubText, ml: 2 }} gutterBottom>
+                  Price
+                </Typography>
+              </Box>
+            </Box>
+
+            <Grid container spacing={3} sx={sx.btnsContainer}>
+              <Grid item xs="auto">
+                <Button
+                  variant="contained"
+                  sx={sx.mintBtn}
+                  onClick={handleMintClicked}
+                  disabled={!address || !isCorrectNetwork}
+                >
+                  Mint NFT
+                </Button>
+              </Grid>
+
+              <Grid item xs="auto">
+                {!address && (
+                  <Button
+                    variant="outlined"
+                    sx={sx.connectBtn}
+                    onClick={handleConnect}
+                  >
+                    Connect Wallet
+                  </Button>
+                )}
+              </Grid>
             </Grid>
-          </Grid>
-        </CardContent>
-      )}
-    </Card>
-  );
+          </CardContent>
+        </Card>
+      );
+    }
+
+    return cards;
+  };
+
+  return render();
 };
 
 /* eslint-disable react/forbid-prop-types */
 SaleCard.propTypes = {
-  mintOnClick: PropTypes.any.isRequired,
+  setConfigs: PropTypes.any.isRequired,
+  setCheckoutVisible: PropTypes.any.isRequired,
   setMainSaleStarted: PropTypes.any.isRequired,
 };
 
