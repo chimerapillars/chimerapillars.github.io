@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { toast } from 'react-toast';
 import { Box, Modal, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
 import { SpinnerRoundOutlined as Spinner } from 'spinners-react';
+import Web3Ctx from "../../../components/Context/Web3Ctx";
 import { useChimeraContract, useSaleContract } from '../../../hooks/useContract';
 import Divider from '../../common/Divider';
 import MintQuantity from './MintQuantity';
@@ -81,6 +82,9 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 	const [approveInProgress, setApproveInProgress] = useState(false);
 	const [txInProgress, setTxInProgress] = useState(false);
 	const [txEtherScan, setTxEtherScan] = useState(null);
+	const {
+        address: account,
+    } = useContext( Web3Ctx )
 
 	const history = useHistory();
 	const chimeraContract = useChimeraContract();
@@ -103,6 +107,23 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 	let canMintPresale = 0;
 	if( configs?.ownerConfig?.toddlers > 0 ){
 		canMintPresale = 4 - configs.ownerConfig.purchased;
+	}
+
+	const getSignature = async (quantity) => {
+		let sig = '0x00'
+
+		if (isClaimActive) {
+			const resp = await fetch(`https://node.herodevelopment.com/signature?account=${account}&contract=${chimeraContract.address}&quantity=${quantity}`)
+
+			if (resp) {
+				const json = await resp.json()
+				if (json?.signature) {
+					sig = json.signature
+				}
+			}
+		}
+
+		return sig
 	}
 
 	const handleClaim = async (quantity, totalPrice) => {
@@ -145,7 +166,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 
 		console.log('presale', quantity, totalPrice);
 
-		const signature = '0x00'
+		const signature = await getSignature(quantity);
 		const payingAmount = ethers.utils.parseEther(totalPrice.toString());
 
 		await chimeraContract
@@ -181,7 +202,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 
 		console.log('main', quantity, totalPrice);
 
-		const signature = '0x00'
+		const signature = await getSignature(quantity);
 		const payingAmount = ethers.utils.parseEther(totalPrice.toString());
 
 		await chimeraContract
