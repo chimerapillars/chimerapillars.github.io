@@ -486,7 +486,7 @@ const Header = () => {
 							{MOBILEBUTTONS.map((btn, i) => {
 								if (btn === 'Toddlerpillars') {
 									return (
-										<a key={btn} href={urlToddlerpillars} style={{ textDecoration: 'none' }}>
+										<a key={btn} href={urlToddlerpillars} style={{ textDecoration: 'none' }} target="_blank">
 											<HeaderButton key={btn} text='← Toddlerpillars.com' vertical />
 										</a>
 									);
