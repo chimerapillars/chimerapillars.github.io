@@ -156,7 +156,12 @@ const sx = {
   },
 };
 
-const PRESALE_HEADER = `${project.name} Presale`;
+const osStyles = {
+  color: colors.primary,
+  fontWeight: '700',
+  textDecoration: 'underline'
+};
+
 
 const SALE_HEADER = `${project.name} Public Sale`;
 
@@ -175,7 +180,7 @@ const TextLink = ({ onClick, children }) => {
   );
 };
 
-const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
+const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
   const { handleConnect, address, isCorrectNetwork } = useContext(Web3Ctx);
   const chimeraContract = useChimeraContract();
   const toddlerContract = useSaleContract();
@@ -212,13 +217,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
 
   useInterval(() => {
     console.log("refreshing");
-    if( config.isClaimActive || config.isPresaleActive || config.isMainsaleActive ){
-      init();
-    }
-    else{
-      console.log("end interval");
-      setCheckInterval(null);
-    }
+    init();
   }, checkInterval);
 
   const hasSignature = async (quantity) => {
@@ -257,7 +256,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
         toddlers: parseInt(toddlers.toString())
       };
 
-      owner.hasPresale = await hasSignature( 1 );
+      owner.hasClaim = await hasSignature( 1 );
 
       setOwnerConfig( owner );
       setConfigs({
@@ -272,7 +271,6 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
       });
     }
 
-    setMainSaleStarted( config.isMainsaleActive );
     setContractConfig( config );
   };
 
@@ -369,7 +367,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
                 <strong>Free claims are live!</strong>
               </Typography>
 
-              {ownerConfig.toddlers ? (
+              {ownerConfig.hasClaim ? (
                 (address ? (
                   <Grid item xs="auto">
                     <Button
@@ -394,7 +392,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
                 ))
               ):(
                 <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
-                  Only wallets holding <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale.
+                  Only wallets holding <a style={osStyles} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can claim during presale.
                 </Typography>
               )}
 
@@ -410,7 +408,15 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
         <Card key="isPresaleActive" sx={sx.root}>
           <CardContent sx={sx.cardContent}>
             <Typography variant="heading1" sx={sx.title}>
-              {PRESALE_HEADER}
+              Chimerapillars Presale Live
+            </Typography>
+
+            <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
+              Only wallets holding <a style={osStyles} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale. 
+              &nbsp;<a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a> 
+              &nbsp;Mint multiples for upcoming merge &amp; burn utility! 
+              Presale runs from May 16 - May 22. 
+							Presale finishes when Public sale begins at 7am EST, May 23.
             </Typography>
 
             <Box sx={sx.roleContainer}>
@@ -437,7 +443,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
               </Box>
             </Box>
 
-            {ownerConfig.hasPresale ? (
+            {ownerConfig.toddlers ? (
               (ownerConfig.purchased >= 4 ? (
                 <Typography sx={sx.errorText}>
                   Sorry, your wallet address doesn’t have permission to mint more
@@ -487,17 +493,8 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
             </Typography>
 
             <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
-              {project.id === 'toddlerpillars' ? (
-                <>
-                  {`Connect your wallet and you will be able to mint ${project.name}.`}
-                </>
-              ) : null}
-
-              {project.id === 'chimerapillars' ? (
-                <>
-                  Mint multiple Chimerapillars for our upcoming merge and burn utility. Holders will select their favourite traits from 2 NFTs and merge them into 1 while reducing the supply with a burn mechanism.
-                </>
-              ) : null}
+              Mint multiple Chimerapillars for our upcoming merge and burn utility.
+              Holders will select their favourite traits from 2 NFTs and merge them into 1 while reducing the supply with a burn mechanism.
             </Typography>
 
             <Box sx={sx.roleContainer}>
@@ -562,8 +559,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, setMainSaleStarted }) => {
 /* eslint-disable react/forbid-prop-types */
 SaleCard.propTypes = {
   setConfigs: PropTypes.any.isRequired,
-  setCheckoutVisible: PropTypes.any.isRequired,
-  setMainSaleStarted: PropTypes.any.isRequired,
+  setCheckoutVisible: PropTypes.any.isRequired
 };
 
 export default SaleCard;

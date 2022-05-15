@@ -256,7 +256,6 @@ const Banner = () => {
 		userMinted: 0,
 		price: 0,
 	});
-	const [mainSaleStarted, setMainSaleStarted] = useState(false);
 
 	const vertical = useMediaQuery('(max-width: 1079px)');
 	const sliderRef = useRef(null);
@@ -265,6 +264,11 @@ const Banner = () => {
 		setSelectedSlide(currentSlide);
 		setExplorerVisible(true);
 	};
+
+	let anySales = false;
+	if( configs?.contractConfig ){
+		anySales = configs.contractConfig.isPresaleActive || configs.contractConfig.isMainsaleActive;
+	}
 
 	return (
 		<Box sx={sx.root}>
@@ -325,7 +329,6 @@ const Banner = () => {
 							{/* <SaleCard
 								setConfigs={setConfigs}
 								setCheckoutVisible={setCheckoutVisible}
-								setMainSaleStarted={setMainSaleStarted}
 							/> */}
 						</Box>
 
@@ -377,34 +380,38 @@ const Banner = () => {
 								<br/>
 								<br/>
 								TP holders who submitted their wallets via discord before May 10 can mint 1 FREE Chimera during our presale or 2 FREE Chimeras if they hold 9+ TPs.
-								<br/>
-								<br/>
-								<strong>OUR 1 WEEK PRESALE BEGINS IN:</strong>
 
-								{presaleStart > Date.now() ? (
-									<Countdown
-										date={presaleStart}
-										onComplete={() => window.location.reload()}
-										renderer={countdownRenderer}
-									/>
-								) : null}
+								{!anySales && (
+									<>
+										<br/>
+										<br/>
+										<strong>OUR 1 WEEK PRESALE BEGINS IN:</strong>
+										{presaleStart > Date.now() && (
+											<Countdown
+												date={presaleStart}
+												onComplete={() => window.location.reload()}
+												renderer={countdownRenderer}
+											/>
+										)}
+										<p>Chimerapillars Mint price: <strong>0.03 ETH</strong>.</p>
+										<p>
+											<strong>Presale</strong> runs from <strong>May 16 - May 22</strong>.
+											<br />Presale finishes when Public sale begins at<strong>7am EST, May 23</strong>.
+										</p>
+										<p>
+											Only wallets holding <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale.
+											<a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a>
+											<br /><strong>Mint multiples for upcoming merge &amp; burn utility!</strong>
+										</p>
+									</>
+								)}
 
-								<p>Chimerapillars Mint price: <strong>0.03 ETH</strong>.</p>
-								<p>
-									<strong>Presale</strong> runs from <strong>May 16 - May 22</strong>.
-									<br /><strong>Public sale</strong> for non-TP holders begins <strong>May 23</strong>.
-								</p>
-								<p>
-									Only wallets holding <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale. <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a>
-									<br /><strong>Mint multiples for upcoming merge &amp; burn utility!</strong>
-								</p>
 							</Typography>
 
 							{/* @TEMP un-comment to show mint panel */}
 							<SaleCard
 								setConfigs={setConfigs}
 								setCheckoutVisible={setCheckoutVisible}
-								setMainSaleStarted={setMainSaleStarted}
 							/>
 						</Box>
 

@@ -109,8 +109,9 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 	const isMainsaleActive = configs?.contractConfig?.isMainsaleActive || false;
 
 	let canClaim = 0;
-	if( configs?.ownerConfig?.toddlers > 0 ){
-		++canClaim;
+	if( configs?.ownerConfig?.hasClaim ){
+		if( configs.ownerConfig.toddlers > 0 )
+			++canClaim;
 
 		if( configs.ownerConfig.toddlers > 8 )
 			++canClaim;
@@ -141,109 +142,93 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 	}
 
 	const handleClaim = async (quantity, totalPrice) => {
-		setApproveInProgress(true);
+		try{
+			console.log('claim', quantity, totalPrice);
+			if( !config.contractConfig.isClaimActive ){
+				toast.error('Claims are not active');
+				return;
+			}
 
-		console.log('claim', quantity, totalPrice);
+			setApproveInProgress(true);
 
-		const payingAmount = ethers.utils.parseEther(totalPrice.toString());
+			const signature = await getSignature(quantity);
+			await chimeraContract.estimateGas.claim(quantity, signature);
+			const tx = await chimeraContract.claim(quantity, signature);
+			setApproveInProgress(false);
+			setTxInProgress(true);
+			console.log(`${config.ETHERSCAN_URL}tx/${tx.hash}`);
+			setTxEtherScan(`${config.ETHERSCAN_URL}tx/${tx.hash}`);
 
-		await chimeraContract
-			.claim(quantity, { value: payingAmount })
-			.then((tx) => {
-				setApproveInProgress(false);
-				setTxInProgress(true);
-				console.log(`${config.ETHERSCAN_URL}tx/${tx.hash}`);
-				setTxEtherScan(`${config.ETHERSCAN_URL}tx/${tx.hash}`);
-				return tx.wait().then((receipt) => {
-					console.log('txReceipt: ', receipt);
-					if (receipt && receipt.status === 1) {
-						toast.success('Successfully Bought NFT');
-						history.replace({ ...history.location, state: null });
-						setOpen(false);
-						setTxEtherScan(null);
-					} else {
-						toast.error('Transaction Failed');
-						setTxInProgress(false);
-						setTxEtherScan(null);
-					}
-				});
-			})
-			.catch(handleError);
-
-		setTxInProgress(false);
-		setApproveInProgress(false);
+			const receipt = await tx.wait();
+			console.log('txReceipt: ', receipt);
+			if (receipt && receipt.status === 1) {
+				toast.success('Successfully Bought NFT');
+				history.replace({ ...history.location, state: null });
+				setOpen(false);
+			}
+			else{
+				toast.error('Transaction Failed');
+			}
+		}
+		catch( err ){
+			handleError( err )
+		}
+		finally{
+			setApproveInProgress(false);
+			setTxInProgress(false);
+			setTxEtherScan(null);
+		}
 	};
 
 
-	const handlePresaleMint = async (quantity, totalPrice) => {
-		setApproveInProgress(true);
+	const handleMint = async (quantity, totalPrice) => {
+		try{
+			console.log('mint', quantity, totalPrice);
 
-		console.log('presale', quantity, totalPrice);
-
-		const signature = await getSignature(quantity);
-		const payingAmount = ethers.utils.parseEther(totalPrice.toString());
-
-		await chimeraContract
-			.mint(quantity, signature, { value: payingAmount })
-			.then((tx) => {
-				setApproveInProgress(false);
-				setTxInProgress(true);
-				console.log(`${config.ETHERSCAN_URL}tx/${tx.hash}`);
-				setTxEtherScan(`${config.ETHERSCAN_URL}tx/${tx.hash}`);
-				return tx.wait().then((receipt) => {
-					console.log('txReceipt: ', receipt);
-					if (receipt && receipt.status === 1) {
-						toast.success('Successfully Bought NFT');
-						history.replace({ ...history.location, state: null });
-						setOpen(false);
-						setTxEtherScan(null);
-					} else {
-						toast.error('Transaction Failed');
-						setTxInProgress(false);
-						setTxEtherScan(null);
-					}
-				});
-			})
-			.catch(handleError);
-
-		setTxInProgress(false);
-		setApproveInProgress(false);
-	};
+			if( configs.contractConfig.isMainsaleActive ){
+				//no-op
+			}
+			else if( configs.contractConfig.isPresaleActive ){
+				if( !configs.ownerConfig.toddlers ){
+					toast.error('Only wallets holding Toddlerpillars can mint during presale' );
+					return;
+				}
+			}
+			else{
+				toast.error('Sales are not active');
+				return;
+			}
 
 
-	const handleMainsaleMint = async (quantity, totalPrice) => {
-		setApproveInProgress(true);
+			setApproveInProgress(true);
 
-		console.log('main', quantity, totalPrice);
+			const payingAmount = ethers.utils.parseEther(totalPrice.toString());
+			await chimeraContract.estimateGas.mint(quantity, { value: payingAmount });
+			const tx = await chimeraContract.mint(quantity, { value: payingAmount })
+			setApproveInProgress(false);
+			setTxInProgress(true);
+			console.log(`${config.ETHERSCAN_URL}tx/${tx.hash}`);
+			setTxEtherScan(`${config.ETHERSCAN_URL}tx/${tx.hash}`);
 
-		const signature = await getSignature(quantity);
-		const payingAmount = ethers.utils.parseEther(totalPrice.toString());
-
-		await chimeraContract
-			.mint(quantity, signature, { value: payingAmount })
-			.then((tx) => {
-				setApproveInProgress(false);
-				setTxInProgress(true);
-				console.log(`${config.ETHERSCAN_URL}tx/${tx.hash}`);
-				setTxEtherScan(`${config.ETHERSCAN_URL}tx/${tx.hash}`);
-				return tx.wait().then((receipt) => {
-					console.log('txReceipt: ', receipt);
-					if (receipt && receipt.status === 1) {
-						toast.success('Successfully Bought NFT');
-						history.replace({ ...history.location, state: null });
-						setOpen(false);
-						setTxEtherScan(null);
-					} else {
-						toast.error('Transaction Failed');
-						setTxInProgress(false);
-						setTxEtherScan(null);
-					}
-				});
-			})
-			.catch(handleError);
-
-		setTxInProgress(false);
-		setApproveInProgress(false);
+			const receipt = await tx.wait()
+			console.log('txReceipt: ', receipt);
+			if (receipt && receipt.status === 1) {
+				toast.success('Successfully Bought NFT');
+				history.replace({ ...history.location, state: null });
+				setOpen(false);
+			}
+			else{
+				toast.error('Transaction Failed');
+			}
+		}
+		catch( err ){
+			handleError( err )
+		}
+		finally{
+			setApproveInProgress(false);
+			setTxInProgress(false);
+			setTxEtherScan(null);
+		}
 	};
 
 	const handleError = (e) => {
@@ -304,7 +289,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 									title='Presale Mint'
 									price={ethPrice}
 									maxAmount={canMintPresale}
-									onClickMint={handlePresaleMint}
+									onClickMint={handleMint}
 								/>
 							):
 							(isMainsaleActive && (
@@ -313,7 +298,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 									price={ethPrice}
 									// maxAmount={saleMaxToken}
 									maxAmount={8} // hardcoded limit 10
-									onClickMint={handleMainsaleMint}
+									onClickMint={handleMint}
 								/>
 							))}
 						</>

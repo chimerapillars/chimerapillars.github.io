@@ -399,7 +399,7 @@ const Header = () => {
 							if (btn === 'Toddlerpillars') {
 								return (
 									<a key={btn} href={urlToddlerpillars} style={{ textDecoration: 'none' }} target="_blank">
-										<HeaderButton key={btn} text='← Toddlerpillars.com' vertical />
+										<HeaderButton key={btn} text='← Toddlerpillars' vertical />
 									</a>
 								);
 							}
@@ -487,7 +487,7 @@ const Header = () => {
 								if (btn === 'Toddlerpillars') {
 									return (
 										<a key={btn} href={urlToddlerpillars} style={{ textDecoration: 'none' }} target="_blank">
-											<HeaderButton key={btn} text='← Toddlerpillars.com' vertical />
+											<HeaderButton key={btn} text='← Toddlerpillars' vertical />
 										</a>
 									);
 								}

@@ -39,5 +39,5 @@ export const TODDLER_SALE_ADDRESSES = {
 
 export const CHIMERA_CONTRACT = {
     //[SupportedChainId.MAINNET]: "",
-    [SupportedChainId.RINKEBY]: "0xA0AF34DB9aCB7d41E7B00F679DfFC3B6Df66f671",
+    [SupportedChainId.RINKEBY]: "0xC220F504D8F7fb31c3b05676769E69f3a3f87fe5",
 }
