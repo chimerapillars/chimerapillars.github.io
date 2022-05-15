@@ -221,11 +221,12 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 
 			setApproveInProgress(true);
 
+			let tx;
 			const payingAmount = ethers.utils.parseEther(totalPrice.toString());
 
 			try{
 				await chimeraContract.estimateGas.mint(quantity, { value: payingAmount });
-				const tx = await chimeraContract.mint(quantity, { value: payingAmount })
+				tx = await chimeraContract.mint(quantity, { value: payingAmount })
 			}
 			catch( err ){
 				debugger;
