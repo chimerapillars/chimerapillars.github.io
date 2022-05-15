@@ -144,16 +144,35 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 	const handleClaim = async (quantity, totalPrice) => {
 		try{
 			console.log('claim', quantity, totalPrice);
-			if( !config.contractConfig.isClaimActive ){
+			if( !isClaimActive ){
 				toast.error('Claims are not active');
 				return;
 			}
 
 			setApproveInProgress(true);
 
+			let tx;
 			const signature = await getSignature(quantity);
-			await chimeraContract.estimateGas.claim(quantity, signature);
-			const tx = await chimeraContract.claim(quantity, signature);
+
+
+			try{
+				await chimeraContract.estimateGas.claim(quantity, signature);
+				tx = await chimeraContract.claim(quantity, signature);
+			}
+			catch( err ){
+				debugger;
+
+				if( err.code && err.code === -32602 ){
+					const sendArgs = { type: '0x1' };
+					await chimeraContract.estimateGas.claim(quantity, signature, sendArgs);
+					tx = await chimeraContract.claim(quantity, signature, sendArgs);
+				}
+				else{
+					throw err
+				}
+			}
+
+
 			setApproveInProgress(false);
 			setTxInProgress(true);
 			console.log(`${config.ETHERSCAN_URL}tx/${tx.hash}`);
@@ -203,8 +222,24 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 			setApproveInProgress(true);
 
 			const payingAmount = ethers.utils.parseEther(totalPrice.toString());
-			await chimeraContract.estimateGas.mint(quantity, { value: payingAmount });
-			const tx = await chimeraContract.mint(quantity, { value: payingAmount })
+
+			try{
+				await chimeraContract.estimateGas.mint(quantity, { value: payingAmount });
+				const tx = await chimeraContract.mint(quantity, { value: payingAmount })
+			}
+			catch( err ){
+				debugger;
+
+				if( err.code && err.code === -32602 ){
+					const sendArgs = { value: payingAmount, type: '0x1' };
+					await chimeraContract.estimateGas.mint(quantity, sendArgs);
+					tx = await chimeraContract.mint(quantity, sendArgs);
+				}
+				else{
+					throw err
+				}
+			}
+
 			setApproveInProgress(false);
 			setTxInProgress(true);
 			console.log(`${config.ETHERSCAN_URL}tx/${tx.hash}`);
