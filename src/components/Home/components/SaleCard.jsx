@@ -105,7 +105,6 @@ const sx = {
     },
   },
   errorText: {
-    mt: 3,
     fontSize: 14,
     fontWeight: 500,
     color: COLOR_RED,
@@ -127,7 +126,6 @@ const sx = {
     filter: config.PROJECT.id === 'chimerapillars' ? 'saturate(0%)' : 'none',
   },
   btnsContainer: {
-    mt: -2,
     mb: 0,
   },
   mintBtn: {
@@ -200,7 +198,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
     isPresaleActive:  true,
     isMainsaleActive: false,
 
-    totalSupply: 584
+    totalSupply: 0,
   });
 
   const [ownerConfig, setOwnerConfig] = useState({
@@ -213,17 +211,20 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
 
 
   useEffect(() => {
-    if( isLoading ){
-      init();
-      setLoading( false );
-    }
-  }, []);
+    init();
+    setLoading( false );
+  }, [address, chimeraContract]);
 
 
   useInterval(() => {
     console.log("refreshing");
     init();
   }, checkInterval);
+
+  const onClickConnect = async (evt) => {
+    await handleConnect(evt)
+    init()
+  }
 
   const hasSignature = async (quantity) => {
     try{
@@ -387,7 +388,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
                   <Button
                     variant="outlined"
                     sx={sx.connectBtn}
-                    onClick={handleConnect}
+                    onClick={onClickConnect}
                   >
                     Connect Wallet
                   </Button>
@@ -410,37 +411,37 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
             </Typography>
 
             <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
-              Only wallets holding <a style={osStyles} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale. 
-              &nbsp;<a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a> 
-              &nbsp;Mint multiples for upcoming merge &amp; burn utility! 
+              Only wallets holding <a style={osStyles} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale.
+              &nbsp;<a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a>
+              &nbsp;Mint multiples for upcoming merge &amp; burn utility!
 							Presale finishes when Public sale begins at 7am EST, May 23.
             </Typography>
 
-            {!disableMintBtn && (
-            <Box sx={sx.roleContainer}>
-              <Box component="span" sx={sx.mintRole} gutterBottom>
-                <Typography sx={sx.saleText}>{contractConfig.maxSupply}</Typography>
-                <Typography sx={sx.saleSubText} gutterBottom>
-                  {project.name}
-                </Typography>
-              </Box>
-              <Box component="span" sx={sx.mintRole} gutterBottom>
-                <Typography sx={sx.saleText}>{contractConfig.totalSupply}</Typography>
-                <Typography sx={sx.saleSubText} gutterBottom>
-                  Sold
-                </Typography>
-              </Box>
-              <Box component="span" sx={sx.mintRole} gutterBottom>
-                <Box display="flex">
-                  <img src={ethIcon} style={sx.img} alt="Eth" />
-                  <Typography sx={sx.saleText}>{contractConfig.ethPrice}</Typography>
+            {!disableMintBtn && (contractConfig.totalSupply > 0) ? (
+              <Box sx={sx.roleContainer}>
+                <Box component="span" sx={sx.mintRole} gutterBottom>
+                  <Typography sx={sx.saleText}>{contractConfig.maxSupply}</Typography>
+                  <Typography sx={sx.saleSubText} gutterBottom>
+                    {project.name}
+                  </Typography>
                 </Box>
-                <Typography sx={{ ...sx.saleSubText, ml: 2 }} gutterBottom>
-                  Price
-                </Typography>
+                <Box component="span" sx={sx.mintRole} gutterBottom>
+                  <Typography sx={sx.saleText}>{contractConfig.totalSupply}</Typography>
+                  <Typography sx={sx.saleSubText} gutterBottom>
+                    Sold
+                  </Typography>
+                </Box>
+                <Box component="span" sx={sx.mintRole} gutterBottom>
+                  <Box display="flex">
+                    <img src={ethIcon} style={sx.img} alt="Eth" />
+                    <Typography sx={sx.saleText}>{contractConfig.ethPrice}</Typography>
+                  </Box>
+                  <Typography sx={{ ...sx.saleSubText, ml: 2 }} gutterBottom>
+                    Price
+                  </Typography>
+                </Box>
               </Box>
-            </Box>
-            )}
+            ) : null}
 
             {ownerConfig.toddlers ? (
               (ownerConfig.purchased >= contractConfig.maxMint ? (
@@ -467,7 +468,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
                   <Button
                     variant="outlined"
                     sx={sx.connectBtn}
-                    onClick={handleConnect}
+                    onClick={onClickConnect}
                   >
                     Connect Wallet
                   </Button>
@@ -476,18 +477,19 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
                 </Grid>
               ))
             ):(
-              <Grid container spacing={3} sx={sx.btnsContainer}>
-              {address ? (
+              <Grid container sx={sx.btnsContainer}>
+              {address && (contractConfig.totalSupply > 0) ? (
                 <Typography sx={sx.errorText}>
-                  Sorry, your wallet address doesn't hold any Toddlerpillars. 
-                  &nbsp;<a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Buy one now</a> to participate in this presale or wait until our public sale starts at 7am EST, May 23.
+                  Sorry, your wallet address doesn't hold any Toddlerpillars.
+                  <br/>
+                  <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Buy one now</a> to participate in this presale or wait until our public sale starts at 7am EST, May 23.
                 </Typography>
               ) : (
                 <Grid item xs="auto">
                   <Button
                     variant="outlined"
                     sx={sx.connectBtn}
-                    onClick={handleConnect}
+                    onClick={onClickConnect}
                   >
                     Connect Wallet
                   </Button>
@@ -511,31 +513,31 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
               Holders will select their favourite traits from 2 NFTs and merge them into 1 while reducing the supply with a burn mechanism.
             </Typography>
 
-            {!disableMintBtn && (
-            <Box sx={sx.roleContainer}>
-              <Box component="span" sx={sx.mintRole} gutterBottom>
-                <Typography sx={sx.saleText}>{contractConfig.maxSupply}</Typography>
-                <Typography sx={sx.saleSubText} gutterBottom>
-                  {project.name}
-                </Typography>
-              </Box>
-              <Box component="span" sx={sx.mintRole} gutterBottom>
-                <Typography sx={sx.saleText}>{contractConfig.totalSupply}</Typography>
-                <Typography sx={sx.saleSubText} gutterBottom>
-                  Sold
-                </Typography>
-              </Box>
-              <Box component="span" sx={sx.mintRole} gutterBottom>
-                <Box display="flex">
-                  <img src={ethIcon} style={sx.img} alt="Eth" />
-                  <Typography sx={sx.saleText}>{contractConfig.ethPrice}</Typography>
+            {!disableMintBtn && (contractConfig.totalSupply > 0) ? (
+              <Box sx={sx.roleContainer}>
+                <Box component="span" sx={sx.mintRole} gutterBottom>
+                  <Typography sx={sx.saleText}>{contractConfig.maxSupply}</Typography>
+                  <Typography sx={sx.saleSubText} gutterBottom>
+                    {project.name}
+                  </Typography>
                 </Box>
-                <Typography sx={{ ...sx.saleSubText, ml: 2 }} gutterBottom>
-                  Price
-                </Typography>
+                <Box component="span" sx={sx.mintRole} gutterBottom>
+                  <Typography sx={sx.saleText}>{contractConfig.totalSupply}</Typography>
+                  <Typography sx={sx.saleSubText} gutterBottom>
+                    Sold
+                  </Typography>
+                </Box>
+                <Box component="span" sx={sx.mintRole} gutterBottom>
+                  <Box display="flex">
+                    <img src={ethIcon} style={sx.img} alt="Eth" />
+                    <Typography sx={sx.saleText}>{contractConfig.ethPrice}</Typography>
+                  </Box>
+                  <Typography sx={{ ...sx.saleSubText, ml: 2 }} gutterBottom>
+                    Price
+                  </Typography>
+                </Box>
               </Box>
-            </Box>
-            )}
+            ) : null}
 
             <Grid container spacing={3} sx={sx.btnsContainer}>
               <Grid item xs="auto">
@@ -554,7 +556,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
                   <Button
                     variant="outlined"
                     sx={sx.connectBtn}
-                    onClick={handleConnect}
+                    onClick={onClickConnect}
                   >
                     Connect Wallet
                   </Button>
