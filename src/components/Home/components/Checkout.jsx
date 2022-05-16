@@ -300,6 +300,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 							<Typography variant='text' sx={{ my: 4 }}>
 								Please select the number of NFTs you want to mint.
 							</Typography>
+
 							{isClaimActive && hasClaim && (
 								<>
 									{canClaim ? (
@@ -321,6 +322,8 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 									)}
 								</>
 							)}
+
+
 							{isPresaleActive ? (
 								<MintQuantity
 									title='Presale Mint'
@@ -373,6 +376,8 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 							/>
 						</>
 					)}
+
+					<Typography>Chimerapillars collection on <a href="https://opensea.io/collection/chimera-pillars" target="_blank" style={{ color: 'rgb(194, 192, 253)' }}>OpenSea</a></Typography>
 				</Box>
 
 				{approveInProgress && <Box sx={sx.darkOverlay} />}

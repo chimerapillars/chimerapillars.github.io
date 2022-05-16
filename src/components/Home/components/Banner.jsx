@@ -282,6 +282,7 @@ const Banner = () => {
 						))}
 					</Slider>
 				</Box>
+
 				<Box sx={sx.sliderNavContainer}>
 					<Box />
 					{!vertical && (
@@ -297,6 +298,7 @@ const Banner = () => {
 					<Typography sx={{ position: 'absolute', right: 0 }}>{`${currentSlide + 1} of ${IMAGES.length}`}</Typography>
 				</Box>
 			</Box>
+
 			<Box sx={sx.content}>
 				{config.PROJECT.id === 'toddlerpillars' ? (
 					<>
@@ -378,7 +380,7 @@ const Banner = () => {
 								<br/>
 								Members who hold both a Toddler and a Chimera will be rewarded with a 100+ page multimedia graphic novel exploring our lore in late 2022.
 
-								{!anySales && (
+								{/* !anySales && (
 									<>
 										<br/>
 										<br/>
@@ -401,7 +403,7 @@ const Banner = () => {
 											<br /><strong>Mint multiples for upcoming merge &amp; burn utility!</strong>
 										</p>
 									</>
-								)}
+								)*/}
 
 							</Typography>
 
@@ -412,24 +414,9 @@ const Banner = () => {
 							/>
 						</Box>
 
-						{/* @TEMP un-comment to show OS link
-						<Typography variant='text' sx={{ ...sx.text2, mt: '16px' }}>
-							{bold(
-								<>
-									Check collection on
-									{' '}
-									<Box
-										component='a'
-										sx={sx.url}
-										href='https://opensea.io/collection/chimerapillars'
-										target='_blank'
-										rel='noopener noreferrer'
-									>
-										OpenSea
-									</Box>
-								</>
-							)}
-						</Typography>*/}
+						<Typography variant='text' sx={{ ...sx.text2, mt: '16px' }} style={{ textAlign: 'center' }}>
+							Chimerapillars collection on <a href="https://opensea.io/collection/chimera-pillars" target="_blank" style={{ color: 'rgb(194, 192, 253)', textDecoration: 'underline' }}>OpenSea</a>
+						</Typography>
 
 						{/*
 						<Typography variant='text' sx={{ mt: '16px' }}>{DISCORD_TEXT}</Typography>
@@ -446,6 +433,8 @@ const Banner = () => {
 					</>
 				) : null}
 			</Box>
+
+
 			<Checkout isOpen={checkoutVisible} setOpen={setCheckoutVisible} configs={configs} />
 			<Explorer isOpen={explorerVisible} setOpen={setExplorerVisible} images={IMAGES} initialSlide={selectedSlide} />
 		</Box>

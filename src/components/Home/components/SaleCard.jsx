@@ -409,7 +409,6 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
               Only wallets holding <a style={osStyles} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale. 
               &nbsp;<a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a> 
               &nbsp;Mint multiples for upcoming merge &amp; burn utility! 
-              Presale runs from May 16 - May 22. 
 							Presale finishes when Public sale begins at 7am EST, May 23.
             </Typography>
 
