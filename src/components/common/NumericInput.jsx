@@ -109,7 +109,7 @@ const NumericInput = ({ value, max, min, onChange }) => {
       <Button sx={{ ...sx.button, ...sx.buttonLeft }} onClick={handleDecrement}>
         -
       </Button>
-      <Input
+      <Input style={{ overflow: 'hidden', width: '3em' }}
         type="number"
         sx={{ ...sx.input }}
         value={counter}

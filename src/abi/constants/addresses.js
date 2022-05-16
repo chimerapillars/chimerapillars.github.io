@@ -38,6 +38,6 @@ export const TODDLER_SALE_ADDRESSES = {
 }
 
 export const CHIMERA_CONTRACT = {
-    //[SupportedChainId.MAINNET]: "",
+    [SupportedChainId.MAINNET]: "0x6f3B255eFA6b2d4133c4F208E98E330e8CaF86f3",
     [SupportedChainId.RINKEBY]: "0xC220F504D8F7fb31c3b05676769E69f3a3f87fe5",
 }

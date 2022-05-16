@@ -342,7 +342,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
       );
     }
     //sale pending
-    else if( !( contractConfig.isClaimActive || contractConfig.isPresaleActive || contractConfig.isMainsaleActive ) ){
+    else if( !( contractConfig.isPresaleActive || contractConfig.isMainsaleActive ) ){
       return (
         <Card sx={sx.root}>
           <Box display="flex" sx={{ justifyContent: "center", alignItems: "center" }}>
@@ -354,7 +354,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
 
 
     const cards = [];
-    if( contractConfig.isClaimActive ){
+    if( contractConfig.isClaimActive && ownerConfig.hasClaim ){
       cards.push(
         <Card key="isClaimActive" sx={{
           ...sx.root,
@@ -367,33 +367,27 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
                 <strong>Free claims are live!</strong>
               </Typography>
 
-              {ownerConfig.hasClaim ? (
-                (address ? (
-                  <Grid item xs="auto">
-                    <Button
-                      variant="contained"
-                      sx={sx.mintBtn}
-                      onClick={handleMintClicked}
-                      disabled={disableMintBtn}
-                    >
-                      Claim NFT
-                    </Button>
-                  </Grid>
-                ) : (
-                  <Grid item xs="auto">
-                    <Button
-                      variant="outlined"
-                      sx={sx.connectBtn}
-                      onClick={handleConnect}
-                    >
-                      Connect Wallet
-                    </Button>
-                  </Grid>
-                ))
-              ):(
-                <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
-                  Only wallets holding <a style={osStyles} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can claim during presale.
-                </Typography>
+              {address ? (
+                <Grid item xs="auto">
+                  <Button
+                    variant="contained"
+                    sx={sx.mintBtn}
+                    onClick={handleMintClicked}
+                    disabled={disableMintBtn}
+                  >
+                    Claim NFT
+                  </Button>
+                </Grid>
+              ) : (
+                <Grid item xs="auto">
+                  <Button
+                    variant="outlined"
+                    sx={sx.connectBtn}
+                    onClick={handleConnect}
+                  >
+                    Connect Wallet
+                  </Button>
+                </Grid>
               )}
 
             </span>
@@ -477,8 +471,8 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
               ))
             ):(
               <Typography sx={sx.errorText}>
-                Sorry, your wallet address doesn’t have permission to mint yet,
-                but don’t worry the public sale will start soon.
+                Sorry, your wallet address doesn't hold any Toddlerpillars. 
+                &nbsp;<a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Buy one now</a> to participate in this presale or wait until our public sale starts at 7am EST, May 23.
               </Typography>
             )}
           </CardContent>
