@@ -105,6 +105,7 @@ const sx = {
     },
   },
   errorText: {
+    mt: 3,
     fontSize: 14,
     fontWeight: 500,
     color: COLOR_RED,
@@ -128,7 +129,6 @@ const sx = {
   btnsContainer: {
     mt: -2,
     mb: 0,
-    pt: 3,
   },
   mintBtn: {
     ...baseBtn,
@@ -200,7 +200,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
     isPresaleActive:  true,
     isMainsaleActive: false,
 
-    totalSupply: 0,
+    totalSupply: 584
   });
 
   const [ownerConfig, setOwnerConfig] = useState({
@@ -283,7 +283,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
     setCheckoutVisible( true );
   }
 
-  const disableMintBtn = !( isCorrectNetwork && address && config?.totalSupply > 0);
+  const disableMintBtn = !( isCorrectNetwork && address );
 
   const render = () => {
     if( isLoading ){
@@ -410,9 +410,9 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
             </Typography>
 
             <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
-              Only wallets holding <a style={osStyles} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale.
-              &nbsp;<a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a>
-              &nbsp;Mint multiples for upcoming merge &amp; burn utility!
+              Only wallets holding <a style={osStyles} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale. 
+              &nbsp;<a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a> 
+              &nbsp;Mint multiples for upcoming merge &amp; burn utility! 
 							Presale finishes when Public sale begins at 7am EST, May 23.
             </Typography>
 
@@ -476,12 +476,11 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
                 </Grid>
               ))
             ):(
-              <Grid container sx={sx.btnsContainer}>
+              <Grid container spacing={3} sx={sx.btnsContainer}>
               {address ? (
                 <Typography sx={sx.errorText}>
-                  Sorry, your wallet address doesn't hold any Toddlerpillars.
-                  <br/>
-                  <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Buy one now</a> to participate in this presale or wait until our public sale starts at 7am EST, May 23.
+                  Sorry, your wallet address doesn't hold any Toddlerpillars. 
+                  &nbsp;<a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Buy one now</a> to participate in this presale or wait until our public sale starts at 7am EST, May 23.
                 </Typography>
               ) : (
                 <Grid item xs="auto">
