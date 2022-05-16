@@ -181,7 +181,7 @@ const TextLink = ({ onClick, children }) => {
 };
 
 const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
-  const { handleConnect, address, isCorrectNetwork } = useContext(Web3Ctx);
+  let { handleConnect, address, isCorrectNetwork } = useContext(Web3Ctx);
   const chimeraContract = useChimeraContract();
   const toddlerContract = useSaleContract();
 
@@ -189,21 +189,26 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
   const [checkInterval, setCheckInterval] = useState(10_000);
   const [isLoading, setLoading] = useState(true);
   const [contractConfig, setContractConfig] = useState({
-    ethPrice: "30000000000000000",
+    weiPrice: '30000000000000000',
+    ethPrice: 0.03,
 
     maxMint:      4,
     maxOrder:     4,
     maxSupply: 8888,
 
-    isClaimActive:    false,
-    isPresaleActive:  false,
-    isMainsaleActive: false
+    isClaimActive:    true,
+    isPresaleActive:  true,
+    isMainsaleActive: false,
+
+    totalSupply: 584
   });
 
   const [ownerConfig, setOwnerConfig] = useState({
     balance: 0,
     claimed: 0,
     purchased: 0,
+    toddlers: 0,
+    hasClaim: false
   });
 
 
@@ -234,7 +239,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
     const tmpConfig = await chimeraContract.CONFIG();
     const config = {
       weiPrice: tmpConfig.ethPrice.toString(),
-      ethPrice: ethers.utils.formatEther( tmpConfig.ethPrice.toString() ),
+      ethPrice: parseFloat( ethers.utils.formatEther( tmpConfig.ethPrice.toString() ) ),
 
       maxMint:   parseInt( tmpConfig.maxMint.toString() ),
       maxOrder:  parseInt( tmpConfig.maxOrder.toString() ),
@@ -278,8 +283,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
     setCheckoutVisible( true );
   }
 
-  const limitReached = !(ownerConfig.purchased < contractConfig.maxMint);
-  const disableMintBtn = !isCorrectNetwork || limitReached || !address;
+  const disableMintBtn = !( isCorrectNetwork && address );
 
   const render = () => {
     if( isLoading ){
@@ -437,7 +441,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
             </Box>
 
             {ownerConfig.toddlers ? (
-              (ownerConfig.purchased >= 4 ? (
+              (ownerConfig.purchased >= contractConfig.maxMint ? (
                 <Typography sx={sx.errorText}>
                   Sorry, your wallet address doesn’t have permission to mint more
                   tokens in presale, but don’t worry, the public sale will start
@@ -445,34 +449,49 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
                 </Typography>
               ):(
                 <Grid container spacing={3} sx={sx.btnsContainer}>
-                  <Grid item xs="auto">
-                    <Button
-                      variant="contained"
-                      sx={sx.mintBtn}
-                      onClick={handleMintClicked}
-                      disabled={disableMintBtn}
-                    >
-                      Mint NFT
-                    </Button>
-                  </Grid>
-                  <Grid item xs="auto">
-                    {!address && (
-                      <Button
-                        variant="outlined"
-                        sx={sx.connectBtn}
-                        onClick={handleConnect}
-                      >
-                        Connect Wallet
-                      </Button>
-                    )}
-                  </Grid>
+                {address ? (
+                <Grid item xs="auto">
+                  <Button
+                    variant="contained"
+                    sx={sx.mintBtn}
+                    onClick={handleMintClicked}
+                    disabled={disableMintBtn}
+                  >
+                    Mint NFT
+                  </Button>
+                </Grid>
+                ) : (
+                <Grid item xs="auto">
+                  <Button
+                    variant="outlined"
+                    sx={sx.connectBtn}
+                    onClick={handleConnect}
+                  >
+                    Connect Wallet
+                  </Button>
+                </Grid>
+                )}
                 </Grid>
               ))
             ):(
-              <Typography sx={sx.errorText}>
-                Sorry, your wallet address doesn't hold any Toddlerpillars. 
-                &nbsp;<a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Buy one now</a> to participate in this presale or wait until our public sale starts at 7am EST, May 23.
-              </Typography>
+              <Grid container spacing={3} sx={sx.btnsContainer}>
+              {address ? (
+                <Typography sx={sx.errorText}>
+                  Sorry, your wallet address doesn't hold any Toddlerpillars. 
+                  &nbsp;<a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Buy one now</a> to participate in this presale or wait until our public sale starts at 7am EST, May 23.
+                </Typography>
+              ) : (
+                <Grid item xs="auto">
+                  <Button
+                    variant="outlined"
+                    sx={sx.connectBtn}
+                    onClick={handleConnect}
+                  >
+                    Connect Wallet
+                  </Button>
+                </Grid>
+              )}
+              </Grid>
             )}
           </CardContent>
         </Card>
@@ -526,8 +545,8 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
                 </Button>
               </Grid>
 
-              <Grid item xs="auto">
-                {!address && (
+              {!address && (
+                <Grid item xs="auto">
                   <Button
                     variant="outlined"
                     sx={sx.connectBtn}
@@ -535,8 +554,8 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
                   >
                     Connect Wallet
                   </Button>
-                )}
-              </Grid>
+                </Grid>
+              )}
             </Grid>
           </CardContent>
         </Card>
