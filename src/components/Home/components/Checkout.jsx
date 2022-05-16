@@ -104,6 +104,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 	const chimeraContract = useChimeraContract();
 
 	const ethPrice = parseFloat( configs?.contractConfig?.ethPrice || '0.03' );
+	const hasClaim = configs?.ownerConfig?.hasClaim || false;
 	const isClaimActive = configs?.contractConfig?.isClaimActive || false;
 	const isPresaleActive = configs?.contractConfig?.isPresaleActive || false;
 	const isMainsaleActive = configs?.contractConfig?.isMainsaleActive || false;
@@ -299,7 +300,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 							<Typography variant='text' sx={{ my: 4 }}>
 								Please select the number of NFTs you want to mint.
 							</Typography>
-							{isClaimActive && (
+							{isClaimActive && hasClaim && (
 								<>
 									{canClaim ? (
 										<MintQuantity

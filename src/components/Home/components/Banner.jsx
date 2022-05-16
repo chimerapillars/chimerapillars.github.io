@@ -377,9 +377,6 @@ const Banner = () => {
 								<br/>
 								<br/>
 								Members who hold both a Toddler and a Chimera will be rewarded with a 100+ page multimedia graphic novel exploring our lore in late 2022.
-								<br/>
-								<br/>
-								TP holders who submitted their wallets via discord before May 10 can mint 1 FREE Chimera during our presale or 2 FREE Chimeras if they hold 9+ TPs.
 
 								{!anySales && (
 									<>
