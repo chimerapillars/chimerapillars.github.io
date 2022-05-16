@@ -416,6 +416,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
 							Presale finishes when Public sale begins at 7am EST, May 23.
             </Typography>
 
+            {!disableMintBtn && (
             <Box sx={sx.roleContainer}>
               <Box component="span" sx={sx.mintRole} gutterBottom>
                 <Typography sx={sx.saleText}>{contractConfig.maxSupply}</Typography>
@@ -439,6 +440,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
                 </Typography>
               </Box>
             </Box>
+            )}
 
             {ownerConfig.toddlers ? (
               (ownerConfig.purchased >= contractConfig.maxMint ? (
@@ -509,6 +511,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
               Holders will select their favourite traits from 2 NFTs and merge them into 1 while reducing the supply with a burn mechanism.
             </Typography>
 
+            {!disableMintBtn && (
             <Box sx={sx.roleContainer}>
               <Box component="span" sx={sx.mintRole} gutterBottom>
                 <Typography sx={sx.saleText}>{contractConfig.maxSupply}</Typography>
@@ -532,6 +535,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
                 </Typography>
               </Box>
             </Box>
+            )}
 
             <Grid container spacing={3} sx={sx.btnsContainer}>
               <Grid item xs="auto">
