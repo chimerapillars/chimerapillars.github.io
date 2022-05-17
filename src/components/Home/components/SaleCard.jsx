@@ -480,9 +480,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
               <Grid container sx={sx.btnsContainer}>
               {address && (contractConfig.totalSupply > 0) ? (
                 <Typography sx={sx.errorText}>
-                  Sorry, your wallet address doesn't hold any Toddlerpillars.
-                  <br/>
-                  <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Buy one now</a> to participate in this presale or wait until our public sale starts at 7am EST, May 23.
+                  Sorry, your wallet address doesn't hold any Toddlerpillars. <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Buy one now</a> to participate in this presale or wait until our public sale starts at 7am EST, May 23.
                 </Typography>
               ) : (
                 <Grid item xs="auto">
