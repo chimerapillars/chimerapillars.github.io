@@ -415,6 +415,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
               &nbsp;<a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a>
               &nbsp;Mint multiples for upcoming merge &amp; burn utility!
 							Presale finishes when Public sale begins at 7am EST, May 23.
+              &nbsp;Chimerapillars will reveal 24 hrs after public sale starts.
             </Typography>
 
             {!disableMintBtn && (contractConfig.totalSupply > 0) ? (
