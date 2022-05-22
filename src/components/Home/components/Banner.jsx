@@ -375,10 +375,13 @@ const Banner = () => {
 							{vertical && <Divider titleDivider />}
 
 							<Typography variant='text' sx={{ ...sx.text1, mb: 2 }}>
-								<strong>8888 Chimerapillars with 888 traits</strong> have been summoned to save humanity from the Toddlerpillar apocalypse. Madness and mayhem have plagued the world since the 6 armed bebehs tore a hole in our reality! Can the Chimerapillars rescue their infantile cousins from the corruption of the lonely pillar?
+								8888 Chimerapillars with 888 traits have been summoned to save humanity from the Toddlerpillar apocalypse. Madness and mayhem have plagued the world since the 6 armed bebehs tore a hole in our reality! Can the Chimerapillars rescue their infantile cousins from the corruption of the lonely pillar?
 								<br/>
 								<br/>
-								Members who hold both a Toddler and a Chimera will be rewarded with a 100+ page multimedia graphic novel exploring our lore in late 2022.
+								This project continues the twenty-year history of artist and gallerist Jon Beinart's renowned doll sculptures, imbuing them with fresh psychedelic energy from award-winning artist and madman, Tim Molloy.
+                <br/>
+                <br/>
+                Toddlerpillar & Chimerapillar holders join an inter-dimensional art collective with access to global gatherings, exclusive airdrops, a 100+ page multimedia graphic novel exploring our lore, IRL collectable toys, metaverse exhibitions, merch & much more!
 
 								{/* !anySales && (
 									<>
