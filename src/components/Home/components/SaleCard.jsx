@@ -510,6 +510,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
             <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
               Mint multiple Chimerapillars for our upcoming merge and burn utility.
               Holders will select their favourite traits from 2 NFTs and merge them into 1 while reducing the supply with a burn mechanism.
+              Reveal at 7am EST, May 24.
             </Typography>
 
             {!disableMintBtn && (contractConfig.totalSupply > 0) ? (
