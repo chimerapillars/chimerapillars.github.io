@@ -247,7 +247,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
       maxSupply: parseInt( tmpConfig.maxSupply.toString() ),
 
       isClaimActive:    true, //tmpConfig.isClaimActive,
-      isPresaleActive:  true, //tmpConfig.isPresaleActive,
+      isPresaleActive:  false, //tmpConfig.isPresaleActive,
       isMainsaleActive: tmpConfig.isMainsaleActive
     };
     config.totalSupply = parseInt((await chimeraContract.totalSupply()).toString());
