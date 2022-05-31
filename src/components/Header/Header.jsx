@@ -299,7 +299,7 @@ const {
 	DROPMENUPATHS,
 } = nav
 const urlToddlerpillars = 'https://toddlerpillars.com';
-const urlRarity = `https://rarity.tools/${config.PROJECT.slug}`;
+const urlRarity = `https://rarity.tools/chimera-pillars`;
 const urlOpensea = `https://opensea.io/collection/${config.PROJECT.slug}`;
 const urlMaddies = `https://maddies.co/official/${config.PROJECT.slug}`
 
