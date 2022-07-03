@@ -16,7 +16,7 @@ const config = {
      nav: {
           BUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'Mythology', 'History', 'Rarity'],
           MOBILEBUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'Mythology', 'History', 'Rarity'],
-          PATHS: [null, 'https://toddlerpillars.com/#/about', 'https://toddlerpillars.com/#/mythology', 'https://toddlerpillars.com/#/history', 'https://toddlerpillars.com/#/roadmap'],
+          PATHS: [null, 'https://toddlerpillars.com/#/about', 'https://toddlerpillars.com/#/roadmap', 'https://toddlerpillars.com/#/mythology', 'https://toddlerpillars.com/#/history'],
           DROPMENU: [],
           DROPMENUPATHS: [],
           // BUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'OpenSea'],
@@ -30,7 +30,7 @@ const config = {
                url: 'https://twitter.com/chimerapillars',
           },
           discord: {
-               url: 'https://discord.gg/toddlerpillars',
+               url: 'https://discord.gg/pillars',
           },
      },
 }

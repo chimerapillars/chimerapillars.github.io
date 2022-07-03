@@ -28,7 +28,7 @@ const config = {
                url: 'https://twitter.com/toddlerpillars',
           },
           discord: {
-               url: 'https://discord.gg/toddlerpillars',
+               url: 'https://discord.gg/pillars',
           },
      },
 }

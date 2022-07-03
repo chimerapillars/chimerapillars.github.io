@@ -54,7 +54,7 @@ const BUTTONS = {
 		...socials.email,
 	},
 	discord: {
-		url: 'https://discord.gg/toddlerpillars',
+		url: 'https://discord.gg/pillars',
 		image: discord,
 		...socials.discord,
 	},

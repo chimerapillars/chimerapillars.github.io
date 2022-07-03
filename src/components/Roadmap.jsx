@@ -164,7 +164,7 @@ const Roadmap = () => {
 						<Typography variant='text'>Tim Molloy will continue creating themed
 						1/1 Toddlerpillar NFTs and limited edition Toddlerpillar NFTs.
 						These NFTs are only available to verified Toddlerpillar  holders on
-						our <a style={{ textDecoration: 'none', color: colors.primary, fontWeight: '700' }} href="https://discord.gg/toddlerpillars" target="_blank">Discord</a>. People with 9 or more Toddlerpillars (The Nines) can
+						our <a style={{ textDecoration: 'none', color: colors.primary, fontWeight: '700' }} href="https://discord.gg/pillars" target="_blank">Discord</a>. People with 9 or more Toddlerpillars (The Nines) can
 						enter a weekly contest to win themed 1/1 Toddlerpillars & members who
 						participate in Discord activities can earn larval gems, which can be
 						exchanged for limited edition NFTs in our Discord shop.</Typography>

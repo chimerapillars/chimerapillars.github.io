@@ -223,7 +223,7 @@ if (config.PROJECT.id === 'chimerapillars') {
 	IMAGES = [cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9];
 }
 
-const url = 'https://discord.gg/toddlerpillars';
+const url = 'https://discord.gg/pillars';
 
 const bold = (children) => <Box component='span' sx={{ fontFamily: 'roboto-bold' }}>{children}</Box>;
 
@@ -382,7 +382,16 @@ const Banner = () => {
                 <br/>
                 <br/>
                 Toddlerpillar & Chimerapillar holders join an inter-dimensional art collective with access to global gatherings, exclusive airdrops, a 100+ page multimedia graphic novel exploring our lore, IRL collectable toys, metaverse exhibitions, merch & much more!
-
+				<br />
+				<br />
+				Over 400 <span style={{ fontFamily: 'roboto-bold'}}>unique artworks</span> from our graphic novel will be <span style={{ fontFamily: 'roboto-bold'}}>airdropped</span> to our holders over the next few years with unlockable hi-res files & commercial rights:
+				<ul>
+					<li>100+ airdrops for wallets with 1 Chimera & 1 Toddler</li>
+					<li>200+ airdrops for wallets with 2 Chimeras & 2 Toddlers</li>
+					<li>300+ airdrops for wallets with 3 Toddlers & 3 Chimeras</li>
+					<li>400+ airdrops for wallets with 4 Toddlers & 4 Chimeras</li>
+					<li><span style={{ fontFamily: 'roboto-bold'}}>ULTRA RARE</span> airdrops for wallets with 9 Chimeras & 9 Toddlers</li>
+				</ul>
 								{/* !anySales && (
 									<>
 										<br/>
