@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Status {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model ChimeraPillar {
+  id          BigInt      @id @default(autoincrement())
+  tokenId     Int         @unique
+  name        String
+  description String      @db.Text
+  traitTypes  TraitType[]
+}
+
+model TraitType {
+  id              BigInt        @id @default(autoincrement())
+  trait_type      String
+  value           String
+  chimeraPillarId BigInt
+  chimeraPillar   ChimeraPillar @relation(fields: [chimeraPillarId], references: [id])
+}
+
+model ChimeraPillarMerge {
+  id                  BigInt @id @default(autoincrement())
+  baseChimeraPillarId BigInt
+  burnChimeraPillarId BigInt
+  status              Status @default(PENDING)
+  traitTypeIds        Int[]
+}
