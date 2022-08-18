@@ -21,6 +21,7 @@ model ChimeraPillar {
   tokenId     Int         @unique
   name        String
   description String      @db.Text
+  image       String      @db.Text
   traitTypes  TraitType[]
 }
 
