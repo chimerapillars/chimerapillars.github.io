@@ -1,18 +1,31 @@
-import React, { useEffect, useState, useContext } from "react"
-import Web3Ctx from "./Context/Web3Ctx"
-import { Box, Typography, Grid, Button } from "@mui/material"
+// Core deps.
+import React, { useEffect, useState, useContext } from 'react'
+
+// Third-party deps.
+import {
+  Box,
+  Typography,
+  Button,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+} from '@mui/material'
+import ImageMapper from 'react-image-mapper'
+import { ethers } from 'ethers'
 import _ from 'lodash'
 
-import { useChimeraContract } from "../hooks/useContract"
-import { SpinnerDotted } from "spinners-react"
+// Local deps.
+import Web3Ctx from './Context/Web3Ctx'
+import { useChimeraContract } from '../hooks/useContract'
+import { SpinnerDotted } from 'spinners-react'
 
-import Divider from "./common/Divider"
+import Divider from './common/Divider'
 import config from '../config'
 
 import Card from './Card.jsx'
 
-const BP1 = "@media (max-width: 899px)"
-const BP2 = "@media (max-width: 719px)"
+const BP1 = '@media (max-width: 899px)'
+const BP2 = '@media (max-width: 719px)'
 
 const { colors } = config.PROJECT
 
@@ -43,7 +56,7 @@ const sx = {
         fontSize: 16,
         minWidth: '150px',
         height: '40px',
-        margin: 'auto',
+        margin: '32px auto',
         backgroundColor: colors.background,
         color: colors.primary,
         borderRadius: '22px',
@@ -66,7 +79,7 @@ const sx = {
             opacity: 0.5,
         },
         '&:hover': {
-            backgroundColor: colors.primary,
+            backgroundColor: colors.highlight,
             color: '#fff',
             borderColor: colors.primary,
         },
@@ -82,15 +95,67 @@ const sx = {
       display: 'flex',
       flexDirection: 'column',
       background: 'none',
-      padding: 0,
       border: '4px solid',
       outline: 'none',
       borderColor: 'transparent',
+      padding: 4,
+      marginBottom: 24,
     },
     tokenSelected: {
       background: 'none',
-      padding: 0,
       borderColor: colors.primary,
+    },
+    accordion: {
+      background: '#1f1e1e',
+      marginBottom: 2,
+      '&.Mui-disabled': {
+        background: '#1f1e1e',
+        opacity: 0.75,
+      },
+    },
+    accordionSummary: {
+      alignItems: 'center',
+    },
+    accordionNumber: {
+      display: 'flex',
+      width: 32,
+      height: 32,
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: colors.highlight,
+      marginRight: 12,
+      borderRadius: '100%',
+      color: colors.text,
+    },
+    accordionTitle: {
+      // width: '33%',
+      marginRight: '18px',
+      flexShrink: 0,
+      color: colors.primary,
+      fontWeight: 'bold',
+      display: 'flex',
+      alignItems: 'center',
+      lineHeight: '32px',
+      fontSize: '1.1rem',
+    },
+    accordionDescription: {
+      color: colors.text,
+      lineHeight: '32px',
+    },
+    accordionDetails: {
+      borderTop: `1px solid #333`,
+      padding: 2,
+    },
+    buttonContainer: {
+      display: 'flex',
+      justifyContent: 'space-between',
+    },
+    stepButton: {
+      '&.Mui-disabled': {
+        background: colors.text,
+        color: colors.background,
+        opacity: 0.5,
+      },
     },
 }
 
@@ -197,22 +262,31 @@ const layers = [
 ]
 
 const MergeAndBurn = () => {
-  const { handleConnect, address } = useContext(Web3Ctx)
+  const { handleConnect, address: account } = useContext(Web3Ctx)
   const [ loading, setLoading ] = useState(false)
+  const [ burnCount, setBurnCount ] = useState(0)
   const [ tokens, setTokens ] = useState([])
-  // const [selectedTokens, setSelectedTokens] = useState([])
   const [ activeAttribute, setActiveAttribute ] = useState(null)
   const [ newToken, setNewToken ] = useState(null)
+  const [ step, setStep ] = useState('connect')
   const chimeras = useChimeraContract()
 
+  const selectedTokens = tokens.filter(token => token.isSelected)
+  const primaryToken = selectedTokens[0]
+  const secondaryToken = selectedTokens[1]
+  const primarySpecies = primaryToken?.attributes.find(a => a.trait_type === 'HEAD').value
+  const secondarySpecies = secondaryToken?.attributes.find(a => a.trait_type === 'HEAD').value
+  const isCrossSpecies = primarySpecies !== secondarySpecies
+
   useEffect(() => {
-    if (address) {
-      getTokens()
-      getBurnCount()
-      // setPrimaryToken(null)
-      // setSecondaryToken(null)
+    if (account) {
+      syncWeb3()
+      setStep('selection')
+    } else {
+      setTokens([])
+      setStep('connect')
     }
-  }, [address])
+  }, [account])
 
   const selectToken = (selectedToken) => {
     setTokens(tokens => tokens.map((token) => {
@@ -226,86 +300,116 @@ const MergeAndBurn = () => {
     }))
   }
 
-  const setPrimaryToken = (selectedToken) => {
-    setTokens(tokens => tokens.map((token) => {
-      console.log({ selected: selectedToken?.id, token: token.id }, selectedToken?.id === token.id)
-      return {
-        ...token,
-        isPrimary: selectedToken?.id === token.id,
-        isSecondary: false,
-      }
-    }))
-
-    setNewToken(selectedToken)
-  }
-
-  const setSecondaryToken = (selectedToken) => {
-    setTokens(tokens => tokens.map((token) => {
-      return {
-        ...token,
-        isPrimary: false,
-        isSecondary: selectedToken?.id === token.id,
-      }
-    }))
-  }
-
-  const getTokens = async () => {
+  const syncWeb3 = async () => {
     setLoading(true)
 
-    let tokenIds = await chimeras.walletOfOwner(address)
-    tokenIds = tokenIds.map(tokenId => tokenId.toNumber())
-    tokenIds.push(144, 484, 16)
+    let resp
+    let json
 
-    const tokens = []
-    await Promise.all(tokenIds.map((tokenId) => {
-      return new Promise(async (resolve, reject) => {
-        const req = await fetch(`https://fvbogq5bv5.execute-api.us-east-1.amazonaws.com/prod/metadata/0x6f3B255eFA6b2d4133c4F208E98E330e8CaF86f3/${tokenId}`)
-        const token = await req.json()
-        tokens.push({
-          id: tokenId,
-          ...token
-        })
-        resolve()
+    // Get collection stats.
+    resp = await fetch(`https://api.opensea.io/api/v1/collection/chimera-pillars`, {
+      headers: {
+        'x-api-key': process.env.REACT_APP_OPENSEA_API_KEY,
+      }
+    })
+    json = await resp.json()
+    const stats = json?.collection?.traits
+    console.log(stats)
+
+    // Contract info.
+    const totalSupply = await chimeras.totalSupply()
+
+    // Get tokens.
+    let tokens = []
+    let tokenIds = await chimeras.walletOfOwner(account)
+    tokenIds = tokenIds.map(tokenId => tokenId.toNumber())
+    tokenIds.push(144, 503, 16, 123, 877)
+
+    console.log(chimeras)
+
+    resp = await fetch(`http://localhost:3000/api/ownedPillars`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        wallet: account,
+        tokenIds: tokenIds.join(','),
+      }),
+    })
+    json = await resp.json()
+
+    if (json?.pillars?.length) {
+      tokens = json.pillars.map((pillar) => {
+        const { traitTypes, ...token } = pillar
+
+        return {
+          ...token,
+          attributes: traitTypes.map(trait => {
+            const percentage = (stats?.[trait.trait_type]?.[trait.value.toLowerCase()] / totalSupply.toNumber() * 100)
+            return {
+              ...trait,
+              rarity: percentage < 1 ? percentage.toFixed(2) : Math.round(percentage),
+            }
+          }),
+        }
       })
-    }))
+    }
+
+    // await Promise.all(tokenIds.map((tokenId) => {
+    //   return new Promise(async (resolve, reject) => {
+    //     const req = await fetch(`https://fvbogq5bv5.execute-api.us-east-1.amazonaws.com/prod/metadata/0x6f3B255eFA6b2d4133c4F208E98E330e8CaF86f3/${tokenId}`)
+    //     const token = await req.json()
+    //     tokens.push({
+    //       id: tokenId,
+    //       ...token
+    //     })
+    //     resolve()
+    //   })
+    // }))
 
     console.log(tokens)
 
-    setTokens(_.orderBy(tokens, 'id'))
+    setTokens(tokens)
+
+    // Get burn count.
+    const burnEvents = await chimeras.queryFilter(chimeras.filters.Transfer(null, ethers.constants.AddressZero), 0)
+
+    console.log(burnEvents)
+
+    setBurnCount(burnEvents.length)
 
     setLoading(false)
   }
 
-  const getBurnCount = async () => {
-    console.log(chimeras)
-    // const burnCount = await chimeras.queryFilter(chimeras.filters.burnFrom(), 0)
+  // Swap attributes between selected tokens.
+  const swapAttribute = (layer) => {
+    const primaryAttr = primaryToken.attributes.find(attr => attr.trait_type === layer)
+    const secondaryAttr = secondaryToken.attributes.find(attr => attr.trait_type === layer)
 
-    // console.log(burnCount)
+    console.log({layer, isCrossSpecies})
+    if (layer === 'HEAD' && isCrossSpecies) {
+      swapAttribute('EYES')
+      swapAttribute('MUZZLE')
+    }
+
+    setNewToken(currToken => ({
+      ...currToken,
+      attributes: currToken.attributes.map(attr => {
+        if (attr.trait_type === layer) {
+          return attr.value === primaryAttr.value ? secondaryAttr : primaryAttr
+        }
+        return attr
+      })
+    }))
+
+    setActiveAttribute(activeAttribute?.value === primaryAttr.value ? secondaryAttr : primaryAttr)
   }
 
-  // const primaryToken = tokens.find(token => token.isPrimary)
-  // const secondaryToken = tokens.find(token => token.isSecondary)
-
-  const swapAttribute = (layer) => {
-    return (evt) => {
-      evt.preventDefault()
-      evt.stopPropagation()
-
-      const primaryAttr = tokens[2].attributes.find(attr => attr.trait_type === layer)
-      const secondaryAttr = tokens[3].attributes.find(attr => attr.trait_type === layer)
-
-      setNewToken({
-        ...newToken,
-        attributes: newToken.attributes.map(attr => {
-          if (attr.trait_type === layer) {
-            return attr.value === primaryAttr.value ? secondaryAttr : primaryAttr
-          }
-          return attr
-        })
-      })
-
-      setActiveAttribute(activeAttribute?.value === primaryAttr.value ? secondaryAttr : primaryAttr)
-    }
+  // Go to specific step.
+  const goToStep = (step) => (evt, isExpanded) => {
+    setStep(isExpanded ? step : false);
   }
 
   return (
@@ -318,24 +422,13 @@ const MergeAndBurn = () => {
         <Divider titleDivider />
 
         <Typography variant="text" sx={{ mt: 4 }}>
-          Pick your favorite attributes to make your own Chimerapillar.
+          Pick your favorite attributes to make your own Chimerapillar!
+          <br/>
+          In order to swap eyes & muzzles, the two selected Chimerapillars must be of the same species.
+          <br/>
+          <br/>
+          So far {burnCount} Chimerapillars have been burned.
         </Typography>
-
-        {!address && (
-          <Box>
-            <Typography variant="text" sx={{ my: 4 }}>
-              Connect your wallet to see your bebehs.
-            </Typography>
-
-            <Button
-              variant="outlined"
-              sx={sx.connectBtn}
-              onClick={handleConnect}
-            >
-              Connect Wallet
-            </Button>
-          </Box>
-        )}
       </Box>
 
       {loading && (
@@ -344,83 +437,202 @@ const MergeAndBurn = () => {
         </Box>
       )}
 
-      {address && (
-        <>
+      <Accordion
+        // disabled={!!account}
+        expanded={step === 'connect'}
+        onChange={goToStep('connect')}
+        sx={sx.accordion}
+      >
+        <AccordionSummary
+          sx={sx.accordionSummary}
+        >
+          <Typography
+            sx={sx.accordionTitle}
+          >
+            <span
+              style={sx.accordionNumber}
+            >
+              1
+            </span>
+
+            <span>
+              Connect
+            </span>
+          </Typography>
+
+          <Typography
+            sx={sx.accordionDescription}
+          >
+            Get started by connecting your wallet.
+          </Typography>
+        </AccordionSummary>
+
+        <AccordionDetails
+          sx={sx.accordionDetails}
+        >
+          <Button
+            variant="outlined"
+            sx={sx.connectBtn}
+            onClick={handleConnect}
+          >
+            Connect Wallet
+          </Button>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion
+        disabled={!account}
+        expanded={step === 'selection'}
+        onChange={goToStep('selection')}
+        sx={sx.accordion}
+      >
+        <AccordionSummary
+          sx={sx.accordionSummary}
+        >
+          <Typography
+            sx={sx.accordionTitle}
+          >
+            <span
+              style={sx.accordionNumber}
+            >
+              2
+            </span>
+
+            <span>
+              Choose your Chimerapillars
+            </span>
+          </Typography>
+
+          <Typography
+            sx={sx.accordionDescription}
+          >
+            Select two Chimerapillars to begin swapping parts.
+          </Typography>
+        </AccordionSummary>
+
+        <AccordionDetails
+          sx={sx.accordionDetails}
+        >
           <div
             style={{
               display: 'flex',
-              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              justifyContent: 'space-evenly',
               marginBottom: 48,
             }}
           >
             {tokens.map((token) => {
-              console.log(token)
               return (
-                <div
+                <Button
                   key={token.id}
+                  disabled={!token.isSelected && selectedTokens.length === 2}
+                  onClick={() => {
+                    selectToken(token)
+                  }}
                   style={{
-                    display: 'flex',
-                    flexDirection: 'column',
+                    ...sx.token,
+                    ...(token.isSelected ? sx.tokenSelected : null),
                   }}
                 >
-                  <Button
-                    onClick={() => {
-                      selectToken(token)
-                    }}
+                  <img
+                    src={token.image}
+                    width="240"
+                    height="240"
+                  />
+
+                  <Typography
                     style={{
-                      ...sx.token,
-                      ...(token.isSelected ? sx.tokenSelected : null),
-                      marginBottom: 12,
-                      padding: 4,
+                      lineHeight: '2',
+                      fontWeight: 'bold',
                     }}
                   >
-                    <Typography
-                      style={{
-                        lineHeight: '2',
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      {token.name}
-                    </Typography>
-
-                    <img
-                      src={token.image}
-                      width="240"
-                      height="240"
-                    />
-                  </Button>
-
-                  {token.isSelected && (tokens.filter(t => t.isSelected)).length === 2 && (
-                    <Button
-                      variant="contained"
-                      onClick={() => {
-                        setPrimaryToken(token)
-                        // setSecondaryToken(tokens[1])
-                      }}
-                      style={{
-                        // display: 'block',
-                        backgroundColor: token.isPrimary ? colors.highlight : 'white',
-                        color: token.isPrimary ? 'white' : colors.highlight,
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      Make Primary
-                    </Button>
-                  )}
-                </div>
+                    {token.name}
+                  </Typography>
+                </Button>
               )
             })}
           </div>
 
+          <div
+            style={sx.buttonContainer}
+          >
+            <Button
+              variant="contained"
+              disabled
+              sx={sx.stepButton}
+            >
+              ‹ Back
+            </Button>
+
+            <Button
+              variant="contained"
+              disabled={selectedTokens.length !== 2}
+              onClick={() => {
+                setNewToken({ ...selectedTokens[0] })
+                setStep('build')
+              }}
+              sx={sx.stepButton}
+            >
+              Next ›
+            </Button>
+          </div>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion
+        disabled={!account || selectedTokens.length !== 2}
+        expanded={step === 'build'}
+        onChange={goToStep('build')}
+        sx={sx.accordion}
+      >
+        <AccordionSummary
+          sx={sx.accordionSummary}
+        >
+          <Typography
+            sx={sx.accordionTitle}
+          >
+            <span
+              style={sx.accordionNumber}
+            >
+              3
+            </span>
+
+            <span>
+              Build your new Chimerapillar
+            </span>
+          </Typography>
+
+          <Typography
+            sx={sx.accordionDescription}
+          >
+            Swap parts between your Chimerapillars.
+          </Typography>
+        </AccordionSummary>
+
+        <AccordionDetails
+          sx={sx.accordionDetails}
+        >
           {newToken && (
             <>
               <Box style={{position: 'relative', width: 1000, height: 1000, margin: 'auto', marginBottom: 24, }}>
-                <img
+                <ImageMapper
                   src={newToken.image}
-                  useMap="#image-map"
-                  width="1000"
-                  height="1000"
-                  style={{opacity: 0, position: 'absolute', top: 0, left: 0, zIndex: 2}}
+                  imageWidth={2000}
+                  width={1000}
+                  onClick={(area) => {
+                    swapAttribute(area._id)
+                  }}
+                  map={{
+                    name: 'image-map',
+                    areas: layers.map((layer) => {
+                      const coords = Array.isArray(layer.coords) ? layer.coords : [layer.coords]
+                      return {
+                        _id: layer.trait_type,
+                        shape: 'poly',
+                        coords: coords[0].split(','),
+                      }
+                    }),
+                  }}
                 />
 
                 {newToken.attributes.map((attr) => {
@@ -445,17 +657,22 @@ const MergeAndBurn = () => {
                   )
                 })}
 
-                <map
+                {/*}<map
                   name="image-map"
                 >
                   {layers.map((layer) => {
                     const coords = Array.isArray(layer.coords) ? layer.coords : [layer.coords]
                     const attr = newToken?.attributes?.find(attr => attr.trait_type === layer.trait_type)
 
+                    if (isCrossSpecies && ['EYES', 'MUZZLE'].includes(layer.trait_type)) {
+                      return null
+                    }
+
                     return (
                       <>
                         {coords.map((coord) => (
                           <area
+                            key={coord}
                             onClick={swapAttribute(layer.trait_type)}
                             title={`${attr?.trait_type}: ${attr?.value}`}
                             coords={coord}
@@ -465,53 +682,129 @@ const MergeAndBurn = () => {
                       </>
                     )
                   })}
-                </map>
+                </map>*/}
               </Box>
 
-              {newToken && (
-                <div
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    width: 1016,
-                    margin: 'auto',
-                  }}
-                >
-                  {layers.map((layer) => {
-                    const attr = newToken?.attributes?.find(attr => attr.trait_type === layer.trait_type)
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  width: 1016,
+                  margin: '0 auto 32px auto',
+                }}
+              >
+                {layers.map((layer) => {
+                  const attr = newToken?.attributes?.find(attr => attr.trait_type === layer.trait_type)
 
-                    return (
-                      <div
-                        onClick={swapAttribute(attr.trait_type)}
-                        style={{
-                          cursor: 'pointer',
-                          margin: 8,
-                          width: 187,
-                          borderRadius: 8,
-                          padding: 8,
-                          textAlign: 'center',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          border: `1px solid ${colors.primary}`,
-                          background: attr?.trait_type === activeAttribute?.trait_type
-                            ? colors.highlight
-                            : 'rgba(21, 178, 229, 0.06)',
-                        }}
-                      >
-                        <span style={{ fontSize: '0.8em', color: colors.primary, fontWeight: '600', }}>{attr.trait_type.toUpperCase()}</span>
-                        <span style={{ color: 'white', fontWeight: 'bold', display: 'block', minHeight: '3em' }}>{attr.value}</span>
-                        <span style={{ fontSize: '0.8em', color: 'rgb(138, 147, 155)', }}>X% have this trait</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
+                  return (
+                    <div
+                      key={layer.trait_type}
+                      onClick={() => swapAttribute(attr.trait_type)}
+                      style={{
+                        cursor: 'pointer',
+                        margin: 8,
+                        width: 187,
+                        borderRadius: 8,
+                        padding: 8,
+                        textAlign: 'center',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: `1px solid ${colors.primary}`,
+                        background: attr?.trait_type === activeAttribute?.trait_type
+                          ? colors.highlight
+                          : 'rgba(21, 178, 229, 0.06)',
+                        opacity: isCrossSpecies && ['EYES', 'MUZZLE'].includes(layer.trait_type)
+                          ? 0.5
+                          : 1,
+                        pointerEvents: isCrossSpecies && ['EYES', 'MUZZLE'].includes(layer.trait_type)
+                          ? 'none'
+                          : 'auto',
+                      }}
+                    >
+                      <span style={{ fontSize: '0.8em', color: colors.primary, fontWeight: '600', }}>{attr.trait_type.toUpperCase()}</span>
+                      <span style={{ color: 'white', fontWeight: 'bold', display: 'block', minHeight: '3em' }}>{attr.value}</span>
+                      <span style={{ fontSize: '0.8em', color: 'rgb(138, 147, 155)', }}>{attr.rarity}% have this trait</span>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <div
+                style={sx.buttonContainer}
+              >
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    goToStep('selection')
+                  }}
+                  sx={sx.stepButton}
+                >
+                  ‹ Back
+                </Button>
+
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setStep('confirm')
+                  }}
+                  sx={sx.stepButton}
+                >
+                  Next ›
+                </Button>
+              </div>
             </>
           )}
-        </>
-      )}
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion
+        disabled={step !== 'confirm'}
+        expanded={step === 'confirm'}
+        onChange={goToStep('confirm')}
+        sx={sx.accordion}
+      >
+        <AccordionSummary
+          sx={sx.accordionSummary}
+        >
+          <Typography
+            sx={sx.accordionTitle}
+          >
+            <span
+              style={sx.accordionNumber}
+            >
+              4
+            </span>
+
+            <span>
+              Merge & Burn
+            </span>
+          </Typography>
+
+          <Typography
+            sx={sx.accordionDescription}
+          >
+            Confirm your choices and create your new Chimerapillar.
+          </Typography>
+        </AccordionSummary>
+
+        <AccordionDetails
+          sx={sx.accordionDetails}
+        >
+          <Typography>
+            Are you 100% sure about all this? IMAGE OF FINAL CHIMERA / UI TO SELECT WHICH # TO KEEP
+          </Typography>
+
+          <Button
+            variant="outlined"
+            sx={sx.connectBtn}
+            onClick={handleConnect}
+          >
+            MERGE & BURN
+          </Button>
+        </AccordionDetails>
+      </Accordion>
     </Box>
   )
 }

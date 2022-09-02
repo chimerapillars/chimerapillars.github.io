@@ -29,3 +29,7 @@ body > li > .grabbed-layer {
 area {
   cursor: pointer;
 }
+
+img[usemap="#image-map"] {
+  opacity: 0;
+}
