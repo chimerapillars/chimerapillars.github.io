@@ -1,5 +1,5 @@
 // Core deps.
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, useContext, useRef } from 'react'
 
 // Third-party deps.
 import {
@@ -10,8 +10,10 @@ import {
   AccordionDetails,
   AccordionSummary,
 } from '@mui/material'
+import ReactTooltip from 'react-tooltip'
 import ImageMapper from 'react-image-mapper'
 import { ethers } from 'ethers'
+import { ECAddress } from 'ec-commons';
 import _ from 'lodash'
 
 // Local deps.
@@ -56,7 +58,6 @@ const sx = {
         fontSize: 16,
         minWidth: '150px',
         height: '40px',
-        margin: '32px auto',
         backgroundColor: colors.background,
         color: colors.primary,
         borderRadius: '22px',
@@ -87,6 +88,31 @@ const sx = {
             outlineColor: 'unset',
         },
     },
+    disconnectBtn: {
+      textAlign: 'center',
+      cursor: 'pointer',
+      transition: 'color 0.3s ease-in-out',
+      marginLeft: '6px',
+      fontSize: '0.8rem',
+      lineHeight: '0.3rem',
+      '&:hover': {
+        textDecoration: 'underline',
+      },
+    },
+    errorBtn: {
+      color: '#fff',
+      fontSize: 16,
+      minWidth: '150px',
+      height: '40px',
+      backgroundColor: 'red',
+      borderRadius: '22px',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      fontFamily: 'roboto-bold',
+      transition: 'all .3s',
+      textTransform: 'unset',
+    },
     tokens: {
       display: 'flex',
       justifyContent: 'space-between',
@@ -98,8 +124,11 @@ const sx = {
       border: '4px solid',
       outline: 'none',
       borderColor: 'transparent',
-      padding: 4,
-      marginBottom: 24,
+      padding: '4px',
+      marginBottom: '24px',
+      '&.Mui-disabled': {
+        color: colors.text,
+      },
     },
     tokenSelected: {
       background: 'none',
@@ -149,6 +178,12 @@ const sx = {
     buttonContainer: {
       display: 'flex',
       justifyContent: 'space-between',
+      position: 'sticky',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      padding: 8,
+      background: '#1f1e1e',
     },
     stepButton: {
       '&.Mui-disabled': {
@@ -233,26 +268,32 @@ const layers = [
   {
     trait_type: 'ARMS TOP PARTS',
     filePrefix: 'AT',
-    coords: [
-      '377,546,310,525,219,463,197,476,165,501,156,520,190,558,217,602,276,642,316,667',
-      '636,546,608,574,602,614,615,663,660,678,723,657,777,617,847,573,862,534,831,505,797,482,747,499,690,532',
-    ],
+    coords: '377,546,310,525,219,463,197,476,165,501,156,520,190,558,217,602,276,642,316,667',
+  },
+  {
+    trait_type: 'ARMS TOP PARTS',
+    filePrefix: 'AT',
+    coords: '636,546,608,574,602,614,615,663,660,678,723,657,777,617,847,573,862,534,831,505,797,482,747,499,690,532',
   },
   {
     trait_type: 'ARMS MIDDLE PARTS',
     filePrefix: 'AM',
-    coords: [
-      '310,699,263,684,181,650,144,641,135,683,149,733,179,760,242,798,294,819,327,831,309,771',
-      '642,696,617,727,618,783,627,816,660,826,726,808,787,783,827,753,842,707,828,673,795,669,738,688,686,696',
-    ],
+    coords: '310,699,263,684,181,650,144,641,135,683,149,733,179,760,242,798,294,819,327,831,309,771',
+  },
+  {
+    trait_type: 'ARMS MIDDLE PARTS',
+    filePrefix: 'AM',
+    coords: '642,696,617,727,618,783,627,816,660,826,726,808,787,783,827,753,842,707,828,673,795,669,738,688,686,696',
   },
   {
     trait_type: 'ARMS LOWER PARTS',
     filePrefix: 'AL',
-    coords: [
-      '326,851,262,865,205,859,151,840,118,868,105,892,99,917,112,944,152,961,210,979,249,988,287,989,302,955,299,907',
-      '650,844,614,852,594,906,597,957,616,973,680,980,738,972,807,941,844,907,847,873,825,838,779,855,709,855',
-    ],
+    coords: '326,851,262,865,205,859,151,840,118,868,105,892,99,917,112,944,152,961,210,979,249,988,287,989,302,955,299,907',
+  },
+  {
+    trait_type: 'ARMS LOWER PARTS',
+    filePrefix: 'AL',
+    coords: '650,844,614,852,594,906,597,957,616,973,680,980,738,972,807,941,844,907,847,873,825,838,779,855,709,855',
   },
   {
     trait_type: 'BACKGROUNDS',
@@ -260,15 +301,17 @@ const layers = [
     coords: '0,0,1000,1000',
   },
 ]
-
+let fetched = false
 const MergeAndBurn = () => {
-  const { handleConnect, address: account } = useContext(Web3Ctx)
+  const { handleConnect, handleDisconnect, isCorrectNetwork, address: account } = useContext(Web3Ctx)
   const [ loading, setLoading ] = useState(false)
   const [ burnCount, setBurnCount ] = useState(0)
   const [ tokens, setTokens ] = useState([])
   const [ activeAttribute, setActiveAttribute ] = useState(null)
   const [ newToken, setNewToken ] = useState(null)
   const [ step, setStep ] = useState('connect')
+  const [ hoveredLayer, setHoveredLayer ] = useState(null)
+  const accordionElem = useRef(null)
   const chimeras = useChimeraContract()
 
   const selectedTokens = tokens.filter(token => token.isSelected)
@@ -276,7 +319,11 @@ const MergeAndBurn = () => {
   const secondaryToken = selectedTokens[1]
   const primarySpecies = primaryToken?.attributes.find(a => a.trait_type === 'HEAD').value
   const secondarySpecies = secondaryToken?.attributes.find(a => a.trait_type === 'HEAD').value
-  const isCrossSpecies = primarySpecies !== secondarySpecies
+  const isSameSpecies = primarySpecies === secondarySpecies
+
+  useEffect(() => {
+    ReactTooltip.rebuild()
+  })
 
   useEffect(() => {
     if (account) {
@@ -286,11 +333,21 @@ const MergeAndBurn = () => {
       setTokens([])
       setStep('connect')
     }
-  }, [account])
+  }, [])
 
-  const selectToken = (selectedToken) => {
+  // useEffect(() => {
+  //   if (accordionElem?.current) {
+  //     accordionElem.current.scrollIntoView({
+  //       behavior: 'smooth',
+  //       block: 'start',
+  //       inline: 'nearest',
+  //     })
+  //   }
+  // }, [step])
+
+  const selectToken = (id) => {
     setTokens(tokens => tokens.map((token) => {
-      if (selectedToken?.id === token.id) {
+      if (id === token.id) {
         return {
           ...token,
           isSelected: !token.isSelected,
@@ -298,20 +355,34 @@ const MergeAndBurn = () => {
       }
       return token
     }))
+    setActiveAttribute(null)
   }
 
   const syncWeb3 = async () => {
+    if (fetched) return
+    fetched = true
     setLoading(true)
 
-    let resp
-    let json
+    // Get burn count.
+    const burnEvents = await chimeras.queryFilter(chimeras.filters.Transfer(null, ethers.constants.AddressZero), 0)
+
+    console.log(burnEvents)
+
+    setBurnCount(burnEvents.length)
 
     // Get collection stats.
-    resp = await fetch(`https://api.opensea.io/api/v1/collection/chimera-pillars`, {
-      headers: {
-        'x-api-key': process.env.REACT_APP_OPENSEA_API_KEY,
-      }
-    })
+    let resp
+    let json
+    if (config.DEPLOYED_NTW_NAME === 'rinkeby') {
+      resp = await fetch('https://testnets-api.opensea.io/api/v1/collection/chimera-pillars-testnet')
+    } else {
+      resp = await fetch('https://api.opensea.io/api/v1/collection/chimera-pillars', {
+        headers: {
+          'x-api-key': process.env.REACT_APP_OPENSEA_API_KEY,
+        }
+      })
+    }
+
     json = await resp.json()
     const stats = json?.collection?.traits
     console.log(stats)
@@ -323,62 +394,44 @@ const MergeAndBurn = () => {
     let tokens = []
     let tokenIds = await chimeras.walletOfOwner(account)
     tokenIds = tokenIds.map(tokenId => tokenId.toNumber())
-    tokenIds.push(144, 503, 16, 123, 877)
 
-    console.log(chimeras)
-
-    resp = await fetch(`http://localhost:3000/api/ownedPillars`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        wallet: account,
-        tokenIds: tokenIds.join(','),
-      }),
-    })
-    json = await resp.json()
-
-    if (json?.pillars?.length) {
-      tokens = json.pillars.map((pillar) => {
-        const { traitTypes, ...token } = pillar
-
-        return {
-          ...token,
-          attributes: traitTypes.map(trait => {
-            const percentage = (stats?.[trait.trait_type]?.[trait.value.toLowerCase()] / totalSupply.toNumber() * 100)
-            return {
-              ...trait,
-              rarity: percentage < 1 ? percentage.toFixed(2) : Math.round(percentage),
-            }
-          }),
-        }
+    if (tokenIds?.length) {
+      resp = await fetch(`${config.PROJECT.mergeburn.apiRoot}/ownedPillars`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          wallet: account,
+          tokenIds: tokenIds.join(','),
+        }),
       })
-    }
+      json = await resp.json()
 
-    // await Promise.all(tokenIds.map((tokenId) => {
-    //   return new Promise(async (resolve, reject) => {
-    //     const req = await fetch(`https://fvbogq5bv5.execute-api.us-east-1.amazonaws.com/prod/metadata/0x6f3B255eFA6b2d4133c4F208E98E330e8CaF86f3/${tokenId}`)
-    //     const token = await req.json()
-    //     tokens.push({
-    //       id: tokenId,
-    //       ...token
-    //     })
-    //     resolve()
-    //   })
-    // }))
+      if (json?.pillars?.length) {
+        tokens = json.pillars.map((pillar) => {
+          const { traitTypes, ...token } = pillar
+
+          return {
+            ...token,
+            id: token.tokenId,
+            image: `https://chimerapillars.s3.amazonaws.com/images/${token.tokenId}.png`,
+            attributes: traitTypes.map(trait => {
+              const percentage = (stats?.[trait.trait_type]?.[trait.value.toLowerCase()] / totalSupply.toNumber() * 100)
+              return {
+                ...trait,
+                rarity: percentage < 1 ? percentage.toFixed(2) : Math.round(percentage),
+              }
+            }),
+          }
+        })
+      }
+    }
 
     console.log(tokens)
 
     setTokens(tokens)
-
-    // Get burn count.
-    const burnEvents = await chimeras.queryFilter(chimeras.filters.Transfer(null, ethers.constants.AddressZero), 0)
-
-    console.log(burnEvents)
-
-    setBurnCount(burnEvents.length)
 
     setLoading(false)
   }
@@ -388,8 +441,8 @@ const MergeAndBurn = () => {
     const primaryAttr = primaryToken.attributes.find(attr => attr.trait_type === layer)
     const secondaryAttr = secondaryToken.attributes.find(attr => attr.trait_type === layer)
 
-    console.log({layer, isCrossSpecies})
-    if (layer === 'HEAD' && isCrossSpecies) {
+    console.log({layer, isSameSpecies})
+    if (layer === 'HEAD' && !isSameSpecies) {
       swapAttribute('EYES')
       swapAttribute('MUZZLE')
     }
@@ -408,8 +461,31 @@ const MergeAndBurn = () => {
   }
 
   // Go to specific step.
-  const goToStep = (step) => (evt, isExpanded) => {
-    setStep(isExpanded ? step : false);
+  const goToStep = (step) => async (evt, isExpanded) => {
+    setStep(isExpanded ? step : false)
+
+    // await new Promise(r => setTimeout(r, 500))
+    //
+    // if (accordionElem?.current) {
+    //   accordionElem.current.scrollIntoView({
+    //     behavior: 'smooth',
+    //     block: 'start',
+    //     inline: 'nearest',
+    //   })
+    // }
+  }
+
+  // Get layer position.
+  const getLayerPosition = (layer) => {
+    return {
+      top: `${layer.center[1]}px`,
+      left: `${layer.center[0]}px`,
+    }
+  }
+
+  // Merge & burn.
+  const mergeAndBurn = async () => {
+    alert('metamask...')
   }
 
   return (
@@ -431,17 +507,11 @@ const MergeAndBurn = () => {
         </Typography>
       </Box>
 
-      {loading && (
-        <Box sx={{ textAlign: "center" }}>
-          <SpinnerDotted color={colors.primary} />
-        </Box>
-      )}
-
       <Accordion
-        // disabled={!!account}
         expanded={step === 'connect'}
         onChange={goToStep('connect')}
         sx={sx.accordion}
+        ref={step === 'connect' ? accordionElem : null}
       >
         <AccordionSummary
           sx={sx.accordionSummary}
@@ -469,14 +539,20 @@ const MergeAndBurn = () => {
 
         <AccordionDetails
           sx={sx.accordionDetails}
+          style={{ display: 'flex', padding: '32px', alignItems: 'center', justifyContent: 'center', }}
         >
-          <Button
-            variant="outlined"
-            sx={sx.connectBtn}
-            onClick={handleConnect}
-          >
-            Connect Wallet
-          </Button>
+          {!account && (
+            <Button variant='outlined' sx={sx.connectBtn} onClick={handleConnect}>Connect Wallet</Button>
+          )}
+          {account && isCorrectNetwork && (
+            <Box sx={sx.account} onClick={(e) => e.stopPropagation()}>
+              <ECAddress address={account} short blockie scale={5} />
+              <Box sx={sx.disconnectBtn} onClick={() => handleDisconnect()}>disconnect</Box>
+            </Box>
+          )}
+          {account && !isCorrectNetwork && (
+            <Box sx={sx.errorBtn}>Wrong Network</Box>
+          )}
         </AccordionDetails>
       </Accordion>
 
@@ -485,6 +561,7 @@ const MergeAndBurn = () => {
         expanded={step === 'selection'}
         onChange={goToStep('selection')}
         sx={sx.accordion}
+        ref={step === 'selection' ? accordionElem : null}
       >
         <AccordionSummary
           sx={sx.accordionSummary}
@@ -513,6 +590,12 @@ const MergeAndBurn = () => {
         <AccordionDetails
           sx={sx.accordionDetails}
         >
+          {loading && (
+            <Box sx={{ textAlign: "center", marginTop: 6 }}>
+              <SpinnerDotted color={colors.primary} />
+            </Box>
+          )}
+
           <div
             style={{
               display: 'flex',
@@ -527,9 +610,9 @@ const MergeAndBurn = () => {
                   key={token.id}
                   disabled={!token.isSelected && selectedTokens.length === 2}
                   onClick={() => {
-                    selectToken(token)
+                    selectToken(token.id)
                   }}
-                  style={{
+                  sx={{
                     ...sx.token,
                     ...(token.isSelected ? sx.tokenSelected : null),
                   }}
@@ -558,10 +641,12 @@ const MergeAndBurn = () => {
           >
             <Button
               variant="contained"
-              disabled
               sx={sx.stepButton}
+              onClick={() => {
+                setStep('connect')
+              }}
             >
-              ‹ Back
+              ◂ Back
             </Button>
 
             <Button
@@ -573,7 +658,7 @@ const MergeAndBurn = () => {
               }}
               sx={sx.stepButton}
             >
-              Next ›
+              Next ▸
             </Button>
           </div>
         </AccordionDetails>
@@ -584,29 +669,52 @@ const MergeAndBurn = () => {
         expanded={step === 'build'}
         onChange={goToStep('build')}
         sx={sx.accordion}
+        ref={step === 'build' ? accordionElem : null}
       >
         <AccordionSummary
           sx={sx.accordionSummary}
+          style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
         >
-          <Typography
-            sx={sx.accordionTitle}
-          >
-            <span
-              style={sx.accordionNumber}
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+            <Typography
+              sx={sx.accordionTitle}
             >
-              3
-            </span>
+              <span
+                style={sx.accordionNumber}
+              >
+                3
+              </span>
 
-            <span>
-              Build your new Chimerapillar
-            </span>
-          </Typography>
+              <span>
+                Build your new Chimerapillar
+              </span>
+            </Typography>
 
-          <Typography
-            sx={sx.accordionDescription}
-          >
-            Swap parts between your Chimerapillars.
-          </Typography>
+            <Typography
+              sx={sx.accordionDescription}
+            >
+              Swap parts between your Chimerapillars.
+            </Typography>
+          </div>
+
+          {step === 'build' && (
+            <div>
+              {selectedTokens.map((token) => {
+                return (
+                  <img
+                    key={token.id}
+                    src={token.image}
+                    width={64}
+                    height={64}
+                    style={{
+                      marginLeft: '8px',
+                      verticalAlign: 'bottom',
+                    }}
+                  />
+                )
+              })}
+            </div>
+          )}
         </AccordionSummary>
 
         <AccordionDetails
@@ -619,21 +727,47 @@ const MergeAndBurn = () => {
                   src={newToken.image}
                   imageWidth={2000}
                   width={1000}
+                  fillColor="rgba(0, 0, 0, 0)"
+                  strokeColor="rgba(0, 0, 0, 0)"
                   onClick={(area) => {
                     swapAttribute(area._id)
                   }}
+                  onMouseEnter={setHoveredLayer}
+                	onMouseLeave={() => setHoveredLayer(null)}
                   map={{
                     name: 'image-map',
-                    areas: layers.map((layer) => {
-                      const coords = Array.isArray(layer.coords) ? layer.coords : [layer.coords]
+                    areas: layers.filter(layer => isSameSpecies || !['EYES', 'MUZZLE'].includes(layer.trait_type)).map((layer) => {
+                      const coords = layer.coords.split(',')
+
                       return {
                         _id: layer.trait_type,
-                        shape: 'poly',
-                        coords: coords[0].split(','),
+                        name: layer.trait_type,
+                        shape: coords.length === 4 ? 'rect' : 'poly',
+                        coords,
+                        fillColor: 'rgba(0, 0, 0, 0)',
+                        strokeColor: 'rgba(0, 0, 0, 0)',
                       }
                     }),
                   }}
                 />
+
+                {false && hoveredLayer && (
+                	<span
+                	  style={{
+                      position: 'absolute',
+                      color: '#fff',
+                      padding: '10px',
+                      background: 'rgba(0,0,0,0.8)',
+                      transform: 'translate3d(-50%, -50%, 0)',
+                      borderRadius: '5px',
+                      pointerEvents: 'none',
+                      zIndex: '1000',
+                      ...getLayerPosition(hoveredLayer)
+                    }}
+                  >
+                		{hoveredLayer.name}
+                	</span>
+                )}
 
                 {newToken.attributes.map((attr) => {
                   const layer = layers.find(layer => layer.trait_type === attr.trait_type)
@@ -649,6 +783,7 @@ const MergeAndBurn = () => {
 
                   return (
                     <img
+                      key={attr.trait_type}
                       src={`/chimerapillars/parts/resized/${attr.trait_type}/${filepath}`}
                       width="1000"
                       height="1000"
@@ -664,7 +799,7 @@ const MergeAndBurn = () => {
                     const coords = Array.isArray(layer.coords) ? layer.coords : [layer.coords]
                     const attr = newToken?.attributes?.find(attr => attr.trait_type === layer.trait_type)
 
-                    if (isCrossSpecies && ['EYES', 'MUZZLE'].includes(layer.trait_type)) {
+                    if (!isSameSpecies && ['EYES', 'MUZZLE'].includes(layer.trait_type)) {
                       return null
                     }
 
@@ -693,13 +828,22 @@ const MergeAndBurn = () => {
                   margin: '0 auto 32px auto',
                 }}
               >
-                {layers.map((layer) => {
+                {_.uniqBy(layers, 'trait_type').map((layer) => {
                   const attr = newToken?.attributes?.find(attr => attr.trait_type === layer.trait_type)
+                  const isActive = attr?.trait_type === activeAttribute?.trait_type
+                  const isDisabled = !isSameSpecies && ['EYES', 'MUZZLE'].includes(attr.trait_type)
 
                   return (
                     <div
-                      key={layer.trait_type}
-                      onClick={() => swapAttribute(attr.trait_type)}
+                      key={attr.trait_type}
+                      onClick={() => {
+                        if (isDisabled) return
+                        swapAttribute(attr.trait_type)
+                      }}
+                      data-tip={isDisabled
+                        ? 'In order to swap eyes & muzzles, the two<br/>selected Chimerapillars must be of the same species.'
+                        : ''
+                      }
                       style={{
                         cursor: 'pointer',
                         margin: 8,
@@ -712,15 +856,12 @@ const MergeAndBurn = () => {
                         alignItems: 'center',
                         justifyContent: 'center',
                         border: `1px solid ${colors.primary}`,
-                        background: attr?.trait_type === activeAttribute?.trait_type
+                        background: isActive
                           ? colors.highlight
                           : 'rgba(21, 178, 229, 0.06)',
-                        opacity: isCrossSpecies && ['EYES', 'MUZZLE'].includes(layer.trait_type)
+                        opacity: isDisabled
                           ? 0.5
                           : 1,
-                        pointerEvents: isCrossSpecies && ['EYES', 'MUZZLE'].includes(layer.trait_type)
-                          ? 'none'
-                          : 'auto',
                       }}
                     >
                       <span style={{ fontSize: '0.8em', color: colors.primary, fontWeight: '600', }}>{attr.trait_type.toUpperCase()}</span>
@@ -741,7 +882,7 @@ const MergeAndBurn = () => {
                   }}
                   sx={sx.stepButton}
                 >
-                  ‹ Back
+                  ◂ Back
                 </Button>
 
                 <Button
@@ -751,7 +892,7 @@ const MergeAndBurn = () => {
                   }}
                   sx={sx.stepButton}
                 >
-                  Next ›
+                  Next ▸
                 </Button>
               </div>
             </>
@@ -764,6 +905,7 @@ const MergeAndBurn = () => {
         expanded={step === 'confirm'}
         onChange={goToStep('confirm')}
         sx={sx.accordion}
+        ref={step === 'confirm' ? accordionElem : null}
       >
         <AccordionSummary
           sx={sx.accordionSummary}
@@ -792,19 +934,99 @@ const MergeAndBurn = () => {
         <AccordionDetails
           sx={sx.accordionDetails}
         >
-          <Typography>
-            Are you 100% sure about all this? IMAGE OF FINAL CHIMERA / UI TO SELECT WHICH # TO KEEP
-          </Typography>
+          {newToken && (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <div>
+                <Typography>
+                  Which Token ID do you want to keep?
+                </Typography>
+              </div>
 
-          <Button
-            variant="outlined"
-            sx={sx.connectBtn}
-            onClick={handleConnect}
-          >
-            MERGE & BURN
-          </Button>
+              <div
+                style={{
+                  display: 'flex',
+                }}
+              >
+                <div
+                  style={{
+                    position: 'relative',
+                    width: 220,
+                    height: 220,
+                  }}
+                >
+                  {newToken.attributes.map((attr) => {
+                    const layer = layers.find(layer => layer.trait_type === attr.trait_type)
+                    const headType = newToken.attributes.find(attr => attr.trait_type === 'HEAD').value
+
+                    let filepath = `${layer.filePrefix} ${attr.value}.png`
+                    if (attr.trait_type === 'HEAD') {
+                      filepath = filepath.replace('.png', ' Head.png').trim()
+                    }
+                    if (['EYES', 'MUZZLE'].includes(attr.trait_type)) {
+                      filepath = `${headType} ${_.upperFirst(attr.trait_type)}/${headType} ${filepath}`
+                    }
+
+                    return (
+                      <img
+                        key={attr.trait_type}
+                        src={`/chimerapillars/parts/resized/${attr.trait_type}/${filepath}`}
+                        width="220"
+                        height="220"
+                        style={{position: 'absolute', top: 0, left: 0}}
+                      />
+                    )
+                  })}
+                </div>
+
+                <div
+                  style={{
+                    position: 'relative',
+                    width: 220,
+                    height: 220,
+                  }}
+                >
+                  <img
+                    key={selectedTokens[1].id}
+                    src={selectedTokens[1].image}
+                    width="220"
+                    height="220"
+                  />
+                </div>
+              </div>
+
+              <Typography
+                style={{
+                  marginTop: 16,
+                  marginBottom: 16,
+                }}
+              >
+                Are you 100% sure about all this? You <strong>CANNOT UNDO THIS ACTION!</strong>
+              </Typography>
+
+              <Button
+                variant="outlined"
+                sx={sx.mergeButton}
+                onClick={mergeAndBurn}
+              >
+                MERGE & BURN
+              </Button>
+            </div>
+          )}
         </AccordionDetails>
       </Accordion>
+
+      <ReactTooltip
+        effect="solid"
+        type="light"
+        multiline
+      />
     </Box>
   )
 }

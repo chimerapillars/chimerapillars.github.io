@@ -104,7 +104,7 @@ const sx = {
 		lineHeight: '0.3rem',
 		marginTop: '-5px',
 		'&:hover': {
-			color: '#000',
+			textDecoration: 'underline',
 		},
 	},
 	address: {

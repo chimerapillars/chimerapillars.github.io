@@ -33,6 +33,9 @@ const config = {
                url: 'https://discord.gg/pillars',
           },
      },
+     mergeburn: {
+       apiRoot: 'http://localhost:3001/api',
+     },
 }
 
 export default config
