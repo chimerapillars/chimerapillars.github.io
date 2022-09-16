@@ -624,13 +624,13 @@ const MergeAndBurn = () => {
             filepath = filepath.replace('.png', ' Head.png').trim()
           }
           if (['EYES', 'MUZZLE'].includes(attr.trait_type)) {
-            filepath = `${headType} ${_.upperFirst(attr.trait_type)}/${headType} ${filepath}`
+            filepath = `${headType} ${_.upperFirst(attr.trait_type.toLowerCase())}/${headType} ${filepath}`
           }
 
           return (
             <img
               key={attr.trait_type}
-              src={`/chimerapillars/parts/resized/${attr.trait_type}/${filepath}`}
+              src={`https://chimerapillar-layers.s3.amazonaws.com/__resized__/${attr.trait_type}/${filepath}`}
               width={props.width}
               height={props.width}
               style={{position: 'absolute', top: 0, left: 0}}
