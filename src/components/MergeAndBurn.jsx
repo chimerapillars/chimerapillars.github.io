@@ -10,15 +10,19 @@ import {
   AccordionDetails,
   AccordionSummary,
 } from '@mui/material'
+import Modal from 'react-modal'
+import Select from 'react-select'
 import ReactTooltip from 'react-tooltip'
 import ImageMapper from 'react-image-mapper'
 import { ethers } from 'ethers'
 import { ECAddress } from 'ec-commons';
+import toast from 'react-hot-toast'
+import { useMediaQuery } from '@react-hook/media-query'
 import _ from 'lodash'
 
 // Local deps.
 import Web3Ctx from './Context/Web3Ctx'
-import { useChimeraContract } from '../hooks/useContract'
+import { useChimeraContract, useChimeraBurnerContract } from '../hooks/useContract'
 import { SpinnerDotted } from 'spinners-react'
 
 import Divider from './common/Divider'
@@ -27,7 +31,7 @@ import config from '../config'
 import Card from './Card.jsx'
 
 const BP1 = '@media (max-width: 899px)'
-const BP2 = '@media (max-width: 719px)'
+const BP2 = '@media (max-width: 767px)'
 
 const { colors } = config.PROJECT
 
@@ -88,6 +92,12 @@ const sx = {
             outlineColor: 'unset',
         },
     },
+    mergeBtn: {
+      '&.Mui-disabled': {
+        background: colors.text,
+        color: colors.background,
+      },
+    },
     disconnectBtn: {
       textAlign: 'center',
       cursor: 'pointer',
@@ -144,6 +154,11 @@ const sx = {
     },
     accordionSummary: {
       alignItems: 'center',
+      [BP2]: {
+        '> .MuiAccordionSummary-content': {
+          display: 'block',
+        },
+      },
     },
     accordionNumber: {
       display: 'flex',
@@ -169,7 +184,10 @@ const sx = {
     },
     accordionDescription: {
       color: colors.text,
-      lineHeight: '32px',
+      // lineHeight: '32px',
+      [BP2]: {
+        marginLeft: '45px',
+      },
     },
     accordionDetails: {
       borderTop: `1px solid #333`,
@@ -178,6 +196,7 @@ const sx = {
     buttonContainer: {
       display: 'flex',
       justifyContent: 'space-between',
+      alignItems: 'center',
       position: 'sticky',
       bottom: 0,
       left: 0,
@@ -190,6 +209,33 @@ const sx = {
         background: colors.text,
         color: colors.background,
         opacity: 0.5,
+      },
+    },
+    modalHeading: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      marginBottom: 24,
+    },
+    modalCopy: {
+      marginBottom: 24,
+    },
+    modalCancel: {
+      color: colors.text,
+      fontSize: '0.9em',
+      textTransform: 'none',
+      '&:hover': {
+        color: colors.text,
+        background: 'transparent',
+        textDecoration: 'underline',
+      },
+      '&:active': {
+        color: colors.text,
+        background: 'transparent',
+      },
+      '&.Mui-disabled': {
+        color: colors.text,
+        opacity: 0.5,
+        pointerEvents: 'none',
       },
     },
 }
@@ -301,18 +347,25 @@ const layers = [
     coords: '0,0,1000,1000',
   },
 ]
-let fetched = false
+
 const MergeAndBurn = () => {
-  const { handleConnect, handleDisconnect, isCorrectNetwork, address: account } = useContext(Web3Ctx)
+  const { handleConnect, handleDisconnect, isCorrectNetwork, address: account, wallet } = useContext(Web3Ctx)
+  const [ isConfirmationModalOpen, setIsConfirmationModalOpen ] = useState(false)
   const [ loading, setLoading ] = useState(false)
+  const [ isProcessing, setIsProcessing ] = useState(false)
   const [ burnCount, setBurnCount ] = useState(0)
   const [ tokens, setTokens ] = useState([])
   const [ activeAttribute, setActiveAttribute ] = useState(null)
   const [ newToken, setNewToken ] = useState(null)
+  const [ burnToken, setBurnToken ] = useState(null)
   const [ step, setStep ] = useState('connect')
   const [ hoveredLayer, setHoveredLayer ] = useState(null)
   const accordionElem = useRef(null)
-  const chimeras = useChimeraContract()
+  const chimeraContract = useChimeraContract()
+  const chimeraBurnerContract = useChimeraBurnerContract()
+  const smallMediaQuery = useMediaQuery('(max-width: 767px)')
+  const mediumMediaQuery = useMediaQuery('(min-width: 899px)')
+  const largeMediaQuery = useMediaQuery('(min-width: 1480px)')
 
   const selectedTokens = tokens.filter(token => token.isSelected)
   const primaryToken = selectedTokens[0]
@@ -326,14 +379,19 @@ const MergeAndBurn = () => {
   })
 
   useEffect(() => {
+    console.log(account)
     if (account) {
       syncWeb3()
       setStep('selection')
     } else {
       setTokens([])
+      setNewToken(null)
+      setBurnToken(null)
+      setActiveAttribute(null)
+      setHoveredLayer(null)
       setStep('connect')
     }
-  }, [])
+  }, [account])
 
   // useEffect(() => {
   //   if (accordionElem?.current) {
@@ -359,12 +417,10 @@ const MergeAndBurn = () => {
   }
 
   const syncWeb3 = async () => {
-    if (fetched) return
-    fetched = true
     setLoading(true)
 
     // Get burn count.
-    const burnEvents = await chimeras.queryFilter(chimeras.filters.Transfer(null, ethers.constants.AddressZero), 0)
+    const burnEvents = await chimeraContract.queryFilter(chimeraContract.filters.Transfer(null, ethers.constants.AddressZero), 0)
 
     console.log(burnEvents)
 
@@ -388,11 +444,11 @@ const MergeAndBurn = () => {
     console.log(stats)
 
     // Contract info.
-    const totalSupply = await chimeras.totalSupply()
+    const totalSupply = await chimeraContract.totalSupply()
 
     // Get tokens.
     let tokens = []
-    let tokenIds = await chimeras.walletOfOwner(account)
+    let tokenIds = await chimeraContract.walletOfOwner(account)
     tokenIds = tokenIds.map(tokenId => tokenId.toNumber())
 
     if (tokenIds?.length) {
@@ -485,11 +541,127 @@ const MergeAndBurn = () => {
 
   // Merge & burn.
   const mergeAndBurn = async () => {
-    alert('metamask...')
+    setIsProcessing(true)
+
+    try {
+      const resp = await fetch(`${config.PROJECT.mergeburn.apiRoot}/mergePillarsRequest`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          wallet: account,
+          baseChimeraPillarId: newToken.id,
+          burnChimeraPillarId: burnToken.id,
+          newTraitIds: newToken.attributes.map(attr => attr.id).join(',')
+        }),
+      })
+      const json = await resp.json()
+
+      if (json.code === 200 || json.code === 201) {
+        const txn = await chimeraBurnerContract.burnFrom(account, [burnToken.id])
+
+        // Log.
+        console.log('burn txn', txn)
+
+        // Pending.
+        if (txn && txn.hash) {
+          const txnURL = `https://${config.DEPLOYED_NTW_NAME !== 'mainnet' ? config.DEPLOYED_NTW_NAME : 'www'}.etherscan.io/tx/${txn.hash}`
+
+          // Show message.
+          toast.loading('Transaction is processing...')
+
+          // Success.
+          const receipt = await txn.wait()
+          console.log(receipt)
+
+          if (receipt && receipt.transactionHash) {
+            // Re-sync web3 info.
+            await syncWeb3()
+
+            // Show message.
+            toast.dismiss()
+            toast.success('Merge & Burn successful!')
+
+            // Reset.
+            setIsConfirmationModalOpen(false)
+            goToStep('selection')(null, true)
+          }
+        }
+      } else {
+        throw new Error('There was a server error.')
+      }
+    } catch (err) {
+      console.error(err)
+
+      // Show message.
+      const message = err.reason || err.message || err
+      if (!/User denied transaction/gi.test(message)) {
+        toast.error(`Something went wrong: ${message}`)
+      }
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
+  const NewToken = (props = {}) => {
+    return (
+      <div
+        style={{
+          position: 'relative',
+          width: props.width,
+          height: props.width,
+          ...props.style,
+        }}
+      >
+        {newToken.attributes.map((attr) => {
+          const layer = layers.find(layer => layer.trait_type === attr.trait_type)
+          const headType = newToken.attributes.find(attr => attr.trait_type === 'HEAD').value
+
+          let filepath = `${layer.filePrefix} ${attr.value}.png`
+          if (attr.trait_type === 'HEAD') {
+            filepath = filepath.replace('.png', ' Head.png').trim()
+          }
+          if (['EYES', 'MUZZLE'].includes(attr.trait_type)) {
+            filepath = `${headType} ${_.upperFirst(attr.trait_type)}/${headType} ${filepath}`
+          }
+
+          return (
+            <img
+              key={attr.trait_type}
+              src={`/chimerapillars/parts/resized/${attr.trait_type}/${filepath}`}
+              width={props.width}
+              height={props.width}
+              style={{position: 'absolute', top: 0, left: 0}}
+            />
+          )
+        })}
+      </div>
+    )
+  }
+
+  let buildImageSize
+  const buildImageSizes = {
+    small: 310,
+    medium: 800,
+    large: 1000,
+  }
+
+  if (smallMediaQuery) {
+    buildImageSize = buildImageSizes.small
+  }
+  if (mediumMediaQuery) {
+    buildImageSize = buildImageSizes.medium
+  }
+  if (largeMediaQuery) {
+    buildImageSize = buildImageSizes.large
+  }
+
+  console.log({buildImageSize})
+
   return (
-    <Box sx={sx.root}>
+    <>
       <Box sx={sx.content}>
         <Typography variant="heading1" sx={sx.title}>
           Merge & Burn
@@ -722,11 +894,19 @@ const MergeAndBurn = () => {
         >
           {newToken && (
             <>
-              <Box style={{position: 'relative', width: 1000, height: 1000, margin: 'auto', marginBottom: 24, }}>
+              <Box
+                style={{
+                  position: 'relative',
+                  width: buildImageSize,
+                  height: buildImageSize,
+                  margin: 'auto',
+                  marginBottom: 24,
+                }}
+              >
                 <ImageMapper
                   src={newToken.image}
-                  imageWidth={2000}
-                  width={1000}
+                  imgWidth={1000}
+                  width={buildImageSize}
                   fillColor="rgba(0, 0, 0, 0)"
                   strokeColor="rgba(0, 0, 0, 0)"
                   onClick={(area) => {
@@ -769,28 +949,17 @@ const MergeAndBurn = () => {
                 	</span>
                 )}
 
-                {newToken.attributes.map((attr) => {
-                  const layer = layers.find(layer => layer.trait_type === attr.trait_type)
-                  const headType = newToken.attributes.find(attr => attr.trait_type === 'HEAD').value
-
-                  let filepath = `${layer.filePrefix} ${attr.value}.png`
-                  if (attr.trait_type === 'HEAD') {
-                    filepath = filepath.replace('.png', ' Head.png').trim()
-                  }
-                  if (['EYES', 'MUZZLE'].includes(attr.trait_type)) {
-                    filepath = `${headType} ${_.upperFirst(attr.trait_type)}/${headType} ${filepath}`
-                  }
-
-                  return (
-                    <img
-                      key={attr.trait_type}
-                      src={`/chimerapillars/parts/resized/${attr.trait_type}/${filepath}`}
-                      width="1000"
-                      height="1000"
-                      style={{position: 'absolute', top: 0, left: 0}}
-                    />
-                  )
-                })}
+                <NewToken
+                  width={buildImageSize}
+                  height={buildImageSize}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    left: 0,
+                  }}
+                />
 
                 {/*}<map
                   name="image-map"
@@ -824,7 +993,6 @@ const MergeAndBurn = () => {
                 style={{
                   display: 'flex',
                   flexWrap: 'wrap',
-                  width: 1016,
                   margin: '0 auto 32px auto',
                 }}
               >
@@ -833,8 +1001,10 @@ const MergeAndBurn = () => {
                   const isActive = attr?.trait_type === activeAttribute?.trait_type
                   const isDisabled = !isSameSpecies && ['EYES', 'MUZZLE'].includes(attr.trait_type)
 
+                  if (smallMediaQuery && !isActive) return null
+
                   return (
-                    <div
+                    <Box
                       key={attr.trait_type}
                       onClick={() => {
                         if (isDisabled) return
@@ -844,12 +1014,12 @@ const MergeAndBurn = () => {
                         ? 'In order to swap eyes & muzzles, the two<br/>selected Chimerapillars must be of the same species.'
                         : ''
                       }
-                      style={{
+                      sx={{
                         cursor: 'pointer',
-                        margin: 8,
-                        width: 187,
-                        borderRadius: 8,
-                        padding: 8,
+                        margin: '8px',
+                        width: '187px',
+                        borderRadius: '8px',
+                        padding: '8px',
                         textAlign: 'center',
                         display: 'flex',
                         flexDirection: 'column',
@@ -862,12 +1032,15 @@ const MergeAndBurn = () => {
                         opacity: isDisabled
                           ? 0.5
                           : 1,
+                        [BP2]: {
+                          width: '100%',
+                        },
                       }}
                     >
-                      <span style={{ fontSize: '0.8em', color: colors.primary, fontWeight: '600', }}>{attr.trait_type.toUpperCase()}</span>
-                      <span style={{ color: 'white', fontWeight: 'bold', display: 'block', minHeight: '3em' }}>{attr.value}</span>
-                      <span style={{ fontSize: '0.8em', color: 'rgb(138, 147, 155)', }}>{attr.rarity}% have this trait</span>
-                    </div>
+                      <Box style={{ fontSize: '0.8em', color: colors.primary, fontWeight: '600', }}>{attr.trait_type.toUpperCase()}</Box>
+                      <Box style={{ color: 'white', fontWeight: 'bold', display: 'block', minHeight: '3em' }}>{attr.value}</Box>
+                      <Box style={{ fontSize: '0.8em', color: 'rgb(138, 147, 155)', }}>{attr.rarity}% have this trait</Box>
+                    </Box>
                   )
                 })}
               </div>
@@ -934,7 +1107,7 @@ const MergeAndBurn = () => {
         <AccordionDetails
           sx={sx.accordionDetails}
         >
-          {newToken && (
+          {selectedTokens?.length === 2 && newToken && (
             <div
               style={{
                 display: 'flex',
@@ -943,80 +1116,100 @@ const MergeAndBurn = () => {
                 justifyContent: 'center',
               }}
             >
-              <div>
-                <Typography>
-                  Which Token ID do you want to keep?
-                </Typography>
-              </div>
-
-              <div
-                style={{
-                  display: 'flex',
-                }}
-              >
-                <div
-                  style={{
-                    position: 'relative',
-                    width: 220,
-                    height: 220,
-                  }}
-                >
-                  {newToken.attributes.map((attr) => {
-                    const layer = layers.find(layer => layer.trait_type === attr.trait_type)
-                    const headType = newToken.attributes.find(attr => attr.trait_type === 'HEAD').value
-
-                    let filepath = `${layer.filePrefix} ${attr.value}.png`
-                    if (attr.trait_type === 'HEAD') {
-                      filepath = filepath.replace('.png', ' Head.png').trim()
-                    }
-                    if (['EYES', 'MUZZLE'].includes(attr.trait_type)) {
-                      filepath = `${headType} ${_.upperFirst(attr.trait_type)}/${headType} ${filepath}`
-                    }
-
-                    return (
-                      <img
-                        key={attr.trait_type}
-                        src={`/chimerapillars/parts/resized/${attr.trait_type}/${filepath}`}
-                        width="220"
-                        height="220"
-                        style={{position: 'absolute', top: 0, left: 0}}
-                      />
-                    )
-                  })}
-                </div>
-
-                <div
-                  style={{
-                    position: 'relative',
-                    width: 220,
-                    height: 220,
-                  }}
-                >
-                  <img
-                    key={selectedTokens[1].id}
-                    src={selectedTokens[1].image}
-                    width="220"
-                    height="220"
-                  />
-                </div>
-              </div>
-
-              <Typography
-                style={{
-                  marginTop: 16,
-                  marginBottom: 16,
-                }}
-              >
-                Are you 100% sure about all this? You <strong>CANNOT UNDO THIS ACTION!</strong>
+              <Typography>
+                Which Token ID do you want your new Chimerapillar to have?
               </Typography>
 
-              <Button
-                variant="outlined"
-                sx={sx.mergeButton}
-                onClick={mergeAndBurn}
-              >
-                MERGE & BURN
-              </Button>
+              <Select
+                options={selectedTokens.map(token => {
+                  return {
+                    label: `#${token.id}`,
+                    value: token.id,
+                  }
+                })}
+                onChange={(option) => {
+                  console.log({ option })
+
+                  setNewToken({
+                    ...newToken,
+                    id: option.value,
+                    tokenId: option.value,
+                  })
+                  setBurnToken(selectedTokens.find(token => token.id !== option.value))
+                }}
+                styles={{
+                  option: (provided, state) => ({
+                    ...provided,
+                    color: colors.background,
+                  }),
+                  container: (provided, state) => ({
+                    ...provided,
+                    width: 200,
+                    margin: '8px auto 24px auto',
+                  }),
+                }}
+              />
+
+              {newToken && burnToken && (
+                <>
+                  <div
+                    style={{
+                      display: 'flex',
+                      marginBottom: 32,
+                    }}
+                  >
+                    <div
+                      style={{
+                        textAlign: 'center',
+                        margin: '0 12px',
+                      }}
+                    >
+                      <NewToken
+                        width={240}
+                        height={240}
+                        style={{
+                          marginBottom: 8,
+                        }}
+                      />
+
+                      <Typography>
+                        {`✅ NEW CHIMERAPILLAR #${newToken.id}`}
+                      </Typography>
+                    </div>
+
+                    <div
+                      style={{
+                        textAlign: 'center',
+                        margin: '0 8px',
+                      }}
+                    >
+                      <img
+                        key={burnToken.id}
+                        src={burnToken.image}
+                        width="240"
+                        height="240"
+                        style={{
+                          marginBottom: 8,
+                        }}
+                      />
+
+                      <Typography>
+                        {`🔥 BURNING CHIMERAPILLAR #${burnToken.id}`}
+                      </Typography>
+                    </div>
+                  </div>
+
+                  <Button
+                    variant="contained"
+                    sx={sx.mergeBtn}
+                    onClick={() => {
+                      setIsConfirmationModalOpen(true)
+                    }}
+                  >
+                    MERGE & BURN
+                  </Button>
+                </>
+              )}
             </div>
           )}
         </AccordionDetails>
@@ -1027,7 +1220,98 @@ const MergeAndBurn = () => {
         type="light"
         multiline
       />
-    </Box>
+
+      <Modal
+        isOpen={isConfirmationModalOpen}
+        // isOpen
+        style={{
+          overlay: {
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+          content: {
+            width: 440,
+            height: 'auto',
+            margin: 'auto',
+            background: '#1f1e1e',
+            color: colors.text,
+            border: 'none',
+            textAlign: 'center',
+            inset: 'auto',
+          }
+        }}
+      >
+        {newToken && burnToken && (
+          <>
+            <Typography
+              style={sx.modalHeading}
+            >
+              ARE YOU SURE?
+            </Typography>
+
+            <Divider
+              titleDivider
+              style={{
+                marginBottom: '32px',
+              }}
+            />
+
+            <Typography
+              style={sx.modalCopy}
+            >
+              {`You are about to update Chimerapillar #${newToken.id} with new attributes and PERMANENTLY BURN Chimerapillar #${burnToken.id}.`}
+            </Typography>
+
+            <Typography
+              style={sx.modalCopy}
+            >
+              Are you absolutely sure about all of this?
+              <br/>
+              <strong>ONCE CONFIRMED THIS CANNOT BE UNDONE!</strong>
+            </Typography>
+
+            {isProcessing && (
+              <Box sx={{ textAlign: "center", marginBottom: '24px' }}>
+                <SpinnerDotted color={colors.primary} />
+              </Box>
+            )}
+
+            <div
+              style={{
+                ...sx.buttonContainer,
+                borderTop: '1px solid #333',
+                padding: '16px 0 0 0',
+                marginTop: 36,
+              }}
+            >
+              <Button
+                disabled={isProcessing}
+                href="#"
+                onClick={(evt) => {
+                  evt.preventDefault()
+                  setIsConfirmationModalOpen(false)
+                }}
+                sx={sx.modalCancel}
+              >
+                Wait, I'm not ready
+              </Button>
+
+              <Button
+                disabled={isProcessing}
+                variant="contained"
+                sx={sx.mergeBtn}
+                onClick={mergeAndBurn}
+              >
+                CONFIRM IN {wallet.name.toUpperCase()}
+              </Button>
+            </div>
+          </>
+        )}
+      </Modal>
+    </>
   )
 }
 

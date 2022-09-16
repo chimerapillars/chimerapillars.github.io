@@ -34,7 +34,7 @@ const config = {
           },
      },
      mergeburn: {
-       apiRoot: 'http://localhost:3001/api',
+       apiRoot: 'https://chimerapillars.herokuapp.com/api',
      },
 }
 

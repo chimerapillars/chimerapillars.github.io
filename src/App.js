@@ -3,6 +3,7 @@ import './App.css';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import { ToastContainer } from 'react-toast';
 import { Box, createTheme, ThemeProvider } from '@mui/material';
+import { Toaster } from "react-hot-toast";
 import routes from './Routes';
 
 import Web3Manager from './components/Web3Manager/Web3Manager';
@@ -209,6 +210,10 @@ function App() {
 					</HashRouter>
 					<Footer />
 				</Box>
+
+        <Toaster
+          position="top-center"
+        />
 			</ThemeProvider>
 		</Web3Manager>
 	);
