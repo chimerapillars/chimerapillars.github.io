@@ -472,7 +472,7 @@ const MergeAndBurn = () => {
           return {
             ...token,
             id: token.tokenId,
-            image: `https://chimerapillars.s3.amazonaws.com/images/${token.tokenId}.png`,
+            image: `https://chimerapillars${config.DEPLOYED_NTW_NAME === 'rinkeby' ? '-testnet' : ''}.s3.amazonaws.com/images/${token.tokenId}.png`,
             attributes: traitTypes.map(trait => {
               const percentage = (stats?.[trait.trait_type]?.[trait.value.toLowerCase()] / totalSupply.toNumber() * 100)
               return {
@@ -630,7 +630,7 @@ const MergeAndBurn = () => {
           return (
             <img
               key={attr.trait_type}
-              src={`https://chimerapillar-layers.s3.amazonaws.com/__resized__/${attr.trait_type}/${filepath}`}
+              src={`https://d1s9y2mjkt4va5.cloudfront.net/__resized__/${attr.trait_type}/${filepath}`}
               width={props.width}
               height={props.width}
               style={{position: 'absolute', top: 0, left: 0}}
