@@ -912,8 +912,8 @@ const MergeAndBurn = () => {
                   onClick={(area) => {
                     swapAttribute(area._id)
                   }}
-                  onMouseEnter={setHoveredLayer}
-                	onMouseLeave={() => setHoveredLayer(null)}
+                  // onMouseEnter={setHoveredLayer}
+                  // onMouseLeave={() => setHoveredLayer(null)}
                   map={{
                     name: 'image-map',
                     areas: layers.filter(layer => isSameSpecies || !['EYES', 'MUZZLE'].includes(layer.trait_type)).map((layer) => {
