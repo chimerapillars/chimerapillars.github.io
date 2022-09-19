@@ -153,6 +153,7 @@ const sx = {
       },
     },
     accordionSummary: {
+      display: 'flex',
       alignItems: 'center',
       [BP2]: {
         '> .MuiAccordionSummary-content': {
@@ -172,7 +173,6 @@ const sx = {
       color: colors.text,
     },
     accordionTitle: {
-      // width: '33%',
       marginRight: '18px',
       flexShrink: 0,
       color: colors.primary,
@@ -184,7 +184,6 @@ const sx = {
     },
     accordionDescription: {
       color: colors.text,
-      // lineHeight: '32px',
       [BP2]: {
         marginLeft: '45px',
       },
@@ -670,12 +669,10 @@ const MergeAndBurn = () => {
         <Divider titleDivider />
 
         <Typography variant="text" sx={{ mt: 4 }}>
-          Pick your favorite attributes to make your own Chimerapillar!
-          <br/>
-          In order to swap eyes & muzzles, the two selected Chimerapillars must be of the same species.
+          Customise your Chimerapillars by merging your favourite traits from two NFTs into one. Increase their rarity by combining nostalgic pop-cultural mashups from a vast pool of 888 unique traits. A Chimerapillar will be burned with every merge, a noble sacrifice in the last stand against the Lonely Toddlerpillar.
           <br/>
           <br/>
-          So far {burnCount} Chimerapillars have been burned.
+          {burnCount} Chimerapillars have been burned so far.
         </Typography>
       </Box>
 
@@ -685,28 +682,30 @@ const MergeAndBurn = () => {
         sx={sx.accordion}
         ref={step === 'connect' ? accordionElem : null}
       >
-        <AccordionSummary
-          sx={sx.accordionSummary}
-        >
-          <Typography
-            sx={sx.accordionTitle}
+        <AccordionSummary>
+          <Box
+            sx={sx.accordionSummary}
           >
-            <span
-              style={sx.accordionNumber}
+            <Typography
+              sx={sx.accordionTitle}
             >
-              1
-            </span>
+              <span
+                style={sx.accordionNumber}
+              >
+                1
+              </span>
 
-            <span>
-              Connect
-            </span>
-          </Typography>
+              <span>
+                Connect
+              </span>
+            </Typography>
 
-          <Typography
-            sx={sx.accordionDescription}
-          >
-            Get started by connecting your wallet.
-          </Typography>
+            <Typography
+              sx={sx.accordionDescription}
+            >
+              Get started by connecting your wallet.
+            </Typography>
+          </Box>
         </AccordionSummary>
 
         <AccordionDetails
@@ -735,28 +734,32 @@ const MergeAndBurn = () => {
         sx={sx.accordion}
         ref={step === 'selection' ? accordionElem : null}
       >
-        <AccordionSummary
-          sx={sx.accordionSummary}
-        >
-          <Typography
-            sx={sx.accordionTitle}
+        <AccordionSummary>
+          <Box
+            sx={sx.accordionSummary}
           >
-            <span
-              style={sx.accordionNumber}
+            <Typography
+              sx={sx.accordionTitle}
             >
-              2
-            </span>
+              <span
+                style={sx.accordionNumber}
+              >
+                2
+              </span>
 
-            <span>
-              Choose your Chimerapillars
-            </span>
-          </Typography>
+              <span>
+                Choose your Chimerapillars
+              </span>
+            </Typography>
 
-          <Typography
-            sx={sx.accordionDescription}
-          >
-            Select two Chimerapillars to begin swapping parts.
-          </Typography>
+            <Typography
+              sx={sx.accordionDescription}
+            >
+              Select two Chimerapillars to merge.
+              <br/>
+              To customise eye & muzzle traits, both Chimerapillars must have the same head type.
+            </Typography>
+          </Box>
         </AccordionSummary>
 
         <AccordionDetails
@@ -843,50 +846,55 @@ const MergeAndBurn = () => {
         sx={sx.accordion}
         ref={step === 'build' ? accordionElem : null}
       >
-        <AccordionSummary
-          sx={sx.accordionSummary}
-          style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-        >
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-            <Typography
-              sx={sx.accordionTitle}
-            >
-              <span
-                style={sx.accordionNumber}
+        <AccordionSummary>
+          <Box
+            sx={{
+              ...sx.accordionSummary,
+              flex: 1,
+              justifyContent: 'space-between',
+            }}
+          >
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+              <Typography
+                sx={sx.accordionTitle}
               >
-                3
-              </span>
+                <span
+                  style={sx.accordionNumber}
+                >
+                  3
+                </span>
 
-              <span>
-                Build your new Chimerapillar
-              </span>
-            </Typography>
+                <span>
+                  Customise your new Chimerapillar
+                </span>
+              </Typography>
 
-            <Typography
-              sx={sx.accordionDescription}
-            >
-              Swap parts between your Chimerapillars.
-            </Typography>
-          </div>
-
-          {step === 'build' && (
-            <div>
-              {selectedTokens.map((token) => {
-                return (
-                  <img
-                    key={token.id}
-                    src={token.image}
-                    width={64}
-                    height={64}
-                    style={{
-                      marginLeft: '8px',
-                      verticalAlign: 'bottom',
-                    }}
-                  />
-                )
-              })}
+              <Typography
+                sx={sx.accordionDescription}
+              >
+                Swap traits between your selected Chimerapillars.
+              </Typography>
             </div>
-          )}
+
+            {step === 'build' && (
+              <div>
+                {selectedTokens.map((token) => {
+                  return (
+                    <img
+                      key={token.id}
+                      src={token.image}
+                      width={64}
+                      height={64}
+                      style={{
+                        marginLeft: '8px',
+                        verticalAlign: 'bottom',
+                      }}
+                    />
+                  )
+                })}
+              </div>
+            )}
+          </Box>
         </AccordionSummary>
 
         <AccordionDetails
@@ -1080,28 +1088,30 @@ const MergeAndBurn = () => {
         sx={sx.accordion}
         ref={step === 'confirm' ? accordionElem : null}
       >
-        <AccordionSummary
-          sx={sx.accordionSummary}
-        >
-          <Typography
-            sx={sx.accordionTitle}
+        <AccordionSummary>
+          <Box
+            sx={sx.accordionSummary}
           >
-            <span
-              style={sx.accordionNumber}
+            <Typography
+              sx={sx.accordionTitle}
             >
-              4
-            </span>
+              <span
+                style={sx.accordionNumber}
+              >
+                4
+              </span>
 
-            <span>
-              Merge & Burn
-            </span>
-          </Typography>
+              <span>
+                Merge & Burn
+              </span>
+            </Typography>
 
-          <Typography
-            sx={sx.accordionDescription}
-          >
-            Confirm your choices and create your new Chimerapillar.
-          </Typography>
+            <Typography
+              sx={sx.accordionDescription}
+            >
+              Confirm your trait selection and merge them into your new Chimerapillar.
+            </Typography>
+          </Box>
         </AccordionSummary>
 
         <AccordionDetails
@@ -1262,15 +1272,15 @@ const MergeAndBurn = () => {
             <Typography
               style={sx.modalCopy}
             >
-              {`You are about to update Chimerapillar #${newToken.id} with new attributes and PERMANENTLY BURN Chimerapillar #${burnToken.id}.`}
-            </Typography>
-
-            <Typography
-              style={sx.modalCopy}
-            >
-              Are you absolutely sure about all of this?
+              {`You are about to update Chimerapillar #${newToken.id} with new traits and PERMANENTLY BURN Chimerapillar #${burnToken.id}.`}
               <br/>
               <strong>ONCE CONFIRMED THIS CANNOT BE UNDONE!</strong>
+              <br/>
+              <br/>
+              Your sacrifice will not be in vain, the fate of humanity depends upon it…
+              <br/>
+              <br/>
+              But are you SURE?
             </Typography>
 
             {isProcessing && (
