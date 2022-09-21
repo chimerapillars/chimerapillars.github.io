@@ -357,6 +357,7 @@ const MergeAndBurn = () => {
   const [ activeAttribute, setActiveAttribute ] = useState(null)
   const [ newToken, setNewToken ] = useState(null)
   const [ burnToken, setBurnToken ] = useState(null)
+  const [ processingToken, setProcessingToken ] = useState(null)
   const [ step, setStep ] = useState('connect')
   const [ hoveredLayer, setHoveredLayer ] = useState(null)
   const accordionElem = useRef(null)
@@ -579,6 +580,9 @@ const MergeAndBurn = () => {
             // Re-sync web3 info.
             await syncWeb3()
 
+            // Set "processing token" to use in place of the as-of-yet new token.
+            setProcessingToken({ ...newToken })
+
             // Show message.
             toast.dismiss()
             toast.success('Merge & Burn successful!')
@@ -604,7 +608,9 @@ const MergeAndBurn = () => {
     }
   }
 
-  const NewToken = (props = {}) => {
+  const BuildToken = (props = {}) => {
+    const { token } = props
+
     return (
       <div
         style={{
@@ -614,9 +620,9 @@ const MergeAndBurn = () => {
           ...props.style,
         }}
       >
-        {newToken.attributes.map((attr) => {
-          const layer = layers.find(layer => layer.trait_type === attr.trait_type)
-          const headType = newToken.attributes.find(attr => attr.trait_type === 'HEAD').value
+        {_.uniqBy([...layers].reverse(), 'trait_type').map((layer) => {
+          const attr = token?.attributes?.find(attr => attr.trait_type === layer.trait_type)
+          const headType = token.attributes.find(attr => attr.trait_type === 'HEAD').value
 
           let filepath = `${layer.filePrefix} ${attr.value}.png`
           if (attr.trait_type === 'HEAD') {
@@ -755,9 +761,7 @@ const MergeAndBurn = () => {
             <Typography
               sx={sx.accordionDescription}
             >
-              Select two Chimerapillars to merge.
-              <br/>
-              To customise eye & muzzle traits, both Chimerapillars must have the same head type.
+              Select 2 Chimerapillars to merge. To customise eye & muzzle traits, both Chimerapillars must have the same head type.
             </Typography>
           </Box>
         </AccordionSummary>
@@ -792,11 +796,19 @@ const MergeAndBurn = () => {
                     ...(token.isSelected ? sx.tokenSelected : null),
                   }}
                 >
-                  <img
-                    src={token.image}
-                    width="240"
-                    height="240"
-                  />
+                  {token.id === processingToken?.id ? (
+                    <BuildToken
+                      token={processingToken}
+                      width={240}
+                      height={240}
+                    />
+                  ) : (
+                    <img
+                      src={token.image}
+                      width="240"
+                      height="240"
+                    />
+                  )}
 
                   <Typography
                     style={{
@@ -957,7 +969,8 @@ const MergeAndBurn = () => {
                 	</span>
                 )}
 
-                <NewToken
+                <BuildToken
+                  token={newToken}
                   width={buildImageSize}
                   height={buildImageSize}
                   style={{
@@ -1019,7 +1032,7 @@ const MergeAndBurn = () => {
                         swapAttribute(attr.trait_type)
                       }}
                       data-tip={isDisabled
-                        ? 'In order to swap eyes & muzzles, the two<br/>selected Chimerapillars must be of the same species.'
+                        ? 'To customise eye & muzzle traits, both Chimerapillars<br/>must have the same head type.'//'In order to swap eyes & muzzles, the two<br/>selected Chimerapillars must be of the same species.'
                         : ''
                       }
                       sx={{
@@ -1059,7 +1072,7 @@ const MergeAndBurn = () => {
                 <Button
                   variant="contained"
                   onClick={() => {
-                    goToStep('selection')
+                    setStep('selection')
                   }}
                   sx={sx.stepButton}
                 >
@@ -1118,109 +1131,127 @@ const MergeAndBurn = () => {
           sx={sx.accordionDetails}
         >
           {selectedTokens?.length === 2 && newToken && (
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Typography>
-                Which Token ID do you want your new Chimerapillar to have?
-              </Typography>
-
-              <Select
-                options={selectedTokens.map(token => {
-                  return {
-                    label: `#${token.id}`,
-                    value: token.id,
-                  }
-                })}
-                onChange={(option) => {
-                  console.log({ option })
-
-                  setNewToken({
-                    ...newToken,
-                    id: option.value,
-                    tokenId: option.value,
-                  })
-                  setBurnToken(selectedTokens.find(token => token.id !== option.value))
+            <>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
-                styles={{
-                  option: (provided, state) => ({
-                    ...provided,
-                    color: colors.background,
-                  }),
-                  container: (provided, state) => ({
-                    ...provided,
-                    width: 200,
-                    margin: '8px auto 24px auto',
-                  }),
-                }}
-              />
+              >
+                <Typography>
+                  Which Token ID do you want your new Chimerapillar to have?
+                </Typography>
 
-              {newToken && burnToken && (
-                <>
-                  <div
-                    style={{
-                      display: 'flex',
-                      marginBottom: 32,
-                    }}
-                  >
+                <Select
+                  options={selectedTokens.map(token => {
+                    return {
+                      label: `#${token.id}`,
+                      value: token.id,
+                    }
+                  })}
+                  onChange={(option) => {
+                    console.log({ option })
+
+                    setNewToken({
+                      ...newToken,
+                      id: option.value,
+                      tokenId: option.value,
+                    })
+                    setBurnToken(selectedTokens.find(token => token.id !== option.value))
+                  }}
+                  styles={{
+                    option: (provided, state) => ({
+                      ...provided,
+                      color: colors.background,
+                    }),
+                    container: (provided, state) => ({
+                      ...provided,
+                      width: 200,
+                      margin: '8px auto 24px auto',
+                    }),
+                  }}
+                />
+
+                {newToken && burnToken && (
+                  <>
                     <div
                       style={{
-                        textAlign: 'center',
-                        margin: '0 12px',
+                        display: 'flex',
+                        marginBottom: 32,
                       }}
                     >
-                      <NewToken
-                        width={240}
-                        height={240}
+                      <div
                         style={{
-                          marginBottom: 8,
+                          textAlign: 'center',
+                          margin: '0 12px',
                         }}
-                      />
+                      >
+                        <BuildToken
+                          token={newToken}
+                          width={240}
+                          height={240}
+                          style={{
+                            marginBottom: 8,
+                          }}
+                        />
 
-                      <Typography>
-                        {`✅ NEW CHIMERAPILLAR #${newToken.id}`}
-                      </Typography>
-                    </div>
+                        <Typography>
+                          {`✅ NEW CHIMERAPILLAR #${newToken.id}`}
+                        </Typography>
+                      </div>
 
-                    <div
-                      style={{
-                        textAlign: 'center',
-                        margin: '0 8px',
-                      }}
-                    >
-                      <img
-                        key={burnToken.id}
-                        src={burnToken.image}
-                        width="240"
-                        height="240"
+                      <div
                         style={{
-                          marginBottom: 8,
+                          textAlign: 'center',
+                          margin: '0 8px',
                         }}
-                      />
+                      >
+                        <img
+                          key={burnToken.id}
+                          src={burnToken.image}
+                          width="240"
+                          height="240"
+                          style={{
+                            marginBottom: 8,
+                          }}
+                        />
 
-                      <Typography>
-                        {`🔥 BURNING CHIMERAPILLAR #${burnToken.id}`}
-                      </Typography>
+                        <Typography>
+                          {`🔥 BURN CHIMERAPILLAR #${burnToken.id}`}
+                        </Typography>
+                      </div>
                     </div>
-                  </div>
+                  </>
+                )}
+              </div>
 
-                  <Button
-                    variant="contained"
-                    sx={sx.mergeBtn}
-                    onClick={() => {
-                      setIsConfirmationModalOpen(true)
-                    }}
-                  >
-                    MERGE & BURN
-                  </Button>
-                </>
-              )}
-            </div>
+              <div
+                style={sx.buttonContainer}
+              >
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setStep('build')
+                  }}
+                  sx={sx.stepButton}
+                >
+                  ◂ Back
+                </Button>
+
+                <Button
+                  disabled={!(newToken && burnToken)}
+                  variant="contained"
+                  sx={sx.mergeBtn}
+                  onClick={() => {
+                    setIsConfirmationModalOpen(true)
+                  }}
+                >
+                  MERGE & BURN
+                </Button>
+              </div>
+            </>
           )}
         </AccordionDetails>
       </Accordion>
@@ -1277,10 +1308,7 @@ const MergeAndBurn = () => {
               <strong>ONCE CONFIRMED THIS CANNOT BE UNDONE!</strong>
               <br/>
               <br/>
-              Your sacrifice will not be in vain, the fate of humanity depends upon it…
-              <br/>
-              <br/>
-              But are you SURE?
+              Your sacrifice will not be in vain, the fate of humanity depends upon it...
             </Typography>
 
             {isProcessing && (
