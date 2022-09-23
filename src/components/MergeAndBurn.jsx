@@ -246,14 +246,14 @@ const layers = [
     coords: '265,91,317,172,388,225,474,242,598,226,677,190,752,99,784,0,588,0,367,-1,238,-1',
   },
   {
-    trait_type: 'EYES',
-    filePrefix: 'Eyes',
-    coords: '465,303,404,306,362,326,340,371,355,419,396,441,432,426,461,406,492,407,536,432,582,444,613,426,632,388,630,354,588,321,519,304',
-  },
-  {
     trait_type: 'MUZZLE',
     filePrefix: 'Muzzle',
     coords: '457,393,421,416,366,432,352,482,379,524,430,531,480,532,556,533,604,516,597,467,544,434,502,395',
+  },
+  {
+    trait_type: 'EYES',
+    filePrefix: 'Eyes',
+    coords: '465,303,404,306,362,326,340,371,355,419,396,441,432,426,461,406,492,407,536,432,582,444,613,426,632,388,630,354,588,321,519,304',
   },
   {
     trait_type: 'HEAD',
@@ -392,6 +392,16 @@ const MergeAndBurn = () => {
       setStep('connect')
     }
   }, [account])
+
+  useEffect(() => {
+    if (step === 'build') {
+      layers.forEach((layer) => {
+        const layerURI = getLayerURI(secondaryToken, layer)
+        const img = new Image()
+        img.src = layerURI
+      })
+    }
+  }, [step])
 
   // useEffect(() => {
   //   if (accordionElem?.current) {
@@ -600,12 +610,27 @@ const MergeAndBurn = () => {
 
       // Show message.
       const message = err.reason || err.message || err
-      if (!/User denied transaction/gi.test(message)) {
+      if (!/user (denied|rejected) transaction/gi.test(message)) {
         toast.error(`Something went wrong: ${message}`)
       }
     } finally {
       setIsProcessing(false)
     }
+  }
+
+  const getLayerURI = (token, layer) => {
+    const attr = token.attributes.find(attr => attr.trait_type === layer.trait_type)
+    const headType = token.attributes.find(attr => attr.trait_type === 'HEAD').value
+
+    let filepath = `${layer.filePrefix} ${attr.value}.png`
+    if (attr.trait_type === 'HEAD') {
+      filepath = filepath.replace('.png', ' Head.png').trim()
+    }
+    if (['EYES', 'MUZZLE'].includes(attr.trait_type)) {
+      filepath = `${headType} ${_.upperFirst(attr.trait_type.toLowerCase())}/${headType} ${filepath}`
+    }
+
+    return `https://d1s9y2mjkt4va5.cloudfront.net/__resized__/${attr.trait_type}/${filepath}`
   }
 
   const BuildToken = (props = {}) => {
@@ -620,22 +645,13 @@ const MergeAndBurn = () => {
           ...props.style,
         }}
       >
-        {_.uniqBy([...layers].reverse(), 'trait_type').map((layer) => {
-          const attr = token?.attributes?.find(attr => attr.trait_type === layer.trait_type)
-          const headType = token.attributes.find(attr => attr.trait_type === 'HEAD').value
-
-          let filepath = `${layer.filePrefix} ${attr.value}.png`
-          if (attr.trait_type === 'HEAD') {
-            filepath = filepath.replace('.png', ' Head.png').trim()
-          }
-          if (['EYES', 'MUZZLE'].includes(attr.trait_type)) {
-            filepath = `${headType} ${_.upperFirst(attr.trait_type.toLowerCase())}/${headType} ${filepath}`
-          }
+        {_.uniqBy([...layers].reverse(), 'trait_type').map((layer, idx) => {
+          const layerURI = getLayerURI(token, layer)
 
           return (
             <img
-              key={attr.trait_type}
-              src={`https://d1s9y2mjkt4va5.cloudfront.net/__resized__/${attr.trait_type}/${filepath}`}
+              key={`${layer.trait_type}__${idx}`}
+              src={layerURI}
               width={props.width}
               height={props.width}
               style={{position: 'absolute', top: 0, left: 0}}
@@ -1176,53 +1192,89 @@ const MergeAndBurn = () => {
 
                 {newToken && burnToken && (
                   <>
+                    <Divider
+                      titleDivider
+                      style={{
+                        marginBottom: '32px',
+                      }}
+                    />
+
+                    <Typography
+                      style={{
+                        marginBottom: 8,
+                      }}
+                    >
+                      You are about to merge:
+                    </Typography>
+
                     <div
                       style={{
                         display: 'flex',
+                        alignItems: 'center',
                         marginBottom: 32,
                       }}
                     >
                       <div
                         style={{
                           textAlign: 'center',
-                          margin: '0 12px',
+                          margin: '0 12px 8px 12px',
                         }}
                       >
-                        <BuildToken
-                          token={newToken}
-                          width={240}
-                          height={240}
-                          style={{
-                            marginBottom: 8,
-                          }}
+                        <img
+                          key={primaryToken.id}
+                          src={primaryToken.image}
+                          width="160"
+                          height="160"
                         />
-
-                        <Typography>
-                          {`✅ NEW CHIMERAPILLAR #${newToken.id}`}
-                        </Typography>
                       </div>
+
+                      <Typography
+                        style={{
+                          fontSize: 32,
+                        }}
+                      >
+                        ＋
+                      </Typography>
 
                       <div
                         style={{
                           textAlign: 'center',
-                          margin: '0 8px',
+                          margin: '0 12px 8px 12px',
                         }}
                       >
                         <img
-                          key={burnToken.id}
-                          src={burnToken.image}
-                          width="240"
-                          height="240"
-                          style={{
-                            marginBottom: 8,
-                          }}
+                          key={secondaryToken.id}
+                          src={secondaryToken.image}
+                          width="160"
+                          height="160"
                         />
-
-                        <Typography>
-                          {`🔥 BURN CHIMERAPILLAR #${burnToken.id}`}
-                        </Typography>
                       </div>
                     </div>
+
+                    <Typography
+                      style={{
+                        marginBottom: 8,
+                      }}
+                    >
+                      {`Into new Chimerpillar #${newToken.id}`}
+                    </Typography>
+
+                    <BuildToken
+                      token={newToken}
+                      width={480}
+                      height={480}
+                      style={{
+                        marginBottom: 8,
+                      }}
+                    />
+
+                    <Typography
+                      style={{
+                        marginBottom: 8,
+                      }}
+                    >
+                      {`NOTE: Token #${burnToken.id} will be burnt during the merge.`}
+                    </Typography>
                   </>
                 )}
               </div>
