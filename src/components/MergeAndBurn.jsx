@@ -394,14 +394,22 @@ const MergeAndBurn = () => {
   }, [account])
 
   useEffect(() => {
-    if (step === 'build') {
+    if (primaryToken?.attributes?.length) {
+      layers.forEach((layer) => {
+        const layerURI = getLayerURI(primaryToken, layer)
+        const img = new Image()
+        img.src = layerURI
+      })
+    }
+
+    if (secondaryToken?.attributes?.length) {
       layers.forEach((layer) => {
         const layerURI = getLayerURI(secondaryToken, layer)
         const img = new Image()
         img.src = layerURI
       })
     }
-  }, [step])
+  }, [primaryToken, secondaryToken])
 
   // useEffect(() => {
   //   if (accordionElem?.current) {
