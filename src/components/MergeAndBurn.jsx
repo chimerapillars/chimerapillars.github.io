@@ -549,6 +549,30 @@ const MergeAndBurn = () => {
     // }
   }
 
+  // Get the URI of the layer image, based on a specified token.
+  const getLayerURI = (token, layer) => {
+    const attr = token.attributes.find(attr => attr.trait_type === layer.trait_type)
+    const headType = token.attributes.find(attr => attr.trait_type === 'HEAD').value
+
+    let filepath = `${layer.filePrefix} ${attr.value}.png`
+    if (attr.trait_type === 'HEAD') {
+      filepath = filepath.replace('.png', ' Head.png').trim()
+    }
+    if (['EYES', 'MUZZLE'].includes(attr.trait_type)) {
+      console.log('before', filepath)
+
+      filepath = `${headType} ${_.upperFirst(attr.trait_type.toLowerCase())}/${headType} ${filepath}`
+
+      if (attr.value === 'Monkey Eyes Flowers') {
+        filepath = filepath.replace('Monkey Eyes Monkey Eyes', 'Monkey Eyes')
+      }
+
+      console.log('after', filepath)
+    }
+
+    return `https://d1s9y2mjkt4va5.cloudfront.net/__resized__/${attr.trait_type}/${filepath}`
+  }
+
   // Get layer position.
   const getLayerPosition = (layer) => {
     return {
@@ -624,21 +648,6 @@ const MergeAndBurn = () => {
     } finally {
       setIsProcessing(false)
     }
-  }
-
-  const getLayerURI = (token, layer) => {
-    const attr = token.attributes.find(attr => attr.trait_type === layer.trait_type)
-    const headType = token.attributes.find(attr => attr.trait_type === 'HEAD').value
-
-    let filepath = `${layer.filePrefix} ${attr.value}.png`
-    if (attr.trait_type === 'HEAD') {
-      filepath = filepath.replace('.png', ' Head.png').trim()
-    }
-    if (['EYES', 'MUZZLE'].includes(attr.trait_type)) {
-      filepath = `${headType} ${_.upperFirst(attr.trait_type.toLowerCase())}/${headType} ${filepath}`
-    }
-
-    return `https://d1s9y2mjkt4va5.cloudfront.net/__resized__/${attr.trait_type}/${filepath}`
   }
 
   const BuildToken = (props = {}) => {
@@ -807,6 +816,16 @@ const MergeAndBurn = () => {
               marginBottom: 48,
             }}
           >
+            {tokens?.length < 2 && !loading && (
+              <Typography
+                style={{
+                  marginTop: 32,
+                }}
+              >
+                Sorry, you need at least 2 Chimerapillars in your wallet.
+              </Typography>
+            )}
+
             {tokens.map((token) => {
               return (
                 <Button
