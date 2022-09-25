@@ -357,7 +357,7 @@ const MergeAndBurn = () => {
   const [ activeAttribute, setActiveAttribute ] = useState(null)
   const [ newToken, setNewToken ] = useState(null)
   const [ burnToken, setBurnToken ] = useState(null)
-  const [ processingToken, setProcessingToken ] = useState(null)
+  const [ tempToken, setTempToken ] = useState(null)
   const [ step, setStep ] = useState('connect')
   const [ hoveredLayer, setHoveredLayer ] = useState(null)
   const accordionElem = useRef(null)
@@ -387,6 +387,7 @@ const MergeAndBurn = () => {
       setTokens([])
       setNewToken(null)
       setBurnToken(null)
+      setTempToken(null)
       setActiveAttribute(null)
       setHoveredLayer(null)
       setStep('connect')
@@ -411,6 +412,12 @@ const MergeAndBurn = () => {
     }
   }, [primaryToken, secondaryToken])
 
+  useEffect(() => {
+    if (tempToken) {
+      syncWeb3()
+    }
+  }, [tempToken])
+
   // useEffect(() => {
   //   if (accordionElem?.current) {
   //     accordionElem.current.scrollIntoView({
@@ -432,6 +439,7 @@ const MergeAndBurn = () => {
       return token
     }))
     setActiveAttribute(null)
+    setHoveredLayer(null)
   }
 
   const syncWeb3 = async () => {
@@ -487,10 +495,14 @@ const MergeAndBurn = () => {
         tokens = json.pillars.map((pillar) => {
           const { traitTypes, ...token } = pillar
 
+          if (token.tokenId === tempToken?.id) {
+            return { ...tempToken, isSelected: false }
+          }
+
           return {
             ...token,
             id: token.tokenId,
-            image: `https://chimerapillars${config.DEPLOYED_NTW_NAME === 'rinkeby' ? '-testnet' : ''}.s3.amazonaws.com/images/${token.tokenId}.png`,
+            image: `https://chimerapillars${config.DEPLOYED_NTW_NAME === 'rinkeby' ? '-testnet' : ''}.s3.amazonaws.com/images/${token.tokenId}.png?bust=${Date.now()}`,
             attributes: traitTypes.map(trait => {
               const percentage = (stats?.[trait.trait_type]?.[trait.value.toLowerCase()] / totalSupply.toNumber() * 100)
               return {
@@ -515,7 +527,6 @@ const MergeAndBurn = () => {
     const primaryAttr = primaryToken.attributes.find(attr => attr.trait_type === layer)
     const secondaryAttr = secondaryToken.attributes.find(attr => attr.trait_type === layer)
 
-    console.log({layer, isSameSpecies})
     if (layer === 'HEAD' && !isSameSpecies) {
       swapAttribute('EYES')
       swapAttribute('MUZZLE')
@@ -559,15 +570,11 @@ const MergeAndBurn = () => {
       filepath = filepath.replace('.png', ' Head.png').trim()
     }
     if (['EYES', 'MUZZLE'].includes(attr.trait_type)) {
-      console.log('before', filepath)
-
       filepath = `${headType} ${_.upperFirst(attr.trait_type.toLowerCase())}/${headType} ${filepath}`
 
       if (attr.value === 'Monkey Eyes Flowers') {
         filepath = filepath.replace('Monkey Eyes Monkey Eyes', 'Monkey Eyes')
       }
-
-      console.log('after', filepath)
     }
 
     return `https://d1s9y2mjkt4va5.cloudfront.net/__resized__/${attr.trait_type}/${filepath}`
@@ -619,19 +626,21 @@ const MergeAndBurn = () => {
           console.log(receipt)
 
           if (receipt && receipt.transactionHash) {
-            // Re-sync web3 info.
-            await syncWeb3()
+            setTokens([])
 
             // Set "processing token" to use in place of the as-of-yet new token.
-            setProcessingToken({ ...newToken })
+            setTempToken({ ...newToken })
+
+            // Reset step.
+            setStep('selection')
+
+            // Clear old tokens.
+            setNewToken(null)
+            setBurnToken(null)
 
             // Show message.
             toast.dismiss()
             toast.success('Merge & Burn successful!')
-
-            // Reset.
-            setIsConfirmationModalOpen(false)
-            goToStep('selection')(null, true)
           }
         }
       } else {
@@ -650,15 +659,20 @@ const MergeAndBurn = () => {
     }
   }
 
+  const closeModal = () => {
+    setIsConfirmationModalOpen(false)
+  }
+
   const BuildToken = (props = {}) => {
     const { token } = props
-
+console.log(props)
     return (
       <div
         style={{
           position: 'relative',
           width: props.width,
           height: props.width,
+          display: 'inline-block',
           ...props.style,
         }}
       >
@@ -676,6 +690,23 @@ const MergeAndBurn = () => {
           )
         })}
       </div>
+    )
+  }
+
+  const Token = (props = {}) => {
+    const { token } = props
+
+    if (token.id === tempToken?.id) {
+      return <BuildToken {...props} />
+    }
+
+    return (
+      <img
+        src={token.image}
+        width={props.width}
+        height={props.height}
+        style={props.style}
+      />
     )
   }
 
@@ -839,19 +870,11 @@ const MergeAndBurn = () => {
                     ...(token.isSelected ? sx.tokenSelected : null),
                   }}
                 >
-                  {token.id === processingToken?.id ? (
-                    <BuildToken
-                      token={processingToken}
-                      width={240}
-                      height={240}
-                    />
-                  ) : (
-                    <img
-                      src={token.image}
-                      width="240"
-                      height="240"
-                    />
-                  )}
+                  <Token
+                    token={token}
+                    width={240}
+                    height={240}
+                  />
 
                   <Typography
                     style={{
@@ -935,9 +958,9 @@ const MergeAndBurn = () => {
               <div>
                 {selectedTokens.map((token) => {
                   return (
-                    <img
+                    <Token
                       key={token.id}
-                      src={token.image}
+                      token={token}
                       width={64}
                       height={64}
                       style={{
@@ -1247,11 +1270,10 @@ const MergeAndBurn = () => {
                           margin: '0 12px 8px 12px',
                         }}
                       >
-                        <img
-                          key={primaryToken.id}
-                          src={primaryToken.image}
-                          width="160"
-                          height="160"
+                        <BuildToken
+                          token={primaryToken}
+                          width={160}
+                          height={160}
                         />
                       </div>
 
@@ -1269,11 +1291,10 @@ const MergeAndBurn = () => {
                           margin: '0 12px 8px 12px',
                         }}
                       >
-                        <img
-                          key={secondaryToken.id}
-                          src={secondaryToken.image}
-                          width="160"
-                          height="160"
+                        <Token
+                          token={secondaryToken}
+                          width={160}
+                          height={160}
                         />
                       </div>
                     </div>
@@ -1324,6 +1345,7 @@ const MergeAndBurn = () => {
                   variant="contained"
                   sx={sx.mergeBtn}
                   onClick={() => {
+                    setTempToken(null)
                     setIsConfirmationModalOpen(true)
                   }}
                 >
@@ -1364,67 +1386,126 @@ const MergeAndBurn = () => {
           }
         }}
       >
-        {newToken && burnToken && (
+        {isConfirmationModalOpen && (
           <>
-            <Typography
-              style={sx.modalHeading}
-            >
-              ARE YOU SURE?
-            </Typography>
+            {isProcessing ? (
+              <>
+                <Typography
+                  style={sx.modalHeading}
+                >
+                  WAITING...
+                </Typography>
 
-            <Divider
-              titleDivider
-              style={{
-                marginBottom: '32px',
-              }}
-            />
+                <Divider
+                  titleDivider
+                  style={{
+                    marginBottom: '32px',
+                  }}
+                />
 
-            <Typography
-              style={sx.modalCopy}
-            >
-              {`You are about to update Chimerapillar #${newToken.id} with new traits and PERMANENTLY BURN Chimerapillar #${burnToken.id}.`}
-              <br/>
-              <strong>ONCE CONFIRMED THIS CANNOT BE UNDONE!</strong>
-              <br/>
-              <br/>
-              Your sacrifice will not be in vain, the fate of humanity depends upon it...
-            </Typography>
+                <Box sx={{ textAlign: "center", marginBottom: '24px' }}>
+                  <SpinnerDotted color={colors.primary} />
+                </Box>
+              </>
+            ) : (
+              <>
+                {tempToken ? (
+                  <>
+                    <Typography
+                      style={sx.modalHeading}
+                    >
+                      SUCCESS!
+                    </Typography>
 
-            {isProcessing && (
-              <Box sx={{ textAlign: "center", marginBottom: '24px' }}>
-                <SpinnerDotted color={colors.primary} />
-              </Box>
+                    <Divider
+                      titleDivider
+                      style={{
+                        marginBottom: '32px',
+                      }}
+                    />
+
+                    <Typography
+                      style={sx.modalCopy}
+                    >
+                      {`Here is the new Chimerapillar #${tempToken.id}`}
+                    </Typography>
+
+                    <BuildToken
+                      token={tempToken}
+                      width={400}
+                      height={400}
+                      style={{
+                        margin: '0 auto 32px auto',
+                      }}
+                    />
+
+                    <Button
+                      variant="contained"
+                      sx={sx.mergeBtn}
+                      onClick={closeModal}
+                    >
+                      GOT IT
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Typography
+                      style={sx.modalHeading}
+                    >
+                      ARE YOU SURE?
+                    </Typography>
+
+                    <Divider
+                      titleDivider
+                      style={{
+                        marginBottom: '32px',
+                      }}
+                    />
+
+                    <Typography
+                      style={sx.modalCopy}
+                    >
+                      {`You are about to update Chimerapillar #${newToken.id} with new traits and PERMANENTLY BURN Chimerapillar #${burnToken.id}.`}
+                      <br/>
+                      <strong>ONCE CONFIRMED THIS CANNOT BE UNDONE!</strong>
+                      <br/>
+                      <br/>
+                      Your sacrifice will not be in vain, the fate of humanity depends upon it...
+                    </Typography>
+
+                    <div
+                      style={{
+                        ...sx.buttonContainer,
+                        borderTop: '1px solid #333',
+                        padding: '16px 0 0 0',
+                        marginTop: 36,
+                      }}
+                    >
+                      <Button
+                        disabled={isProcessing}
+                        href="#"
+                        onClick={(evt) => {
+                          evt.preventDefault()
+                          setIsConfirmationModalOpen(false)
+                        }}
+                        sx={sx.modalCancel}
+                      >
+                        Wait, I'm not ready
+                      </Button>
+
+                      <Button
+                        disabled={isProcessing}
+                        variant="contained"
+                        sx={sx.mergeBtn}
+                        onClick={mergeAndBurn}
+                      >
+                        CONFIRM IN {wallet.name.toUpperCase()}
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </>
             )}
-
-            <div
-              style={{
-                ...sx.buttonContainer,
-                borderTop: '1px solid #333',
-                padding: '16px 0 0 0',
-                marginTop: 36,
-              }}
-            >
-              <Button
-                disabled={isProcessing}
-                href="#"
-                onClick={(evt) => {
-                  evt.preventDefault()
-                  setIsConfirmationModalOpen(false)
-                }}
-                sx={sx.modalCancel}
-              >
-                Wait, I'm not ready
-              </Button>
-
-              <Button
-                disabled={isProcessing}
-                variant="contained"
-                sx={sx.mergeBtn}
-                onClick={mergeAndBurn}
-              >
-                CONFIRM IN {wallet.name.toUpperCase()}
-              </Button>
-            </div>
           </>
         )}
       </Modal>
