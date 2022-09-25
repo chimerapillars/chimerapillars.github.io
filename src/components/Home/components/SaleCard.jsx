@@ -570,7 +570,12 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
     return cards;
   };
 
-  return render();
+  return (
+    <>
+      <div id="mint" style={{ position: 'relative', top: -300 }}></div>
+      {render()}
+    </>
+  )
 };
 
 /* eslint-disable react/forbid-prop-types */

@@ -14,9 +14,9 @@ const config = {
           highlight: '#545284',
      },
      nav: {
-          BUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'Mythology', 'History', 'Rarity'],
-          MOBILEBUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'Mythology', 'History', 'Rarity'],
-          PATHS: [null, 'https://toddlerpillars.com/#/about', 'https://toddlerpillars.com/#/roadmap', 'https://toddlerpillars.com/#/mythology', 'https://toddlerpillars.com/#/history'],
+          BUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'Mythology', 'History', 'Rarity'], //, 'Merge'],
+          MOBILEBUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'Mythology', 'History', 'Rarity'], //, 'Merge'],
+          PATHS: [null, 'https://toddlerpillars.com/#/about', 'https://toddlerpillars.com/#/roadmap', 'https://toddlerpillars.com/#/mythology', 'https://toddlerpillars.com/#/history', null], //, '/merge'],
           DROPMENU: [],
           DROPMENUPATHS: [],
           // BUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'OpenSea'],

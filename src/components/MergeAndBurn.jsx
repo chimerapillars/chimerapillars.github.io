@@ -156,9 +156,7 @@ const sx = {
       display: 'flex',
       alignItems: 'center',
       [BP2]: {
-        '> .MuiAccordionSummary-content': {
-          display: 'block',
-        },
+        display: 'block',
       },
     },
     accordionNumber: {
@@ -179,7 +177,6 @@ const sx = {
       fontWeight: 'bold',
       display: 'flex',
       alignItems: 'center',
-      lineHeight: '32px',
       fontSize: '1.1rem',
     },
     accordionDescription: {
@@ -577,7 +574,7 @@ const MergeAndBurn = () => {
       }
     }
 
-    return `https://d1s9y2mjkt4va5.cloudfront.net/__resized__/${attr.trait_type}/${filepath}`
+    return `https://d1s9y2mjkt4va5.cloudfront.net/__resized__/${encodeURIComponent(attr.trait_type)}/${encodeURIComponent(filepath)}`
   }
 
   // Get layer position.
@@ -739,10 +736,10 @@ const MergeAndBurn = () => {
         <Divider titleDivider />
 
         <Typography variant="text" sx={{ mt: 4 }}>
-          Customise your Chimerapillars by merging your favourite traits from 2 NFTs into 1. Increase their rarity by combining rare pop-culture mashups from 888 unique traits. A Chimerapillar is burned with every merge, a noble sacrifice in the last stand against the Lonely Toddlerpillar.
+          Customise your Chimerapillars by merging your favourite traits from two NFTs into one & boost their rarity by combining rare traits. A Chimerapillar is burned with every merge, a noble sacrifice in the last stand against the Lonely Toddlerpillar.
           <br/>
           <br/>
-          <a href="/#/" style={{color: colors.primary, textDecoration: 'underline' }}>Mint Chimerapillars</a> now to find ultra-rare traits.
+          <a href="/#/#mint" style={{color: colors.primary, textDecoration: 'underline' }}>Mint Chimerapillars</a> now to find ultra-rare traits & create the ultimate Pillar! With 888 unique traits, the options are almost unlimited!
           <br/>
           <br/>
           {account
@@ -938,7 +935,7 @@ const MergeAndBurn = () => {
               justifyContent: 'space-between',
             }}
           >
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', [BP2]: { display: 'block' } }}>
               <Typography
                 sx={sx.accordionTitle}
               >
@@ -958,10 +955,10 @@ const MergeAndBurn = () => {
               >
                 Swap traits between your selected Chimerapillars.
               </Typography>
-            </div>
+            </Box>
 
             {step === 'build' && (
-              <div>
+              <Box sx={{[BP2]: { margin: '8px 0 0 36px' }}}>
                 {selectedTokens.map((token) => {
                   return (
                     <Token
@@ -976,7 +973,7 @@ const MergeAndBurn = () => {
                     />
                   )
                 })}
-              </div>
+              </Box>
             )}
           </Box>
         </AccordionSummary>
@@ -1130,9 +1127,9 @@ const MergeAndBurn = () => {
                         },
                       }}
                     >
-                      <Box style={{ fontSize: '0.8em', color: colors.primary, fontWeight: '600', }}>{attr.trait_type.toUpperCase()}</Box>
-                      <Box style={{ color: 'white', fontWeight: 'bold', display: 'block', minHeight: '3em' }}>{attr.value}</Box>
-                      <Box style={{ fontSize: '0.8em', color: 'rgb(138, 147, 155)', }}>{attr.rarity}% have this trait</Box>
+                      <Box sx={{ fontSize: '0.8em', color: colors.primary, fontWeight: '600', }}>{attr.trait_type.toUpperCase()}</Box>
+                      <Box sx={{ color: 'white', fontWeight: 'bold', display: 'block', minHeight: '3em', [BP2]: { minHeight: 0 } }}>{attr.value}</Box>
+                      <Box sx={{ fontSize: '0.8em', color: 'rgb(138, 147, 155)', }}>{attr.rarity}% have this trait</Box>
                     </Box>
                   )
                 })}
@@ -1276,10 +1273,10 @@ const MergeAndBurn = () => {
                           margin: '0 12px 8px 12px',
                         }}
                       >
-                        <BuildToken
+                        <Token
                           token={primaryToken}
-                          width={160}
-                          height={160}
+                          width={smallMediaQuery ? 110 : 160}
+                          height={smallMediaQuery ? 110 : 160}
                         />
                       </div>
 
@@ -1299,8 +1296,8 @@ const MergeAndBurn = () => {
                       >
                         <Token
                           token={secondaryToken}
-                          width={160}
-                          height={160}
+                          width={smallMediaQuery ? 110 : 160}
+                          height={smallMediaQuery ? 110 : 160}
                         />
                       </div>
                     </div>
@@ -1310,13 +1307,13 @@ const MergeAndBurn = () => {
                         marginBottom: 8,
                       }}
                     >
-                      {`Into new Chimerpillar #${newToken.id}`}
+                      {`Into NEW Chimerapillar #${newToken.id}`}
                     </Typography>
 
                     <BuildToken
                       token={newToken}
-                      width={480}
-                      height={480}
+                      width={smallMediaQuery ? 320 : 480}
+                      height={smallMediaQuery ? 320 : 480}
                       style={{
                         marginBottom: 8,
                       }}
@@ -1381,7 +1378,7 @@ const MergeAndBurn = () => {
             justifyContent: 'center',
           },
           content: {
-            width: 440,
+            width: smallMediaQuery ? 340 : 440,
             height: 'auto',
             margin: 'auto',
             background: '#1f1e1e',
@@ -1438,8 +1435,8 @@ const MergeAndBurn = () => {
 
                     <BuildToken
                       token={tempToken}
-                      width={400}
-                      height={400}
+                      width={smallMediaQuery ? 300 : 400}
+                      height={smallMediaQuery ? 300 : 400}
                       style={{
                         margin: '0 auto 32px auto',
                       }}
@@ -1479,12 +1476,15 @@ const MergeAndBurn = () => {
                       Your sacrifice will not be in vain, the fate of humanity depends upon it...
                     </Typography>
 
-                    <div
-                      style={{
+                    <Box
+                      sx={{
                         ...sx.buttonContainer,
                         borderTop: '1px solid #333',
                         padding: '16px 0 0 0',
-                        marginTop: 36,
+                        marginTop: '36px',
+                        [BP2]: {
+                          flexDirection: 'column-reverse',
+                        },
                       }}
                     >
                       <Button
@@ -1507,7 +1507,7 @@ const MergeAndBurn = () => {
                       >
                         CONFIRM IN {wallet.name.toUpperCase()}
                       </Button>
-                    </div>
+                    </Box>
                   </>
                 )}
               </>

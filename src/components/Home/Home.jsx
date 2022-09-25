@@ -10,7 +10,13 @@ import config from '../../config'
 
 const Home = () => {
 	useEffect(() => {
-		window.scrollTo(0, 0);
+		if (location.hash === '#/#mint') {
+			setTimeout(() => {
+				document.getElementById('mint')?.scrollIntoView({ behavior: 'smooth' })
+			}, 500)
+		} else {
+			window.scrollTo(0, 0);
+		}
 	}, []);
 
 	return (
