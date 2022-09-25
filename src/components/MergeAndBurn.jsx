@@ -665,7 +665,7 @@ const MergeAndBurn = () => {
 
   const BuildToken = (props = {}) => {
     const { token } = props
-console.log(props)
+
     return (
       <div
         style={{
@@ -739,10 +739,16 @@ console.log(props)
         <Divider titleDivider />
 
         <Typography variant="text" sx={{ mt: 4 }}>
-          Customise your Chimerapillars by merging your favourite traits from two NFTs into one. Increase their rarity by combining rare nostalgic pop-cultural mashups from a vast pool of 888 unique traits. A Chimerapillar will be burned with every merge, a noble sacrifice in the last stand against the Lonely Toddlerpillar.
+          Customise your Chimerapillars by merging your favourite traits from 2 NFTs into 1. Increase their rarity by combining rare pop-culture mashups from 888 unique traits. A Chimerapillar is burned with every merge, a noble sacrifice in the last stand against the Lonely Toddlerpillar.
           <br/>
           <br/>
-          {burnCount} Chimerapillars have been burned so far.
+          <a href="/#/" style={{color: colors.primary, textDecoration: 'underline' }}>Mint Chimerapillars</a> now to find ultra-rare traits.
+          <br/>
+          <br/>
+          {account
+            ? `${burnCount} Chimerapillars have been burned so far.`
+            : `Connect your wallet to see how many have been burned so far.`
+          }
         </Typography>
       </Box>
 
@@ -1427,7 +1433,7 @@ console.log(props)
                     <Typography
                       style={sx.modalCopy}
                     >
-                      {`Here is the new Chimerapillar #${tempToken.id}`}
+                      {`Here is the new merged Chimerapillar #${tempToken.id}`}
                     </Typography>
 
                     <BuildToken
