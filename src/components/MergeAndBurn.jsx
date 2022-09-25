@@ -361,7 +361,7 @@ const MergeAndBurn = () => {
   const chimeraContract = useChimeraContract()
   const chimeraBurnerContract = useChimeraBurnerContract()
   const smallMediaQuery = useMediaQuery('(max-width: 767px)')
-  const mediumMediaQuery = useMediaQuery('(min-width: 899px)')
+  const mediumMediaQuery = useMediaQuery('(max-width: 820px)')
   const largeMediaQuery = useMediaQuery('(min-width: 1480px)')
 
   const selectedTokens = tokens.filter(token => token.isSelected)
@@ -710,7 +710,7 @@ const MergeAndBurn = () => {
   let buildImageSize
   const buildImageSizes = {
     small: 310,
-    medium: 800,
+    medium: 675,
     large: 1000,
   }
 
