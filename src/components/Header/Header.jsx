@@ -376,8 +376,14 @@ const Header = () => {
 		}
 	};
 	const handleNavigationAbout = (i) => {
-		setMenuOpened(false);
-		history.push(DROPMENUPATHS[i]);
+		const path = DROPMENUPATHS[i]
+
+		if (/^http/i.test(path)) {
+			window.open(path)
+		} else {
+			setMenuOpened(false);
+			history.push(path);
+		}
 	};
 	const openMenu = () => {
 		if (openAbout === false) {
