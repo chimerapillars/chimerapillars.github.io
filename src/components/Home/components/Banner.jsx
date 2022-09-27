@@ -395,11 +395,7 @@ const Banner = () => {
 				• 6 Chimeras + 6 Toddlers = 320 airdrops
 				<br />
 				• 9 Chimeras + 9 Toddlers = 400 airdrops</i>
-{/*}
-        <br />
-        <br />
-        <a href="/#/merge" style={{ color: colors.primary, textDecoration: 'underline' }}>Merge & Burn</a>
-*/}
+
 								{/* !anySales && (
 									<>
 										<br/>
