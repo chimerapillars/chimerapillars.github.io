@@ -867,7 +867,7 @@ const MergeAndBurn = () => {
               marginBottom: 48,
             }}
           >
-            {tokens?.length < 2 && !loading && (
+            {tokens?.length < 2 && !loading ? (
               <Typography
                 style={{
                   marginTop: 32,
@@ -875,38 +875,40 @@ const MergeAndBurn = () => {
               >
                 Sorry, you need at least 2 Chimerapillars in your wallet.
               </Typography>
+            ) : (
+              <>
+                {tokens.map((token) => {
+                  return (
+                    <Button
+                      key={token.id}
+                      disabled={!token.isSelected && selectedTokens.length === 2}
+                      onClick={() => {
+                        selectToken(token.id)
+                      }}
+                      sx={{
+                        ...sx.token,
+                        ...(token.isSelected ? sx.tokenSelected : null),
+                      }}
+                    >
+                      <Token
+                        token={token}
+                        width={240}
+                        height={240}
+                      />
+
+                      <Typography
+                        style={{
+                          lineHeight: '2',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        {token.name}
+                      </Typography>
+                    </Button>
+                  )
+                })}
+              </>
             )}
-
-            {tokens.map((token) => {
-              return (
-                <Button
-                  key={token.id}
-                  disabled={!token.isSelected && selectedTokens.length === 2}
-                  onClick={() => {
-                    selectToken(token.id)
-                  }}
-                  sx={{
-                    ...sx.token,
-                    ...(token.isSelected ? sx.tokenSelected : null),
-                  }}
-                >
-                  <Token
-                    token={token}
-                    width={240}
-                    height={240}
-                  />
-
-                  <Typography
-                    style={{
-                      lineHeight: '2',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {token.name}
-                  </Typography>
-                </Button>
-              )
-            })}
           </div>
 
           <div
