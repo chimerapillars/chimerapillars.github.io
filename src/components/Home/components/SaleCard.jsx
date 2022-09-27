@@ -196,7 +196,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
     maxSupply: 8888,
 
     isClaimActive:    true,
-    isPresaleActive:  true,
+    isPresaleActive:  false,
     isMainsaleActive: false,
 
     totalSupply: 0,
