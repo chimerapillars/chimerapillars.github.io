@@ -445,12 +445,9 @@ const MergeAndBurn = () => {
 
     // Get burn count.
     const burnEvents = await chimeraContract.queryFilter(chimeraContract.filters.Transfer(null, ethers.constants.AddressZero), 0)
-
-    console.log(burnEvents)
-
     setBurnCount(burnEvents.length)
 
-    const isBurnActive = false //await chimeraBurnerContract.isBurnActive()
+    const isBurnActive = await chimeraBurnerContract.isBurnActive()
     setIsBurnActive(isBurnActive)
 
     // Get collection stats.
