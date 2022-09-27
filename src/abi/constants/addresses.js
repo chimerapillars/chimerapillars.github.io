@@ -45,5 +45,5 @@ export const CHIMERA_CONTRACT = {
 
 export const CHIMERA_BURNER_CONTRACT = {
     // [SupportedChainId.MAINNET]: "",
-    [SupportedChainId.RINKEBY]: "0x69eE132d2Fa43CE57AB6407Cb9f413860392C650",
+    [SupportedChainId.RINKEBY]: "0x620165CAAe5A9809DA788B81c896E409F722B7B4",
 }
