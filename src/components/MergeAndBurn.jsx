@@ -349,6 +349,7 @@ const MergeAndBurn = () => {
   const [ isConfirmationModalOpen, setIsConfirmationModalOpen ] = useState(false)
   const [ loading, setLoading ] = useState(false)
   const [ isProcessing, setIsProcessing ] = useState(false)
+  const [ isBurnActive, setIsBurnActive ] = useState(false)
   const [ burnCount, setBurnCount ] = useState(0)
   const [ tokens, setTokens ] = useState([])
   const [ activeAttribute, setActiveAttribute ] = useState(null)
@@ -448,6 +449,9 @@ const MergeAndBurn = () => {
     console.log(burnEvents)
 
     setBurnCount(burnEvents.length)
+
+    const isBurnActive = false //await chimeraBurnerContract.isBurnActive()
+    setIsBurnActive(isBurnActive)
 
     // Get collection stats.
     let resp
@@ -725,6 +729,22 @@ const MergeAndBurn = () => {
   }
 
   console.log({buildImageSize})
+
+  if (account && !isBurnActive) {
+    return (
+      <Box sx={sx.content}>
+        <Typography variant="heading1" sx={sx.title}>
+          Merge & Burn
+        </Typography>
+
+        <Divider titleDivider />
+
+        <Typography variant="text" sx={{ mt: 4 }}>
+          Sorry, the merge & burn is not currently active.
+        </Typography>
+      </Box>
+    )
+  }
 
   return (
     <>
