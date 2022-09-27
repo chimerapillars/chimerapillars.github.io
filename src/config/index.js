@@ -45,9 +45,9 @@ const common = {
 // if use npm/yarn start,  NODE_ENV = "development"
 // if use npm/yarn build,  NODE_ENV = "production"
 let envConfig = prod;// process.env.NODE_ENV === "development" ? dev : prod
-if (window.location.hash === '#/merge') {
-  envConfig = dev;
-}
+// if (window.location.hash === '#/merge') {
+//   envConfig = dev;
+// }
 let config = {
     ...envConfig,
     ...common,
