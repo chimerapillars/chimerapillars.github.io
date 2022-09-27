@@ -360,9 +360,9 @@ const MergeAndBurn = () => {
   const accordionElem = useRef(null)
   const chimeraContract = useChimeraContract()
   const chimeraBurnerContract = useChimeraBurnerContract()
-  const smallMediaQuery = useMediaQuery('(max-width: 767px)')
-  const mediumMediaQuery = useMediaQuery('(max-width: 820px)')
-  const largeMediaQuery = useMediaQuery('(min-width: 1480px)')
+  const smallMediaQuery = useMediaQuery('(max-width: 820px)')
+  const mediumMediaQuery = useMediaQuery('(min-width: 820px)')
+  const largeMediaQuery = useMediaQuery('(min-width: 1481px)')
 
   const selectedTokens = tokens.filter(token => token.isSelected)
   const primaryToken = selectedTokens[0]
