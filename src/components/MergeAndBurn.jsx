@@ -447,6 +447,7 @@ const MergeAndBurn = () => {
     const burnEvents = await chimeraContract.queryFilter(chimeraContract.filters.Transfer(null, ethers.constants.AddressZero), 0)
     setBurnCount(burnEvents.length)
 
+    // See if burn is active.
     const isBurnActive = await chimeraBurnerContract.isBurnActive()
     setIsBurnActive(isBurnActive)
 
@@ -727,7 +728,7 @@ const MergeAndBurn = () => {
 
   console.log({buildImageSize})
 
-  if (account && !isBurnActive) {
+  if (account && !loading && !isBurnActive) {
     return (
       <Box sx={sx.content}>
         <Typography variant="heading1" sx={sx.title}>
