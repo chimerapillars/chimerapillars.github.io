@@ -213,7 +213,6 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
 
   useEffect(() => {
     init();
-    setLoading( false );
   }, [address, chimeraContract]);
 
 
@@ -283,6 +282,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
     setBurnCount(burnEvents.length)
 
     setContractConfig( config );
+    setLoading( false );
   };
 
   const handleMintClicked = () => {
