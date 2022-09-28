@@ -513,8 +513,9 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
             </Typography>
 
             <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
-              Mint multiple Chimerapillars and customise them with our <a href="/#/merge" style={{ color: colors.primary, textDecoration: 'underline' }}>merge & burn</a> DApp.
-              {` Holders can select their favourite traits from 2 NFTs and merge them into 1 while reducing the supply with a burn mechanism. ${burnCount} Chimerapillars have been burned so far.`}
+              Mint multiple Chimerapillars and customise them with our <a href="/#/merge" style={{ color: colors.primary, textDecoration: 'underline' }}>merge & burn</a> DApp. Merge your favourite traits from two NFTs into one & boost their rarity by combining rare traits.
+              {' '}
+              {burnCount} Chimerapillars have been burned so far.
             </Typography>
 
             {!disableMintBtn && (contractConfig.totalSupply > 0) ? (
