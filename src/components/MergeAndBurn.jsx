@@ -1399,6 +1399,7 @@ const MergeAndBurn = () => {
           content: {
             width: smallMediaQuery ? 340 : 440,
             height: 'auto',
+            maxHeight: '90vh',
             margin: 'auto',
             background: '#1f1e1e',
             color: colors.text,
@@ -1498,6 +1499,7 @@ const MergeAndBurn = () => {
                     <Box
                       sx={{
                         ...sx.buttonContainer,
+                        position: 'static',
                         borderTop: '1px solid #333',
                         padding: '16px 0 0 0',
                         marginTop: '36px',
@@ -1521,7 +1523,13 @@ const MergeAndBurn = () => {
                       <Button
                         disabled={isProcessing}
                         variant="contained"
-                        sx={sx.mergeBtn}
+                        sx={{
+                          ...sx.mergeBtn,
+                          [BP2]: {
+                            marginTop: '8px',
+                            marginBottom: '8px',
+                          }
+                        }}
                         onClick={mergeAndBurn}
                       >
                         CONFIRM IN {wallet.name.toUpperCase()}
