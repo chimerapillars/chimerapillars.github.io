@@ -377,7 +377,6 @@ const MergeAndBurn = () => {
   })
 
   useEffect(() => {
-    console.log(account)
     if (account) {
       syncWeb3()
       setStep('selection')
@@ -484,7 +483,7 @@ const MergeAndBurn = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          wallet: account,
+          wallet: account?.toLowerCase(),
           tokenIds: tokenIds.join(','),
         }),
       })
@@ -599,7 +598,7 @@ const MergeAndBurn = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          wallet: account,
+          wallet: account?.toLowerCase(),
           baseChimeraPillarId: newToken.id,
           burnChimeraPillarId: burnToken.id,
           newTraitIds: newToken.attributes.map(attr => attr.id).join(',')
