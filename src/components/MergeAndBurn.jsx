@@ -243,6 +243,11 @@ const layers = [
     coords: '265,91,317,172,388,225,474,242,598,226,677,190,752,99,784,0,588,0,367,-1,238,-1',
   },
   {
+    trait_type: 'Upper Torso Traits',
+    filePrefix: 'UT',
+    coords: '436,580,389,592,360,646,351,679,340,745,356,785,388,804,437,786,459,745,472,688,487,636,481,591',
+  },
+  {
     trait_type: 'MUZZLE',
     filePrefix: 'Muzzle',
     coords: '457,393,421,416,366,432,352,482,379,524,430,531,480,532,556,533,604,516,597,467,544,434,502,395',
@@ -256,11 +261,6 @@ const layers = [
     trait_type: 'HEAD',
     filePrefix: '',
     coords: '282,169,271,270,291,393,330,511,395,540,498,548,618,534,680,482,705,421,742,305,715,203,600,175,510,151,391,159',
-  },
-  {
-    trait_type: 'Upper Torso Traits',
-    filePrefix: 'UT',
-    coords: '436,580,389,592,360,646,351,679,340,745,356,785,388,804,437,786,459,745,472,688,487,636,481,591',
   },
   {
     trait_type: 'Upper Torso Parts',
@@ -444,6 +444,7 @@ const MergeAndBurn = () => {
 
     // Get burn count.
     const burnEvents = await chimeraContract.queryFilter(chimeraContract.filters.Transfer(null, ethers.constants.AddressZero), 0)
+    // console.log(burnEvents.map(evt => evt.args[2].toNumber()).sort((a, b) => a - b))
     setBurnCount(burnEvents.length)
 
     // See if burn is active.
