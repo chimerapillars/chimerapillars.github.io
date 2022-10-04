@@ -444,7 +444,7 @@ const MergeAndBurn = () => {
 
     // Get burn count.
     const burnEvents = await chimeraContract.queryFilter(chimeraContract.filters.Transfer(null, ethers.constants.AddressZero), 0)
-    // console.log(burnEvents.map(evt => evt.args[2].toNumber()).sort((a, b) => a - b))
+    console.log(burnEvents.map(evt => evt.args[2].toNumber()).sort((a, b) => a - b).toString())
     setBurnCount(burnEvents.length)
 
     // See if burn is active.
@@ -760,10 +760,12 @@ const MergeAndBurn = () => {
           <a href="/#/#mint" style={{color: colors.primary, textDecoration: 'underline' }}>Mint Chimerapillars</a> & find ultra-rare traits for the ultimate merge! With 888 traits, the options are almost unlimited!
           <br/>
           <br/>
-          {account
-            ? `${burnCount} Chimerapillars have been burned so far.`
-            : `Connect your wallet to see how many have been burned so far.`
-          }
+          <strong>
+            {account
+              ? `${burnCount} Chimerapillars have been burned so far.`
+              : `Connect your wallet to see how many have been burned so far.`
+            }
+          </strong>
         </Typography>
       </Box>
 
