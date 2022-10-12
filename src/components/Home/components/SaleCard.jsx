@@ -186,6 +186,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
   //10 seconds
   const [checkInterval, setCheckInterval] = useState(10_000);
   const [isLoading, setLoading] = useState(true);
+  const [burnCount, setBurnCount] = useState(0);
   const [contractConfig, setContractConfig] = useState({
     weiPrice: '30000000000000000',
     ethPrice: 0.03,
@@ -195,7 +196,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
     maxSupply: 8888,
 
     isClaimActive:    true,
-    isPresaleActive:  true,
+    isPresaleActive:  false,
     isMainsaleActive: false,
 
     totalSupply: 0,
@@ -212,7 +213,6 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
 
   useEffect(() => {
     init();
-    setLoading( false );
   }, [address, chimeraContract]);
 
 
@@ -277,7 +277,12 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
       });
     }
 
+    // Get burn count.
+    const burnEvents = await chimeraContract.queryFilter(chimeraContract.filters.Transfer(null, ethers.constants.AddressZero), 0)
+    setBurnCount(burnEvents.length)
+
     setContractConfig( config );
+    setLoading( false );
   };
 
   const handleMintClicked = () => {
@@ -508,8 +513,9 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
             </Typography>
 
             <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
-              Mint multiple Chimerapillars for our upcoming merge and burn utility.
-              Holders will select their favourite traits from 2 NFTs and merge them into 1 while reducing the supply with a burn mechanism.
+              Mint multiple Chimerapillars and customise them with our <a href="/#/merge" style={{ color: colors.primary, textDecoration: 'underline' }}>merge & burn</a> DApp. Merge your favourite traits from two NFTs into one & boost their rarity by combining rare traits.
+              {' '}
+              <strong>{burnCount} Chimerapillars have been burned so far.</strong>
             </Typography>
 
             {!disableMintBtn && (contractConfig.totalSupply > 0) ? (
@@ -570,7 +576,12 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
     return cards;
   };
 
-  return render();
+  return (
+    <>
+      <div id="mint" style={{ position: 'relative', top: -300 }}></div>
+      {render()}
+    </>
+  )
 };
 
 /* eslint-disable react/forbid-prop-types */

@@ -4,6 +4,7 @@ import Roadmap from './components/Roadmap';
 import Mythology from './components/Mythology';
 import History from './components/History';
 import Collections from './components/Collections';
+import MergeAndBurn from './components/MergeAndBurn';
 
 const routes = [
 	{
@@ -30,9 +31,15 @@ const routes = [
 		path: '/history',
 		component: History,
 		exact: true,
-	},{
+	},
+  {
 		path: '/collections',
 		component: Collections,
+		exact: true,
+	},
+  {
+		path: '/merge',
+		component: MergeAndBurn,
 		exact: true,
 	},
 ];

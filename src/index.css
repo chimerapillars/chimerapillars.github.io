@@ -25,3 +25,11 @@ code {
 body > li > .grabbed-layer {
   box-shadow: 0 0 30px #FFFFFF33;
 }
+
+area {
+  cursor: pointer;
+}
+
+img[usemap="#image-map"] {
+  opacity: 0;
+}

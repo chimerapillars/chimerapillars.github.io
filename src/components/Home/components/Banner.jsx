@@ -395,6 +395,7 @@ const Banner = () => {
 				• 6 Chimeras + 6 Toddlers = 320 airdrops
 				<br />
 				• 9 Chimeras + 9 Toddlers = 400 airdrops</i>
+
 								{/* !anySales && (
 									<>
 										<br/>

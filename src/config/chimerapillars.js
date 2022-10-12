@@ -14,16 +14,43 @@ const config = {
           highlight: '#545284',
      },
      nav: {
-          BUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'Mythology', 'History', 'Rarity'],
-          MOBILEBUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'Mythology', 'History', 'Rarity'],
-          PATHS: [null, 'https://toddlerpillars.com/#/about', 'https://toddlerpillars.com/#/roadmap', 'https://toddlerpillars.com/#/mythology', 'https://toddlerpillars.com/#/history'],
-          DROPMENU: [],
-          DROPMENUPATHS: [],
-          // BUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'OpenSea'],
-          // MOBILEBUTTONS: ['Toddlerpillars', 'About', 'Roadmap', 'OpenSea'],
-          // PATHS: [null, '/about', '/roadmap', null],
-          // DROPMENU: ['About Toddlerpillars', 'Mythology', 'History'],
-          // DROPMENUPATHS: ['/about', '/mythology', '/history'],
+          BUTTONS: [
+            'Toddlerpillars',
+            'About',
+            'Roadmap',
+            // 'Mythology',
+            // 'History',
+            'Rarity',
+            'Merge & Burn',
+          ],
+          MOBILEBUTTONS: [
+            'Toddlerpillars',
+            'About',
+            'Roadmap',
+            // 'Mythology',
+            // 'History',
+            'Rarity',
+            'Merge & Burn',
+          ],
+          PATHS: [
+            null,
+            'https://toddlerpillars.com/#/about',
+            'https://toddlerpillars.com/#/roadmap',
+            // 'https://toddlerpillars.com/#/mythology',
+            // 'https://toddlerpillars.com/#/history',
+            null,
+            '/merge',
+          ],
+          DROPMENU: [
+            'About Toddlerpillars',
+            'Mythology',
+            'History',
+          ],
+          DROPMENUPATHS: [
+            'https://toddlerpillars.com/#/about',
+            'https://toddlerpillars.com/#/mythology',
+            'https://toddlerpillars.com/#/history',
+          ],
      },
      socials: {
           twitter: {
@@ -32,6 +59,9 @@ const config = {
           discord: {
                url: 'https://discord.gg/pillars',
           },
+     },
+     mergeburn: {
+       apiRoot: 'https://chimerapillars.herokuapp.com/api',
      },
 }
 

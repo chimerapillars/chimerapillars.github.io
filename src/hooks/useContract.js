@@ -3,6 +3,7 @@ import { useMemo, useContext } from 'react'
 import { getContract } from '../utils'
 
 import { abi as CHIMERA_ABI } from '../abi/ChimeraPillars.json'
+import { abi as CHIMERA_BURNER_ABI } from '../abi/ChimeraPillarsBurner.json'
 import { abi as EC_ABI } from '../abi/EtherCards.json'
 import { abi as TODDLER_COMMUNITY_ABI } from '../abi/ToddlerCommunity.json'
 import { abi as TODDLER_SALE_ABI } from '../abi/SkeletonCrew.json'
@@ -13,7 +14,8 @@ import {
     EC_ADDRESSES,
     TODDLER_COMMUNITY_ADDRESSES,
     TODDLER_SALE_ADDRESSES,
-    CHIMERA_CONTRACT
+    CHIMERA_CONTRACT,
+    CHIMERA_BURNER_CONTRACT,
 } from '../abi/constants/addresses'
 
 // returns null on errors
@@ -63,6 +65,10 @@ export function useCommunityContract() {
 
 export function useChimeraContract() {
     return useContract(CHIMERA_CONTRACT, CHIMERA_ABI, true);
+}
+
+export function useChimeraBurnerContract() {
+    return useContract(CHIMERA_BURNER_CONTRACT, CHIMERA_BURNER_ABI, true);
 }
 
 export function useEcContract() {
