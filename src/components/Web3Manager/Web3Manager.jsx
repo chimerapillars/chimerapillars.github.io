@@ -13,7 +13,7 @@ const INFURA_ID = config.INFURA_ID;
 const FORTMATIC_KEY = config.FORTMATIC_KEY;
 const RPC_URL = config.RPC_URL;
 const { colors } = config.PROJECT;
-
+console.log(config)
 const Web3Manager = ({ children }) => {
   const [onboard, setOnboard] = useState(null);
   const [address, setAddress] = useState(null);
@@ -51,6 +51,7 @@ const Web3Manager = ({ children }) => {
                 rpc: {
                   1: RPC_URL,
                   4: RPC_URL,
+                  5: RPC_URL,
                 },
               },
               { walletName: "opera" },

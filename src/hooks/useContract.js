@@ -4,6 +4,7 @@ import { getContract } from '../utils'
 
 import { abi as CHIMERA_ABI } from '../abi/ChimeraPillars.json'
 import { abi as CHIMERA_BURNER_ABI } from '../abi/ChimeraPillarsBurner.json'
+import { abi as CHIMERA_MINTER_ABI } from '../abi/ChimeraPillarsMinter.json'
 import { abi as EC_ABI } from '../abi/EtherCards.json'
 import { abi as TODDLER_COMMUNITY_ABI } from '../abi/ToddlerCommunity.json'
 import { abi as TODDLER_SALE_ABI } from '../abi/SkeletonCrew.json'
@@ -16,6 +17,7 @@ import {
     TODDLER_SALE_ADDRESSES,
     CHIMERA_CONTRACT,
     CHIMERA_BURNER_CONTRACT,
+    CHIMERA_MINTER_CONTRACT,
 } from '../abi/constants/addresses'
 
 // returns null on errors
@@ -69,6 +71,10 @@ export function useChimeraContract() {
 
 export function useChimeraBurnerContract() {
     return useContract(CHIMERA_BURNER_CONTRACT, CHIMERA_BURNER_ABI, true);
+}
+
+export function useChimeraMinterContract() {
+    return useContract(CHIMERA_MINTER_CONTRACT, CHIMERA_MINTER_ABI, true);
 }
 
 export function useEcContract() {

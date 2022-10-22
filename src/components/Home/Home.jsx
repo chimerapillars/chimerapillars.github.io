@@ -17,6 +17,13 @@ const Home = () => {
 		} else {
 			window.scrollTo(0, 0);
 		}
+
+		if (['#/#testnet', '#/#mainnet'].includes(location.hash)) {
+			const networkSetting = location.hash.replace(/^\#\/\#/, '')
+			console.log({networkSetting})
+			localStorage.setItem('chimerapillars:networkSetting', networkSetting)
+			window.location = '/'
+		}
 	}, []);
 
 	return (

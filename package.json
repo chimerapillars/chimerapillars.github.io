@@ -15,6 +15,7 @@
         "ec-commons": "git+https://github.com/ethercards/ec-commons.git",
         "eslint-plugin-jsx-a11y": "^6.4.1",
         "ethers": "^5.5.3",
+        "moment": "^2.29.4",
         "prop-types": "^15.8.1",
         "react": "^17.0.2",
         "react-countdown": "^2.3.2",

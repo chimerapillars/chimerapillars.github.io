@@ -92,8 +92,8 @@ const MintQuantity = ({ title, price, maxAmount, onClickMint }) => {
   const [totalPrice, setTotalPrice] = useState(0);
 
   useEffect(() => {
-    setTotalPrice((price * quantity).toFixed(2));
-  }, [quantity]);
+    setTotalPrice(Number((price * quantity).toFixed(3)));
+  }, [quantity, price]);
 
   const onNumberInput = (val) => {
     setQuantity(val);

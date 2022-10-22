@@ -444,17 +444,17 @@ const MergeAndBurn = () => {
 
     // Get burn count.
     const burnEvents = await chimeraContract.queryFilter(chimeraContract.filters.Transfer(null, ethers.constants.AddressZero), 0)
-    console.log(burnEvents.map(evt => evt.args[2].toNumber()).sort((a, b) => a - b).toString())
+    console.log('burns:', burnEvents.map(evt => evt.args[2].toNumber()).sort((a, b) => a - b).toString() || 'none')
     setBurnCount(burnEvents.length)
-
+console.log({chimeraBurnerContract})
     // See if burn is active.
     const isBurnActive = await chimeraBurnerContract.isBurnActive()
+console.log({isBurnActive})
     setIsBurnActive(isBurnActive)
-
     // Get collection stats.
     let resp
     let json
-    if (config.DEPLOYED_NTW_NAME === 'rinkeby') {
+    if (config.DEPLOYED_NTW_NAME === 'goerli') {
       resp = await fetch('https://testnets-api.opensea.io/api/v1/collection/chimera-pillars-testnet')
     } else {
       resp = await fetch('https://api.opensea.io/api/v1/collection/chimera-pillars', {
@@ -474,6 +474,7 @@ const MergeAndBurn = () => {
     // Get tokens.
     let tokens = []
     let tokenIds = await chimeraContract.walletOfOwner(account)
+    // let tokenIds = await chimeraContract.walletOfOwner('0x7ea4238d0d43f6250bd4c7b2b48b3dc5dcd52cd4')
     tokenIds = tokenIds.map(tokenId => tokenId.toNumber())
 
     if (tokenIds?.length) {
@@ -485,6 +486,7 @@ const MergeAndBurn = () => {
         },
         body: JSON.stringify({
           wallet: account?.toLowerCase(),
+          // wallet: '0x7ea4238d0d43f6250bd4c7b2b48b3dc5dcd52cd4'?.toLowerCase(),
           tokenIds: tokenIds.join(','),
         }),
       })
@@ -501,7 +503,7 @@ const MergeAndBurn = () => {
           return {
             ...token,
             id: token.tokenId,
-            image: `https://chimerapillars${config.DEPLOYED_NTW_NAME === 'rinkeby' ? '-testnet' : ''}.s3.amazonaws.com/images/${token.tokenId}.png?bust=${Date.now()}`,
+            image: `https://chimerapillars${config.DEPLOYED_NTW_NAME === 'goerli' ? '-testnet' : ''}.s3.amazonaws.com/images/${token.tokenId}.png?bust=${Date.now()}`,
             attributes: traitTypes.map(trait => {
               const percentage = (stats?.[trait.trait_type]?.[trait.value.toLowerCase()] / totalSupply.toNumber() * 100)
               return {

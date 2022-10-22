@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Web3Ctx from "../../Context/Web3Ctx";
 import { ethers } from "ethers";
+import moment from 'moment'
 import {
   Box,
   Button,
@@ -13,6 +14,7 @@ import {
 import { SpinnerDotted } from "spinners-react";
 import ethIcon from "../../../assets/images/eth.svg";
 import config from '../../../config';
+import { abi as partnerABI } from '../../../abi/Partner.json'
 
 import {
   useChimeraContract,
@@ -178,8 +180,8 @@ const TextLink = ({ onClick, children }) => {
   );
 };
 
-const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
-  let { handleConnect, address, isCorrectNetwork } = useContext(Web3Ctx);
+const SaleCard = ({ setConfigs, setCheckoutVisible, onSetDiscounts }) => {
+  let { handleConnect, address, isCorrectNetwork, ethersProvider } = useContext(Web3Ctx);
   const chimeraContract = useChimeraContract();
   const toddlerContract = useSaleContract();
 
@@ -187,6 +189,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
   const [checkInterval, setCheckInterval] = useState(10_000);
   const [isLoading, setLoading] = useState(true);
   const [burnCount, setBurnCount] = useState(0);
+  const [discounts, setDiscounts] = useState([]);
   const [contractConfig, setContractConfig] = useState({
     weiPrice: '30000000000000000',
     ethPrice: 0.03,
@@ -215,11 +218,15 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
     init();
   }, [address, chimeraContract]);
 
+  useEffect(() => {
+    onSetDiscounts(discounts)
+  }, [discounts])
 
-  useInterval(() => {
-    console.log("refreshing");
-    init();
-  }, checkInterval);
+
+  // useInterval(() => {
+  //   console.log("refreshing");
+  //   init();
+  // }, checkInterval);
 
   const onClickConnect = async (evt) => {
     await handleConnect(evt)
@@ -235,6 +242,119 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
       return false;
     }
 	}
+
+  const getDiscounts = async (quantity) => {
+    if (config.DEPLOYED_NTW_NAME !== 'goerli') return []
+
+    const now = moment()
+    const maticProvider = new ethers.providers.JsonRpcProvider(`https://rpc-${config.DEPLOYED_NTW_NAME === 'goerli' ? 'mumbai' : 'mainnet'}.maticvigil.com/v1/${process.env.REACT_APP_MATICVIGIL_API_KEY}`)
+
+    console.log({ now })
+
+    let partners = [
+      {
+        name: 'Wall Street Wolves',
+        contractAddress: '0xd2e21cba4B159354C61D650f35ed16D4C8Fe0945',
+        price: 0.015,
+        startTime: moment('2022-10-19 13:00'),
+        endTime: moment('2022-10-22 24:00'),
+        slug: '',
+        minBalance: 10,
+        isMatic: false,
+        isOS: false,
+      },
+      {
+        name: 'Chimerapillars',
+        contractAddress: '0x956bf0F5cBb899CE07D5549E993f22e927574ff5',
+        price: 0.015,
+        startTime: moment('2022-10-19 11:00'),
+        endTime: moment('2022-10-22 24:00'),
+        slug: '',
+        minBalance: 1,
+        isMatic: false,
+        isOS: false,
+      },
+      {
+        name: 'Polygon Test',
+        contractAddress: '0x7efeaf48c461084b96a71279de921f62c0c80c12',
+        price: 0.015,
+        startTime: moment('2022-10-19 09:00'),
+        endTime: moment('2022-10-22 24:00'),
+        slug: '',
+        minBalance: 1,
+        isMatic: true,
+        isOS: false,
+      },
+      {
+        name: 'OS Test',
+        contractAddress: '0xf4910c763ed4e47a585e2d34baa9a4b611ae448c',
+        price: 0.015,
+        startTime: moment('2022-10-19 09:00'),
+        endTime: moment('2022-10-22 24:00'),
+        slug: 'os-test-9',
+        minBalance: 1,
+        isMatic: false,
+        isOS: true,
+      },
+    ]
+
+    console.log({ partners })
+
+    partners = partners.filter((partner) => {
+      return partner.startTime.isSameOrBefore(now) && partner.endTime.isSameOrAfter(now)
+    })
+
+    console.log({ activePartners: partners })
+    console.log({REACT_APP_NODE_ENV: process.env.REACT_APP_NODE_ENV})
+
+    const discounts = []
+    await Promise.all(partners.map((partner) => {
+      return new Promise(async (resolve, reject) => {
+        const provider = partner.isMatic
+          ? maticProvider
+          : ethersProvider
+        const partnerContract = new ethers.Contract(partner.contractAddress, partnerABI, provider)
+
+        console.log(partner.isMatic, {provider})
+        console.log({ partnerContract })
+
+        let balance = 0
+        if (partner.isOS) {
+          // const endpoint = `https://api.opensea.io/api/v1/assets?owner=${account}&collection=${partner.slug}`
+          let resp
+          let data
+          if (config.DEPLOYED_NTW_NAME === 'goerli') {
+            resp = await fetch(`https://testnets-api.opensea.io/api/v1/assets?owner=${address}&collection=${partner.slug}`)
+          } else {
+            resp = await fetch(`https://api.opensea.io/api/v1/assets?owner=${address}&collection=${partner.slug}`, {
+              headers: {
+                'x-api-key': process.env.REACT_APP_OPENSEA_API_KEY,
+              }
+            })
+          }
+          data = await resp.json()
+          balance = data?.assets?.length || 0
+        } else {
+          balance = (await partnerContract.balanceOf(address)).toNumber()
+        }
+
+        console.log({ balance })
+
+        if (balance >= partner.minBalance) {
+          discounts.push({
+            ...partner,
+            percentOff: Math.round((contractConfig.ethPrice - partner.price) / contractConfig.ethPrice * 100)
+          })
+        }
+
+        resolve()
+      })
+    }))
+
+    console.log({discounts})
+
+    return discounts.sort((a, b) => a.price < b.price ? -1 : 1)
+  }
 
   const init = async () => {
     const tmpConfig = await chimeraContract.CONFIG();
@@ -263,6 +383,9 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
       };
 
       owner.hasClaim = await hasSignature( 1 );
+
+      const discounts = await getDiscounts()
+      setDiscounts(discounts)
 
       setOwnerConfig( owner );
       setConfigs({
@@ -373,7 +496,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
         }}>
           <Box display="flex" sx={{ justifyContent: "center", alignItems: "center" }}>
             <span>
-              <Typography variant="heading3">
+              <Typography variant="heading3" style={{display: 'block', marginBottom: 8}}>
                 <strong>Free claims are live!</strong>
               </Typography>
 
@@ -587,7 +710,8 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
 /* eslint-disable react/forbid-prop-types */
 SaleCard.propTypes = {
   setConfigs: PropTypes.any.isRequired,
-  setCheckoutVisible: PropTypes.any.isRequired
+  setCheckoutVisible: PropTypes.any.isRequired,
+  onSetDiscounts: PropTypes.any.isRequired,
 };
 
 export default SaleCard;
