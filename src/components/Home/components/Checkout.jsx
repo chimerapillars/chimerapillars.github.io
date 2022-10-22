@@ -11,7 +11,6 @@ import Divider from '../../common/Divider';
 import MintQuantity from './MintQuantity';
 import config from '../../../config';
 import close from '../../../assets/images/close.svg';
-import commaSeparatedString from '../../../utils/commaSeparatedString'
 
 const BP1 = '@media (max-width: 899px)';
 const BP2 = '@media (max-width: 719px)';
@@ -116,7 +115,6 @@ const Checkout = ({ isOpen, setOpen, configs, discounts }) => {
 	let discountNames
 	if (!!discounts?.length) {
 		activeDiscount = discounts[0]
-		discountNames = commaSeparatedString(discounts.map(discount => discount.name))
 		ethPrice = activeDiscount.price
 	}
 
@@ -391,15 +389,6 @@ const Checkout = ({ isOpen, setOpen, configs, discounts }) => {
 								Please select the number of NFTs you want to mint.
 							</Typography>
 
-							{activeDiscount && (
-								<Typography>
-									{activeDiscount.percentOff === 100
-									  ? `FREE mint for holding ${discountNames} NFT${discounts.length > 1 ? 's' : ''}`
-									  : `${activeDiscount.percentOff}% discount applied for holding ${discountNames} NFT${discounts.length > 1 ? 's' : ''}`
-									}
-								</Typography>
-							)}
-
 							{isClaimActive && hasClaim && (
 								<>
 									{canClaim ? (
@@ -422,7 +411,6 @@ const Checkout = ({ isOpen, setOpen, configs, discounts }) => {
 								</>
 							)}
 
-
 							{isPresaleActive ? (
 								<MintQuantity
 									title='Presale Mint'
@@ -438,6 +426,7 @@ const Checkout = ({ isOpen, setOpen, configs, discounts }) => {
 									// maxAmount={saleMaxToken}
 									maxAmount={8} // hardcoded limit 10
 									onClickMint={activeDiscount ? handleDiscountMint : handleMint}
+									discounts={discounts}
 								/>
 							))}
 						</>

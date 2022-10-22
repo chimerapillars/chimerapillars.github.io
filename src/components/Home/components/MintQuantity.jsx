@@ -5,6 +5,7 @@ import { Box, Typography, Button } from "@mui/material";
 import config from '../../../config';
 import NumericInput from "../../common/NumericInput";
 import ethIcon from "../../../assets/images/eth-black.svg";
+import commaSeparatedString from '../../../utils/commaSeparatedString'
 
 const { colors } = config.PROJECT;
 
@@ -87,7 +88,7 @@ const sx = {
     },
   },
 };
-const MintQuantity = ({ title, price, maxAmount, onClickMint }) => {
+const MintQuantity = ({ title, price, maxAmount, discounts, onClickMint }) => {
   const [quantity, setQuantity] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
 
@@ -99,9 +100,27 @@ const MintQuantity = ({ title, price, maxAmount, onClickMint }) => {
     setQuantity(val);
   };
 
+	// Check for discounts.
+	let activeDiscount
+	let discountNames
+	if (!!discounts?.length) {
+		activeDiscount = discounts[0]
+		discountNames = commaSeparatedString(discounts.map(discount => discount.name))
+	}
+
   return (
     <Box sx={sx.root}>
-      <Typography sx={sx.title}>{title}</Typography>
+      <Typography sx={sx.title} style={{ marginBottom: 8 }}>{title}</Typography>
+
+      {activeDiscount && (
+        <Typography sx={{ fontStyle: 'italic', fontSize: '0.85em', marginBottom: 4 }}>
+          {activeDiscount.percentOff === 100
+            ? `*FREE mint for holding ${discountNames} NFT${discounts.length > 1 ? 's' : ''}`
+            : `*${activeDiscount.percentOff}% discount applied for holding ${discountNames} NFT${discounts.length > 1 ? 's' : ''}`
+          }
+        </Typography>
+      )}
+
       <Box sx={sx.row}>
         <Typography sx={sx.text} variant="text">
           Quantity{" "}
@@ -117,7 +136,7 @@ const MintQuantity = ({ title, price, maxAmount, onClickMint }) => {
       <Box sx={{ ...sx.row, mb: 4 }}>
         <Typography sx={sx.text} variant="text">
           <NumericInput
-            value={maxAmount}
+            value={1}
             max={maxAmount}
             min={0}
             onChange={onNumberInput}
