@@ -18,7 +18,8 @@ import { abi as partnerABI } from '../../../abi/Partner.json'
 
 import {
   useChimeraContract,
-  useSaleContract
+  useChimeraMinterContract,
+  useSaleContract,
 } from "../../../hooks/useContract";
 
 import useInterval from "../../../hooks/useInterval";
@@ -183,6 +184,7 @@ const TextLink = ({ onClick, children }) => {
 const SaleCard = ({ setConfigs, setCheckoutVisible, onSetDiscounts }) => {
   let { handleConnect, address, isCorrectNetwork, ethersProvider } = useContext(Web3Ctx);
   const chimeraContract = useChimeraContract();
+  const chimeraMinterContract = useChimeraMinterContract();
   const toddlerContract = useSaleContract();
 
   //10 seconds
@@ -244,68 +246,88 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, onSetDiscounts }) => {
 	}
 
   const getDiscounts = async (quantity) => {
-    if (config.DEPLOYED_NTW_NAME !== 'goerli') return []
+    const isActive = await chimeraMinterContract.isActive()
+    if (!isActive) return []
 
-    const now = moment()
     const maticProvider = new ethers.providers.JsonRpcProvider(`https://rpc-${config.DEPLOYED_NTW_NAME === 'goerli' ? 'mumbai' : 'mainnet'}.maticvigil.com/v1/${process.env.REACT_APP_MATICVIGIL_API_KEY}`)
 
-    console.log({ now })
+    // let partners = [
+    //   {
+    //     name: 'Wall Street Wolves',
+    //     contractAddress: '0xd2e21cba4B159354C61D650f35ed16D4C8Fe0945',
+    //     price: 0.015,
+    //     startTime: moment('2022-10-19 13:00'),
+    //     endTime: moment('2022-10-26 22:00'),
+    //     slug: '',
+    //     minBalance: 1,
+    //     isMatic: false,
+    //     isOS: false,
+    //   },
+    //   {
+    //     name: 'OS Test',
+    //     contractAddress: '0xf4910c763ed4e47a585e2d34baa9a4b611ae448c',
+    //     price: 0.015,
+    //     startTime: moment('2022-10-19 09:00'),
+    //     endTime: moment('2022-10-26 22:00'),
+    //     slug: 'os-test-9',
+    //     minBalance: 1,
+    //     isMatic: false,
+    //     isOS: true,
+    //   },
+    //   {
+    //     name: 'Chimerapillars',
+    //     contractAddress: '0x956bf0F5cBb899CE07D5549E993f22e927574ff5',
+    //     price: 0.015,
+    //     startTime: moment('2022-10-19 11:00'),
+    //     endTime: moment('2022-10-26 22:00'),
+    //     slug: '',
+    //     minBalance: 1,
+    //     isMatic: false,
+    //     isOS: false,
+    //   },
+    //   {
+    //     name: 'Polygon Test',
+    //     contractAddress: '0x7efeaf48c461084b96a71279de921f62c0c80c12',
+    //     price: 0.015,
+    //     startTime: moment('2022-10-19 09:00'),
+    //     endTime: moment('2022-10-26 22:00'),
+    //     slug: '',
+    //     minBalance: 1,
+    //     isMatic: true,
+    //     isOS: false,
+    //   },
+    // ]
 
-    let partners = [
-      {
-        name: 'Wall Street Wolves',
-        contractAddress: '0xd2e21cba4B159354C61D650f35ed16D4C8Fe0945',
-        price: 0.015,
-        startTime: moment('2022-10-19 13:00'),
-        endTime: moment('2022-10-26 22:00'),
-        slug: '',
-        minBalance: 1,
-        isMatic: false,
-        isOS: false,
-      },
-      {
-        name: 'Chimerapillars',
-        contractAddress: '0x956bf0F5cBb899CE07D5549E993f22e927574ff5',
-        price: 0.015,
-        startTime: moment('2022-10-19 11:00'),
-        endTime: moment('2022-10-26 22:00'),
-        slug: '',
-        minBalance: 1,
-        isMatic: false,
-        isOS: false,
-      },
-      {
-        name: 'Polygon Test',
-        contractAddress: '0x7efeaf48c461084b96a71279de921f62c0c80c12',
-        price: 0.015,
-        startTime: moment('2022-10-19 09:00'),
-        endTime: moment('2022-10-26 22:00'),
-        slug: '',
-        minBalance: 1,
-        isMatic: true,
-        isOS: false,
-      },
-      {
-        name: 'OS Test',
-        contractAddress: '0xf4910c763ed4e47a585e2d34baa9a4b611ae448c',
-        price: 0.015,
-        startTime: moment('2022-10-19 09:00'),
-        endTime: moment('2022-10-26 22:00'),
-        slug: 'os-test-9',
-        minBalance: 1,
-        isMatic: false,
-        isOS: true,
-      },
-    ]
+    let partners = []
+    let idx = 0
+    while (true) {
+      try {
+        const partner = await chimeraMinterContract.partners(idx)
+        console.log({partner})
+        if (!partner || partner.contractAddress === ethers.constants.AddressZero) {
+          break
+        } else {
+          partners.push({
+            ...partner,
+            id: idx,
+            price: parseFloat(ethers.utils.formatEther(partner.price)),
+          })
+          idx++;
+        }
+      } catch (err) {
+        console.error(err)
+        break
+      }
+    }
 
     console.log({ partners })
 
     partners = partners.filter((partner) => {
-      return partner.startTime.isSameOrBefore(now) && partner.endTime.isSameOrAfter(now)
+      // return partner.startTime.isSameOrBefore(now) && partner.endTime.isSameOrAfter(now)
+      return partner.isActive
     })
 
     console.log({ activePartners: partners })
-    console.log({REACT_APP_NODE_ENV: process.env.REACT_APP_NODE_ENV})
 
     const discounts = []
     await Promise.all(partners.map((partner) => {
@@ -315,12 +337,8 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, onSetDiscounts }) => {
           : ethersProvider
         const partnerContract = new ethers.Contract(partner.contractAddress, partnerABI, provider)
 
-        console.log(partner.isMatic, {provider})
-        console.log({ partnerContract })
-
         let balance = 0
         if (partner.isOS) {
-          // const endpoint = `https://api.opensea.io/api/v1/assets?owner=${account}&collection=${partner.slug}`
           let resp
           let data
           if (config.DEPLOYED_NTW_NAME === 'goerli') {

@@ -51,6 +51,6 @@ export const CHIMERA_BURNER_CONTRACT = {
 }
 
 export const CHIMERA_MINTER_CONTRACT = {
-    [SupportedChainId.MAINNET]: "",
-    [SupportedChainId.GOERLI]: "0x9A9685886bd06c460386A3c3118C239f0Eb2569E",
+    [SupportedChainId.MAINNET]: "0x24e7Ec43D38e0f1dA47E9FD1C0917F167B837cFE",
+    [SupportedChainId.GOERLI]: "0x0f917Ee3cD9377a027Fed0DC216976Db796A32D4",
 }

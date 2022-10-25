@@ -158,10 +158,9 @@ const Checkout = ({ isOpen, setOpen, configs, discounts }) => {
 		let sig = '0x00'
 
 		const extraData = encodeURIComponent(JSON.stringify([
-			{ type: 'address', value: activeDiscount.contractAddress },
-			{ type: 'string', value: activeDiscount.slug },
+			{ type: 'string', value: String(activeDiscount.id) },
 		]))
-		const resp = await fetch(`https://52kv1xw2o5.execute-api.us-east-1.amazonaws.com/prod/presale-signature?contract=${chimeraContract.address.toLowerCase()}&account=${address.toLowerCase()}&quantity=${quantity}&extraData=${extraData}`)
+		const resp = await fetch(`https://52kv1xw2o5.execute-api.us-east-1.amazonaws.com/prod/presale-signature?contract=${chimeraMinterContract.address.toLowerCase()}&account=${address.toLowerCase()}&quantity=${quantity}&extraData=${extraData}`)
 
 		if (resp) {
 			const json = await resp.json()
@@ -307,23 +306,27 @@ const Checkout = ({ isOpen, setOpen, configs, discounts }) => {
 				return;
 			}
 
-
 			setApproveInProgress(true);
 
-			const signature = await getDiscountSignature(quantity)
+			let signature = '0x00'
+			if (activeDiscount.isMatic || activeDiscount.isOS) {
+				signature = await getDiscountSignature(quantity)
+			}
+
+			console.log({signature})
 
 			let tx;
 			const payingAmount = ethers.utils.parseEther(totalPrice.toString());
 
 			try{
-				await chimeraMinterContract.estimateGas.mint(quantity, { value: payingAmount });
-				tx = await chimeraMinterContract.mint(quantity, { value: payingAmount })
+				await chimeraMinterContract.estimateGas.mint(quantity, activeDiscount.id, signature, { value: payingAmount });
+				tx = await chimeraMinterContract.mint(quantity, activeDiscount.id, signature, { value: payingAmount })
 			}
 			catch( err ){
 				if( err.code && err.code === -32602 ){
 					const sendArgs = { value: payingAmount, type: '0x1' };
-					await chimeraMinterContract.estimateGas.mint(quantity, sendArgs);
-					tx = await chimeraMinterContract.mint(quantity, sendArgs);
+					await chimeraMinterContract.estimateGas.mint(quantity, activeDiscount.id, signature, sendArgs);
+					tx = await chimeraMinterContract.mint(quantity, activeDiscount.id, signature, sendArgs);
 				}
 				else{
 					throw err
