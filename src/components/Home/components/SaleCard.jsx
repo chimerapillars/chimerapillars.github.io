@@ -200,7 +200,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, onSetDiscounts }) => {
     maxOrder:     4,
     maxSupply: 8888,
 
-    isClaimActive:    true,
+    isClaimActive:    false,
     isPresaleActive:  false,
     isMainsaleActive: false,
 
@@ -384,7 +384,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, onSetDiscounts }) => {
       maxOrder:  parseInt( tmpConfig.maxOrder.toString() ),
       maxSupply: parseInt( tmpConfig.maxSupply.toString() ),
 
-      isClaimActive:    true, //tmpConfig.isClaimActive,
+      isClaimActive:    false, //tmpConfig.isClaimActive,
       isPresaleActive:  false, //tmpConfig.isPresaleActive,
       isMainsaleActive: tmpConfig.isMainsaleActive
     };
