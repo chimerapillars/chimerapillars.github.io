@@ -375,11 +375,9 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, onSetDiscounts }) => {
 
     // Get burn count.
     console.time('burns')
-    // const filter = chimeraContract.filters.Transfer(null, ethers.constants.AddressZero)
-    // console.log({filter})
-    // const burnEvents = await chimeraContract.queryFilter(filter, 0)
-    // setBurnCount(burnEvents.length)
-    setBurnCount(146)
+    const filter = chimeraContract.filters.Transfer(null, ethers.constants.AddressZero)
+    const burnEvents = await chimeraContract.queryFilter(filter, 15625431)
+    setBurnCount(burnEvents.length)
     console.timeEnd('burns')
 
     setContractConfig( config );
