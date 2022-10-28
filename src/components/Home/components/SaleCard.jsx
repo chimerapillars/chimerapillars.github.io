@@ -251,53 +251,6 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, onSetDiscounts }) => {
 
     const maticProvider = new ethers.providers.JsonRpcProvider(`https://rpc-${config.DEPLOYED_NTW_NAME === 'goerli' ? 'mumbai' : 'mainnet'}.maticvigil.com/v1/${process.env.REACT_APP_MATICVIGIL_API_KEY}`)
 
-    // let partners = [
-    //   {
-    //     name: 'Wall Street Wolves',
-    //     contractAddress: '0xd2e21cba4B159354C61D650f35ed16D4C8Fe0945',
-    //     price: 0.015,
-    //     startTime: moment('2022-10-19 13:00'),
-    //     endTime: moment('2022-10-26 22:00'),
-    //     slug: '',
-    //     minBalance: 1,
-    //     isMatic: false,
-    //     isOS: false,
-    //   },
-    //   {
-    //     name: 'OS Test',
-    //     contractAddress: '0xf4910c763ed4e47a585e2d34baa9a4b611ae448c',
-    //     price: 0.015,
-    //     startTime: moment('2022-10-19 09:00'),
-    //     endTime: moment('2022-10-26 22:00'),
-    //     slug: 'os-test-9',
-    //     minBalance: 1,
-    //     isMatic: false,
-    //     isOS: true,
-    //   },
-    //   {
-    //     name: 'Chimerapillars',
-    //     contractAddress: '0x956bf0F5cBb899CE07D5549E993f22e927574ff5',
-    //     price: 0.015,
-    //     startTime: moment('2022-10-19 11:00'),
-    //     endTime: moment('2022-10-26 22:00'),
-    //     slug: '',
-    //     minBalance: 1,
-    //     isMatic: false,
-    //     isOS: false,
-    //   },
-    //   {
-    //     name: 'Polygon Test',
-    //     contractAddress: '0x7efeaf48c461084b96a71279de921f62c0c80c12',
-    //     price: 0.015,
-    //     startTime: moment('2022-10-19 09:00'),
-    //     endTime: moment('2022-10-26 22:00'),
-    //     slug: '',
-    //     minBalance: 1,
-    //     isMatic: true,
-    //     isOS: false,
-    //   },
-    // ]
-
     let partners = []
     let idx = 0
     while (true) {
@@ -402,8 +355,10 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, onSetDiscounts }) => {
 
       owner.hasClaim = await hasSignature( 1 );
 
+      console.time('discounts')
       const discounts = await getDiscounts()
       setDiscounts(discounts)
+      console.timeEnd('discounts')
 
       setOwnerConfig( owner );
       setConfigs({
@@ -419,8 +374,13 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, onSetDiscounts }) => {
     }
 
     // Get burn count.
-    const burnEvents = await chimeraContract.queryFilter(chimeraContract.filters.Transfer(null, ethers.constants.AddressZero), 0)
-    setBurnCount(burnEvents.length)
+    console.time('burns')
+    // const filter = chimeraContract.filters.Transfer(null, ethers.constants.AddressZero)
+    // console.log({filter})
+    // const burnEvents = await chimeraContract.queryFilter(filter, 0)
+    // setBurnCount(burnEvents.length)
+    setBurnCount(146)
+    console.timeEnd('burns')
 
     setContractConfig( config );
     setLoading( false );
