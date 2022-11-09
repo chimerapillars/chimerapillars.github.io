@@ -30,11 +30,13 @@ const {
 	colors,
 } = config.PROJECT;
 
+const networkSetting = localStorage.getItem('chimerapillars:networkSetting')
+
 const sx = {
 	root: {
 		zIndex: 201,
 		position: 'sticky',
-		top: 0,
+		top: networkSetting === 'testnet' ? 32 : 0,
 		width: '100%',
 		backgroundColor: colors.background,
 		transition: 'all .3s',
@@ -395,6 +397,24 @@ const Header = () => {
 
 	return (
 		<>
+			{networkSetting === 'testnet' && (
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						textAlign: 'center',
+						background: 'yellow',
+						color: 'black',
+						zIndex: 999999,
+						padding: 4,
+					}}
+				>
+					NOTE: You are using TESTNET contracts, this is for dev purposed only. <a href="/#/#mainnet" onClick={(evt) => { evt.preventDefault(); window.location = '/#/#mainnet'; window.location.reload()}}>Switch to LIVE contracts</a>.
+				</div>
+			)}
+
 			<Box sx={{ ...sx.root, backgroundColor: isFixed ? colors.background : 'unset', boxShadow: isFixed ? '0 4px 6px 0 rgba(0,0,0,0.25)' : 'unset' }} ref={rootRef}>
 				<Box sx={sx.content}>
 					<Box sx={sx.menuBtn} onClick={() => setMenuOpened(true)}>

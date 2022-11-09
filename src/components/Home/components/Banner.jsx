@@ -246,6 +246,7 @@ const Banner = () => {
 	const [selectedSlide, setSelectedSlide] = useState(2);
 	const [explorerVisible, setExplorerVisible] = useState(false);
 	const [checkoutVisible, setCheckoutVisible] = useState(false);
+	const [discounts, setDiscounts] = useState([]);
 	const [configs, setConfigs] = useState({
 		role: null,
 		canMintEc: false,
@@ -427,6 +428,7 @@ const Banner = () => {
 							<SaleCard
 								setConfigs={setConfigs}
 								setCheckoutVisible={setCheckoutVisible}
+                onSetDiscounts={setDiscounts}
 							/>
 						</Box>
 
@@ -451,7 +453,7 @@ const Banner = () => {
 			</Box>
 
 
-			<Checkout isOpen={checkoutVisible} setOpen={setCheckoutVisible} configs={configs} />
+			<Checkout isOpen={checkoutVisible} setOpen={setCheckoutVisible} configs={configs} discounts={discounts} />
 			<Explorer isOpen={explorerVisible} setOpen={setExplorerVisible} images={IMAGES} initialSlide={selectedSlide} />
 		</Box>
 	);

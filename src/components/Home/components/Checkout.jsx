@@ -6,7 +6,7 @@ import { Box, Modal, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
 import { SpinnerRoundOutlined as Spinner } from 'spinners-react';
 import Web3Ctx from "../../../components/Context/Web3Ctx";
-import { useChimeraContract, useSaleContract } from '../../../hooks/useContract';
+import { useChimeraContract, useChimeraMinterContract } from '../../../hooks/useContract';
 import Divider from '../../common/Divider';
 import MintQuantity from './MintQuantity';
 import config from '../../../config';
@@ -94,7 +94,7 @@ const sx = {
 	},
 };
 
-const Checkout = ({ isOpen, setOpen, configs }) => {
+const Checkout = ({ isOpen, setOpen, configs, discounts }) => {
 	const [approveInProgress, setApproveInProgress] = useState(false);
 	const [txInProgress, setTxInProgress] = useState(false);
 	const [txEtherScan, setTxEtherScan] = useState(null);
@@ -102,12 +102,23 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 
 	const history = useHistory();
 	const chimeraContract = useChimeraContract();
+	const chimeraMinterContract = useChimeraMinterContract();
 
-	const ethPrice = parseFloat( configs?.contractConfig?.ethPrice || '0.03' );
+	let ethPrice = parseFloat( configs?.contractConfig?.ethPrice || '0.03' );
 	const hasClaim = configs?.ownerConfig?.hasClaim || false;
 	const isClaimActive = configs?.contractConfig?.isClaimActive || false;
 	const isPresaleActive = configs?.contractConfig?.isPresaleActive || false;
 	const isMainsaleActive = configs?.contractConfig?.isMainsaleActive || false;
+
+	// Check for discounts.
+	let activeDiscount
+	let discountNames
+	if (!!discounts?.length) {
+		activeDiscount = discounts[0]
+		ethPrice = activeDiscount.price
+	}
+
+	console.log({ activeDiscount })
 
 	let canClaim = 0;
 	if( configs?.ownerConfig?.hasClaim ){
@@ -125,8 +136,8 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 		canMintPresale = 4 - configs.ownerConfig.purchased;
 	}
 
-	// Get signature for mint.
-	const getSignature = async (quantity) => {
+	// Get signature for claim.
+	const getClaimSignature = async (quantity) => {
 		let sig = '0x00'
 
 		const resp = await fetch(`https://node.herodevelopment.com/signature?account=${address}&contract=${chimeraContract.address}&quantity=${quantity}`)
@@ -142,6 +153,27 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 		return sig
 	}
 
+	// Get signature for discount.
+	const getDiscountSignature = async (quantity) => {
+		let sig = '0x00'
+
+		const extraData = encodeURIComponent(JSON.stringify([
+			{ type: 'string', value: String(activeDiscount.id) },
+		]))
+		const resp = await fetch(`https://52kv1xw2o5.execute-api.us-east-1.amazonaws.com/prod/presale-signature?contract=${chimeraMinterContract.address.toLowerCase()}&account=${address.toLowerCase()}&quantity=${quantity}&extraData=${extraData}`)
+
+		if (resp) {
+			const json = await resp.json()
+
+			if (json?.signature) {
+				sig = json.signature
+			}
+		}
+
+		return sig
+	}
+
+	// Hanlde claim.
 	const handleClaim = async (quantity, totalPrice) => {
 		try{
 			console.log('claim', quantity, totalPrice);
@@ -153,7 +185,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 			setApproveInProgress(true);
 
 			let tx;
-			const signature = await getSignature(quantity);
+			const signature = await getClaimSignature(quantity);
 
 
 			try{
@@ -161,8 +193,6 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 				tx = await chimeraContract.claim(quantity, signature);
 			}
 			catch( err ){
-				debugger;
-
 				if( err.code && err.code === -32602 ){
 					const sendArgs = { type: '0x1' };
 					await chimeraContract.estimateGas.claim(quantity, signature, sendArgs);
@@ -172,7 +202,6 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 					throw err
 				}
 			}
-
 
 			setApproveInProgress(false);
 			setTxInProgress(true);
@@ -200,7 +229,7 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 		}
 	};
 
-
+	// Handle standard mint.
 	const handleMint = async (quantity, totalPrice) => {
 		try{
 			console.log('mint', quantity, totalPrice);
@@ -230,12 +259,74 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 				tx = await chimeraContract.mint(quantity, { value: payingAmount })
 			}
 			catch( err ){
-				debugger;
-
 				if( err.code && err.code === -32602 ){
 					const sendArgs = { value: payingAmount, type: '0x1' };
 					await chimeraContract.estimateGas.mint(quantity, sendArgs);
 					tx = await chimeraContract.mint(quantity, sendArgs);
+				}
+				else{
+					throw err
+				}
+			}
+
+			setApproveInProgress(false);
+			setTxInProgress(true);
+			console.log(`${config.ETHERSCAN_URL}tx/${tx.hash}`);
+			setTxEtherScan(`${config.ETHERSCAN_URL}tx/${tx.hash}`);
+
+			const receipt = await tx.wait()
+			console.log('txReceipt: ', receipt);
+			if (receipt && receipt.status === 1) {
+				toast.success('Successfully Bought NFT');
+				history.replace({ ...history.location, state: null });
+				setOpen(false);
+			}
+			else{
+				toast.error('Transaction Failed');
+			}
+		}
+		catch( err ){
+			handleError( err )
+		}
+		finally{
+			setApproveInProgress(false);
+			setTxInProgress(false);
+			setTxEtherScan(null);
+		}
+	};
+
+	const handleDiscountMint = async (quantity, totalPrice) => {
+		try{
+			console.log('mint discount', quantity, totalPrice);
+
+			if( configs.contractConfig.isMainsaleActive ){
+				//no-op
+			} else {
+				toast.error('Sales are not active');
+				return;
+			}
+
+			setApproveInProgress(true);
+
+			let signature = '0x00'
+			if (activeDiscount.isMatic || activeDiscount.isOS) {
+				signature = await getDiscountSignature(quantity)
+			}
+
+			console.log({signature})
+
+			let tx;
+			const payingAmount = ethers.utils.parseEther(totalPrice.toString());
+
+			try{
+				await chimeraMinterContract.estimateGas.mint(quantity, activeDiscount.id, signature, { value: payingAmount });
+				tx = await chimeraMinterContract.mint(quantity, activeDiscount.id, signature, { value: payingAmount })
+			}
+			catch( err ){
+				if( err.code && err.code === -32602 ){
+					const sendArgs = { value: payingAmount, type: '0x1' };
+					await chimeraMinterContract.estimateGas.mint(quantity, activeDiscount.id, signature, sendArgs);
+					tx = await chimeraMinterContract.mint(quantity, activeDiscount.id, signature, sendArgs);
 				}
 				else{
 					throw err
@@ -323,7 +414,6 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 								</>
 							)}
 
-
 							{isPresaleActive ? (
 								<MintQuantity
 									title='Presale Mint'
@@ -338,7 +428,8 @@ const Checkout = ({ isOpen, setOpen, configs }) => {
 									price={ethPrice}
 									// maxAmount={saleMaxToken}
 									maxAmount={8} // hardcoded limit 10
-									onClickMint={handleMint}
+									onClickMint={activeDiscount ? handleDiscountMint : handleMint}
+									discounts={discounts}
 								/>
 							))}
 						</>

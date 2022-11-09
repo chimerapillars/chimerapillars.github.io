@@ -10,15 +10,15 @@ const projects = {
 
 // Development config.
 const dev = {
-    DEPLOYED_NTW_NAME: 'rinkeby',
-    DEPLOYED_CHAIN_ID: 4,
+    DEPLOYED_NTW_NAME: 'goerli',
+    DEPLOYED_CHAIN_ID: 5,
     INFURA_ID: 'a5e79e6ee9a14236b385e47849805596',
     FORTMATIC_KEY: 'pk_test_DD2BBA8AAA1D4FED',
-    RPC_URL: 'https://rinkeby.infura.io/v3/0a0bbd3ce4ea4be5ad706514cf2cd8cc',
+    RPC_URL: 'https://goerli.infura.io/v3/0a0bbd3ce4ea4be5ad706514cf2cd8cc',
 
     BASE_CID: 'https://ec-serverapp-staging.herokuapp.com/card',
 
-    ETHERSCAN_URL: 'https://rinkeby.etherscan.io/',
+    ETHERSCAN_URL: 'https://goerli.etherscan.io/',
 };
 
 // Production config.
@@ -45,9 +45,11 @@ const common = {
 // if use npm/yarn start,  NODE_ENV = "development"
 // if use npm/yarn build,  NODE_ENV = "production"
 let envConfig = prod;// process.env.NODE_ENV === "development" ? dev : prod
-// if (window.location.hash === '#/merge') {
-//   envConfig = dev;
-// }
+// if (window.location.hostname === 'localhost') {
+const networkSetting = localStorage.getItem('chimerapillars:networkSetting')
+if (networkSetting) {
+  envConfig = networkSetting === 'testnet' ? dev : prod;
+}
 let config = {
     ...envConfig,
     ...common,

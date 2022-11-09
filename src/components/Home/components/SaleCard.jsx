@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Web3Ctx from "../../Context/Web3Ctx";
 import { ethers } from "ethers";
+import moment from 'moment'
 import {
   Box,
   Button,
@@ -13,10 +14,12 @@ import {
 import { SpinnerDotted } from "spinners-react";
 import ethIcon from "../../../assets/images/eth.svg";
 import config from '../../../config';
+import { abi as partnerABI } from '../../../abi/Partner.json'
 
 import {
   useChimeraContract,
-  useSaleContract
+  useChimeraMinterContract,
+  useSaleContract,
 } from "../../../hooks/useContract";
 
 import useInterval from "../../../hooks/useInterval";
@@ -178,15 +181,17 @@ const TextLink = ({ onClick, children }) => {
   );
 };
 
-const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
-  let { handleConnect, address, isCorrectNetwork } = useContext(Web3Ctx);
+const SaleCard = ({ setConfigs, setCheckoutVisible, onSetDiscounts }) => {
+  let { handleConnect, address, isCorrectNetwork, ethersProvider } = useContext(Web3Ctx);
   const chimeraContract = useChimeraContract();
+  const chimeraMinterContract = useChimeraMinterContract();
   const toddlerContract = useSaleContract();
 
   //10 seconds
   const [checkInterval, setCheckInterval] = useState(10_000);
   const [isLoading, setLoading] = useState(true);
   const [burnCount, setBurnCount] = useState(0);
+  const [discounts, setDiscounts] = useState([]);
   const [contractConfig, setContractConfig] = useState({
     weiPrice: '30000000000000000',
     ethPrice: 0.03,
@@ -195,7 +200,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
     maxOrder:     4,
     maxSupply: 8888,
 
-    isClaimActive:    true,
+    isClaimActive:    false,
     isPresaleActive:  false,
     isMainsaleActive: false,
 
@@ -215,11 +220,15 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
     init();
   }, [address, chimeraContract]);
 
+  useEffect(() => {
+    onSetDiscounts(discounts)
+  }, [discounts])
 
-  useInterval(() => {
-    console.log("refreshing");
-    init();
-  }, checkInterval);
+
+  // useInterval(() => {
+  //   console.log("refreshing");
+  //   init();
+  // }, checkInterval);
 
   const onClickConnect = async (evt) => {
     await handleConnect(evt)
@@ -236,6 +245,88 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
     }
 	}
 
+  const getDiscounts = async (quantity) => {
+    const isActive = await chimeraMinterContract.isActive()
+    if (!isActive) return []
+
+    const maticProvider = new ethers.providers.JsonRpcProvider(`https://rpc-${config.DEPLOYED_NTW_NAME === 'goerli' ? 'mumbai' : 'mainnet'}.maticvigil.com/v1/${process.env.REACT_APP_MATICVIGIL_API_KEY}`)
+
+    let partners = []
+    let idx = 0
+    while (true) {
+      try {
+        const partner = await chimeraMinterContract.partners(idx)
+        console.log({partner})
+        if (!partner || partner.contractAddress === ethers.constants.AddressZero) {
+          break
+        } else {
+          partners.push({
+            ...partner,
+            id: idx,
+            price: parseFloat(ethers.utils.formatEther(partner.price)),
+          })
+          idx++;
+        }
+      } catch (err) {
+        console.error(err)
+        break
+      }
+    }
+
+    console.log({ partners })
+
+    partners = partners.filter((partner) => {
+      // return partner.startTime.isSameOrBefore(now) && partner.endTime.isSameOrAfter(now)
+      return partner.isActive
+    })
+
+    console.log({ activePartners: partners })
+
+    const discounts = []
+    await Promise.all(partners.map((partner) => {
+      return new Promise(async (resolve, reject) => {
+        const provider = partner.isMatic
+          ? maticProvider
+          : ethersProvider
+        const partnerContract = new ethers.Contract(partner.contractAddress, partnerABI, provider)
+
+        let balance = 0
+        if (partner.isOS) {
+          let resp
+          let data
+          if (config.DEPLOYED_NTW_NAME === 'goerli') {
+            resp = await fetch(`https://testnets-api.opensea.io/api/v1/assets?owner=${address}&collection=${partner.slug}`)
+          } else {
+            resp = await fetch(`https://api.opensea.io/api/v1/assets?owner=${address}&collection=${partner.slug}`, {
+              headers: {
+                'x-api-key': process.env.REACT_APP_OPENSEA_API_KEY,
+              }
+            })
+          }
+          data = await resp.json()
+          balance = data?.assets?.length || 0
+        } else {
+          balance = (await partnerContract.balanceOf(address)).toNumber()
+        }
+
+        console.log({ balance })
+
+        if (balance >= partner.minBalance) {
+          discounts.push({
+            ...partner,
+            percentOff: Math.round((contractConfig.ethPrice - partner.price) / contractConfig.ethPrice * 100)
+          })
+        }
+
+        resolve()
+      })
+    }))
+
+    console.log({discounts})
+
+    return discounts.sort((a, b) => a.price < b.price ? -1 : 1)
+  }
+
   const init = async () => {
     const tmpConfig = await chimeraContract.CONFIG();
     const config = {
@@ -246,7 +337,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
       maxOrder:  parseInt( tmpConfig.maxOrder.toString() ),
       maxSupply: parseInt( tmpConfig.maxSupply.toString() ),
 
-      isClaimActive:    true, //tmpConfig.isClaimActive,
+      isClaimActive:    false, //tmpConfig.isClaimActive,
       isPresaleActive:  false, //tmpConfig.isPresaleActive,
       isMainsaleActive: tmpConfig.isMainsaleActive
     };
@@ -264,6 +355,11 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
 
       owner.hasClaim = await hasSignature( 1 );
 
+      console.time('discounts')
+      const discounts = await getDiscounts()
+      setDiscounts(discounts)
+      console.timeEnd('discounts')
+
       setOwnerConfig( owner );
       setConfigs({
         contractConfig: config,
@@ -278,8 +374,11 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
     }
 
     // Get burn count.
-    const burnEvents = await chimeraContract.queryFilter(chimeraContract.filters.Transfer(null, ethers.constants.AddressZero), 0)
+    console.time('burns')
+    const filter = chimeraContract.filters.Transfer(null, ethers.constants.AddressZero)
+    const burnEvents = await chimeraContract.queryFilter(filter, 15625431)
     setBurnCount(burnEvents.length)
+    console.timeEnd('burns')
 
     setContractConfig( config );
     setLoading( false );
@@ -373,7 +472,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
         }}>
           <Box display="flex" sx={{ justifyContent: "center", alignItems: "center" }}>
             <span>
-              <Typography variant="heading3">
+              <Typography variant="heading3" style={{display: 'block', marginBottom: 8}}>
                 <strong>Free claims are live!</strong>
               </Typography>
 
@@ -587,7 +686,8 @@ const SaleCard = ({ setConfigs, setCheckoutVisible }) => {
 /* eslint-disable react/forbid-prop-types */
 SaleCard.propTypes = {
   setConfigs: PropTypes.any.isRequired,
-  setCheckoutVisible: PropTypes.any.isRequired
+  setCheckoutVisible: PropTypes.any.isRequired,
+  onSetDiscounts: PropTypes.any.isRequired,
 };
 
 export default SaleCard;
