@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Web3Ctx from "../../Context/Web3Ctx";
 import { ethers } from "ethers";
-import moment from 'moment'
 import {
   Box,
   Button,
@@ -608,11 +607,11 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, onSetDiscounts }) => {
         <Card key="isMainsaleActive" sx={sx.root}>
           <CardContent sx={sx.cardContent}>
             <Typography variant="heading1" sx={sx.title}>
-              {SALE_HEADER}
+            Chimerapillars Public Sale
             </Typography>
 
             <Typography variant="text" sx={{ ...sx.text1, my: 2 }}>
-              Mint multiple Chimerapillars and customise them with our <a href="/#/merge" style={{ color: colors.primary, textDecoration: 'underline' }}>merge & burn</a> DApp. Merge your favourite traits from two NFTs into one & boost their rarity by combining rare traits.
+              Mint multiple Chimerapillars and customise them with our <a href="/#/merge" style={{ color: colors.primary, textDecoration: 'underline' }}>merge & burn</a> utility. Merge your favourite traits from two NFTs into one & boost their rarity by combining rare traits.
               {' '}
               <strong>{burnCount} Chimerapillars have been burned so far.</strong>
             </Typography>

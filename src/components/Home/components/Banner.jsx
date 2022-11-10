@@ -376,52 +376,16 @@ const Banner = () => {
 							{vertical && <Divider titleDivider />}
 
 							<Typography variant='text' sx={{ ...sx.text1, mb: 2 }}>
-								8888 Chimerapillars with 888 traits have been summoned to save humanity from the Toddlerpillar apocalypse. Madness and mayhem have plagued the world since the 6 armed bebehs tore a hole in our reality! Can the Chimerapillars rescue their infantile cousins from the corruption of the lonely pillar?
+							8888 Chimerapillars with 888 traits have been summoned to save humanity from the Toddlerpillar apocalypse. Madness and mayhem have plagued the world since the multi-limbed bebehs tore a hole in our reality! Can the Chimerapillars rescue their ectoplasmic cousins from the corruption of the lonely pillar?
 								<br/>
 								<br/>
 								This project continues the twenty-year history of artist and gallerist Jon Beinart's renowned doll sculptures, imbuing them with fresh psychedelic energy from award-winning artist and madman, Tim Molloy.
-                <br/>
-                <br/>
-                Toddlerpillar & Chimerapillar holders join an inter-dimensional art collective with access to global gatherings, exclusive airdrops, a 100+ page multimedia graphic novel exploring our lore, IRL collectable toys, metaverse exhibitions, merch & much more!
-				<br />
-				<br />
-				Over <span style={{ fontFamily: 'roboto-bold'}}>400 unique artworks</span> from our graphic novel will be <span style={{ fontFamily: 'roboto-bold'}}>airdropped</span> to holders over the next few years with hi-res files & commercial rights:
-				<i><br />
-				• 1 Chimera + 1 Toddler = 80 airdrops
-				<br />
-				• 2 Chimeras + 2 Toddlers = 160 airdrops
-				<br />
-				• 3 Chimeras + 3 Toddlers = 240 airdrops
-				<br />
-				• 6 Chimeras + 6 Toddlers = 320 airdrops
-				<br />
-				• 9 Chimeras + 9 Toddlers = 400 airdrops</i>
-
-								{/* !anySales && (
-									<>
-										<br/>
-										<br/>
-										<strong>OUR 1 WEEK PRESALE BEGINS IN:</strong>
-										{presaleStart > Date.now() && (
-											<Countdown
-												date={presaleStart}
-												onComplete={() => window.location.reload()}
-												renderer={countdownRenderer}
-											/>
-										)}
-										<p>Chimerapillars Mint price: <strong>0.03 ETH</strong>.</p>
-										<p>
-											<strong>Presale</strong> runs from <strong>May 16 - May 22</strong>.
-											<br />Presale finishes when Public sale begins at<strong>7am EST, May 23</strong>.
-										</p>
-										<p>
-											Only wallets holding <a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Toddlerpillars</a> can mint during presale.
-											<a style={{ textDecoration: 'underline', color: colors.primary, fontWeight: '700' }} href="https://opensea.io/collection/toddlerpillars" target="_blank">Adopt one now!</a>
-											<br /><strong>Mint multiples for upcoming merge &amp; burn utility!</strong>
-										</p>
-									</>
-								)*/}
-
+								<br/>
+								<br/>
+								Toddlerpillar & Chimerapillar holders join an inter-dimensional art collective with access to 100s of exclusive airdrops from the Toddlerpillar Apocalypse graphic novel with hi-res files & commercial rights, Toddlerpillar vinyl toys, custom toy art shows, metaverse exhibitions & much more!
+								<br />
+								<br />
+								See our <a href="https://toddlerpillars.com/#/roadmap">holder tiers for airdrops</a> and more on our <a href="https://toddlerpillars.com/#/roadmap">roadmap</a>.
 							</Typography>
 
 							{/* @TEMP un-comment to show mint panel */}
