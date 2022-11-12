@@ -35,8 +35,8 @@
     "static/js/16.c3d5b6fb.chunk.js": "/static/js/16.c3d5b6fb.chunk.js",
     "static/js/16.c3d5b6fb.chunk.js.map": "/static/js/16.c3d5b6fb.chunk.js.map",
     "main.css": "/static/css/main.279aee62.chunk.css",
-    "main.js": "/static/js/main.9b7350d6.chunk.js",
-    "main.js.map": "/static/js/main.9b7350d6.chunk.js.map",
+    "main.js": "/static/js/main.1b0e0261.chunk.js",
+    "main.js.map": "/static/js/main.1b0e0261.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.908c4e24.js",
     "runtime-main.js.map": "/static/js/runtime-main.908c4e24.js.map",
     "static/js/19.2489a61d.chunk.js": "/static/js/19.2489a61d.chunk.js",
@@ -222,6 +222,9 @@
     "static/media/index.css": "/static/media/Roboto-Regular.a8d6ac03.ttf",
     "static/media/App.css": "/static/media/Teko-SemiBold.3374e10e.ttf",
     "static/media/Tim-Molloy.95b9e18e.png": "/static/media/Tim-Molloy.95b9e18e.png",
+    "static/media/Toddlerpillar-Apocalypse-Graphic-Novel.df47c768.jpg": "/static/media/Toddlerpillar-Apocalypse-Graphic-Novel.df47c768.jpg",
+    "static/media/Toddlerpillar-History.37e00c56.jpg": "/static/media/Toddlerpillar-History.37e00c56.jpg",
+    "static/media/Toddlerpillar-Toys.ce44b82e.jpg": "/static/media/Toddlerpillar-Toys.ce44b82e.jpg",
     "static/media/Toddlerpillars-Logo.658d032e.png": "/static/media/Toddlerpillars-Logo.658d032e.png",
     "static/media/arm1.293c4595.png": "/static/media/arm1.293c4595.png",
     "static/media/arm1.731017a0.png": "/static/media/arm1.731017a0.png",
@@ -282,6 +285,6 @@
     "static/js/runtime-main.908c4e24.js",
     "static/js/20.a3d288c5.chunk.js",
     "static/css/main.279aee62.chunk.css",
-    "static/js/main.9b7350d6.chunk.js"
+    "static/js/main.1b0e0261.chunk.js"
   ]
 }
