@@ -283,11 +283,22 @@ const sx = {
 		borderLeft: `1px solid ${colors.highlight}FF`,
 		borderRight: `1px solid ${colors.highlight}FF`,
 	},
+	dcMenuList: {
+		backgroundColor: colors.background,
+		width: '190px',
+		height: '232px',
+		position: 'absolute',
+		boxShadow: '2px 2px 2px 3px rgba(0, 0, 0, 0.2)',
+		pt: '0',
+		pb: '0',
+		borderLeft: `1px solid ${colors.highlight}FF`,
+		borderRight: `1px solid ${colors.highlight}FF`,
+	},
 	menuListVertical: {
 		ml: '45px',
 		backgroundColor: colors.background,
 		width: '175px',
-		height: '173px',
+		height: '250px',
 		marginTop: '0px',
 		pt: '0',
 	},
@@ -303,7 +314,9 @@ const {
 const urlToddlerpillars = 'https://toddlerpillars.com';
 const urlRarity = `https://rarity.tools/chimera-pillars`;
 const urlOpensea = `https://opensea.io/collection/${config.PROJECT.slug}`;
-const urlMaddies = `https://maddies.co/official/${config.PROJECT.slug}`
+const urlChimeraMint = "/#/#mint";
+const urlMerge = '/#/merge';
+const urlMaddies = `https://maddies.co/official/${config.PROJECT.slug}`;
 
 const Header = () => {
 	const {
@@ -319,6 +332,7 @@ const Header = () => {
 	const [activeTabAbout, setActiveTabAbout] = useState(0);
 	const [menuOpened, setMenuOpened] = useState(false);
 	const [openAbout, setOpenAbout] = useState(false);
+	const [openDC, setOpenDC] = useState(false);
 	const isMobileView = useMediaQuery('(max-width: 999px)');
 
 	useEffect(() => {
@@ -394,6 +408,13 @@ const Header = () => {
 			setOpenAbout(false);
 		}
 	};
+	const openDCMenu = () => {
+		if (openDC === false){
+			setOpenDC(true);
+		}  else {
+			setOpenDC(false);
+		}
+	};
 
 	return (
 		<>
@@ -424,7 +445,7 @@ const Header = () => {
 						{BUTTONS.map((btn, i) => {
 							if (btn === 'Toddlerpillars') {
 								return (
-									<a key={btn} href={urlToddlerpillars} style={{ textDecoration: 'none' }} target="_blank">
+									<a key={btn} href={urlToddlerpillars} style={{ textDecoration: 'none' }}>
 										<HeaderButton key={btn} text='← Toddlerpillars' vertical />
 									</a>
 								);
@@ -444,25 +465,32 @@ const Header = () => {
 									</Box>
 								);
 							}
-							if (btn === 'Rarity') {
+							if (btn === 'Digital Collectables') {
 								return (
-									<a key={btn} href={urlRarity} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
-										<HeaderButton key={btn} text='Rarity' vertical />
-									</a>
-								);
-							}
-							if (btn === 'OpenSea') {
-								return (
-									<a key={btn} href={urlOpensea} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
-										<HeaderButton key={btn} text='OpenSea' vertical />
-									</a>
-								);
-							}
-							if (btn == 'Merch'){
-								return (
-									<a key={btn} href={urlMaddies} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
-										<HeaderButton key={btn} text='Merch' vertical />
-									</a>
+									<>
+										<Box onMouseLeave={() => setOpenDC(false)}>
+											<HeaderButton key={btn} text='Digital Collectables' active={activeTab === i} onMouseOver={() => setOpenDC(true)} vertical onClick={openDCMenu} />
+											{openDC && (
+												<MenuList
+													sx={sx.dcMenuList}
+													open={openDC}
+												>
+													<a href={urlChimeraMint} style={{ textDecoration: 'none' }} rel='noopener noreferrer'>
+														<HeaderButton key={btn} text='Mint Chimerapillars' vertical />
+													</a>
+													<a href={urlMerge} style={{ textDecoration: 'none' }} rel='noopener noreferrer'>
+														<HeaderButton key={btn} text='Merge & Burn' vertical />
+													</a>
+													<a href={urlOpensea} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
+														<HeaderButton key={btn} text='Adopt a Toddlerpillar' vertical />
+													</a>
+													<a href={urlRarity} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
+														<HeaderButton key={btn} text='Chimerapillar Rarity' vertical />
+													</a>
+												</MenuList>
+											)}
+										</Box>
+									</>
 								);
 							}
 							return (<HeaderButton key={btn} text={btn} active={activeTab === i} onClick={() => handleNavigation(i)} vertical />);
@@ -532,25 +560,30 @@ const Header = () => {
 										</>
 									);
 								}
-								if (btn === 'Rarity') {
+								if (btn === 'Digital Collectables') {
 									return (
-										<a key={btn} href={urlRarity} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
-											<HeaderButton key={btn} text='Rarity' vertical />
-										</a>
-									);
-								}
-								if (btn === 'OpenSea') {
-									return (
-										<a key={btn} href={urlOpensea} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
-											<HeaderButton key={btn} text='OpenSea' vertical />
-										</a>
-									);
-								}
-								if (btn == 'Merch'){
-									return (
-										<a key={btn} href={urlMaddies} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
-											<HeaderButton key={btn} text='Merch' vertical />
-										</a>
+										<>
+											<HeaderButton text='Digital Collectables' key={btn} active={activeTab === i} onClick={openDCMenu} vertical />
+											{openDC && (
+												<Box
+													sx={sx.menuListVertical}
+													style={{ position: 'relative' }}
+												>
+													<a href={urlChimeraMint} style={{ textDecoration: 'none' }} rel='noopener noreferrer'>
+														<HeaderButton key={btn} text='Mint Chimerapillars' vertical />
+													</a>
+													<a href={urlMerge} style={{ textDecoration: 'none' }} rel='noopener noreferrer'>
+														<HeaderButton key={btn} text='Merge & Burn' vertical />
+													</a>
+													<a href={urlOpensea} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
+														<HeaderButton key={btn} text='Adopt a Toddlerpillar' vertical />
+													</a>
+													<a href={urlRarity} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
+														<HeaderButton key={btn} text='Chimerapillar Rarity' vertical />
+													</a>
+												</Box>
+											)}
+										</>
 									);
 								}
 								return (<HeaderButton key={btn} text={btn} active={activeTab === i} onClick={() => handleNavigation(i)} vertical />);

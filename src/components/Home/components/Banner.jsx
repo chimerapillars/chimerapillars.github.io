@@ -382,10 +382,10 @@ const Banner = () => {
 								This project continues the twenty-year history of artist and gallerist Jon Beinart's renowned doll sculptures, imbuing them with fresh psychedelic energy from award-winning artist and madman, Tim Molloy.
 								<br/>
 								<br/>
-								Toddlerpillar & Chimerapillar holders join an inter-dimensional art collective with access to 100s of exclusive airdrops from the Toddlerpillar Apocalypse graphic novel with hi-res files & commercial rights, Toddlerpillar vinyl toys, custom toy art shows, metaverse exhibitions & much more!
+								Toddlerpillar & Chimerapillar holders join an inter-dimensional art collective with access to 100s of exclusive airdrops from the <a style={{ color: colors.primary, textDecoration: 'underline' }} href="https://toddlerpillars.com/#/graphic-novel">Toddlerpillar Apocalypse graphic novel</a> with hi-res files & commercial rights, <a style={{ color: colors.primary, textDecoration: 'underline' }} href="https://toddlerpillars.com/#/custom-toys">Toddlerpillar vinyl toys</a>, custom toy art shows, metaverse exhibitions & much more!
 								<br />
 								<br />
-								See our <a href="https://toddlerpillars.com/#/roadmap">holder tiers for airdrops</a> and more on our <a href="https://toddlerpillars.com/#/roadmap">roadmap</a>.
+								See our <a style={{ color: colors.primary, textDecoration: 'underline' }} href="https://toddlerpillars.com/#/roadmap#aidrops">holder tiers for airdrops</a> and more on our <a style={{ color: colors.primary, textDecoration: 'underline' }} href="https://toddlerpillars.com/#/roadmap">roadmap</a>.
 							</Typography>
 
 							{/* @TEMP un-comment to show mint panel */}
