@@ -38,10 +38,9 @@ const config = {
           ],
           PATHS: [
             null,
-            'https://toddlerpillars.com/#/about',
-            'https://toddlerpillars.com/#/roadmap',
-            'https://toddlerpillars.com/#/graphic-novel',
-            'https://toddlerpillars.com/#/custom-toys',
+            'https://toddlerpillars.com/about',
+            'https://toddlerpillars.com/graphic-novel',
+            'https://toddlerpillars.com/custom-toys',
             // 'https://toddlerpillars.com/#/mythology',
             // 'https://toddlerpillars.com/#/history',
             null
@@ -52,9 +51,9 @@ const config = {
             'History',
           ],
           DROPMENUPATHS: [
-            'https://toddlerpillars.com/#/about',
-            'https://toddlerpillars.com/#/roadmap',
-            'https://toddlerpillars.com/#/history',
+            'https://toddlerpillars.com/about',
+            'https://toddlerpillars.com/roadmap',
+            'https://toddlerpillars.com/history',
           ],
      },
      socials: {

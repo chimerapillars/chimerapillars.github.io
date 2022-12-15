@@ -286,7 +286,6 @@ const sx = {
 	dcMenuList: {
 		backgroundColor: colors.background,
 		width: '190px',
-		height: '232px',
 		position: 'absolute',
 		boxShadow: '2px 2px 2px 3px rgba(0, 0, 0, 0.2)',
 		pt: '0',
@@ -298,7 +297,6 @@ const sx = {
 		ml: '45px',
 		backgroundColor: colors.background,
 		width: '175px',
-		height: '250px',
 		marginTop: '0px',
 		pt: '0',
 	},
@@ -313,6 +311,7 @@ const {
 } = nav
 const urlToddlerpillars = 'https://toddlerpillars.com';
 const urlRarity = `https://rarity.tools/chimera-pillars`;
+const urlRarityToddlers = `https://rarity.tools/toddlerpillars`;
 const urlOpensea = `https://opensea.io/collection/${config.PROJECT.slug}`;
 const urlChimeraMint = "/#/#mint";
 const urlMerge = '/#/merge';
@@ -475,10 +474,10 @@ const Header = () => {
 													sx={sx.dcMenuList}
 													open={openDC}
 												>
-													<a href={urlChimeraMint} style={{ textDecoration: 'none' }} rel='noopener noreferrer'>
+													<a href={urlChimeraMint} style={{ textDecoration: 'none' }} rel='noopener noreferrer' onClick={() => { window.scrollTo(0, 0); setOpenDC(false) }}>
 														<HeaderButton key={btn} text='Mint Chimerapillars' vertical />
 													</a>
-													<a href={urlMerge} style={{ textDecoration: 'none' }} rel='noopener noreferrer'>
+													<a href={urlMerge} style={{ textDecoration: 'none' }} rel='noopener noreferrer' onClick={() => { window.scrollTo(0, 0); setOpenDC(false) }}>
 														<HeaderButton key={btn} text='Merge & Burn' vertical />
 													</a>
 													<a href={urlOpensea} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
@@ -486,6 +485,9 @@ const Header = () => {
 													</a>
 													<a href={urlRarity} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
 														<HeaderButton key={btn} text='Chimerapillar Rarity' vertical />
+													</a>
+													<a href={urlRarityToddlers} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
+														<HeaderButton key={btn} text='Toddlerpillar Rarity' vertical />
 													</a>
 												</MenuList>
 											)}
@@ -569,10 +571,10 @@ const Header = () => {
 													sx={sx.menuListVertical}
 													style={{ position: 'relative' }}
 												>
-													<a href={urlChimeraMint} style={{ textDecoration: 'none' }} rel='noopener noreferrer'>
+													<a href={urlChimeraMint} style={{ textDecoration: 'none' }} rel='noopener noreferrer' onClick={() => { window.scrollTo(0, 0); setOpenDC(false); setMenuOpened(false) }}>
 														<HeaderButton key={btn} text='Mint Chimerapillars' vertical />
 													</a>
-													<a href={urlMerge} style={{ textDecoration: 'none' }} rel='noopener noreferrer'>
+													<a href={urlMerge} style={{ textDecoration: 'none' }} rel='noopener noreferrer' onClick={() => { window.scrollTo(0, 0); setOpenDC(false); setMenuOpened(false) }}>
 														<HeaderButton key={btn} text='Merge & Burn' vertical />
 													</a>
 													<a href={urlOpensea} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
@@ -580,6 +582,9 @@ const Header = () => {
 													</a>
 													<a href={urlRarity} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
 														<HeaderButton key={btn} text='Chimerapillar Rarity' vertical />
+													</a>
+													<a href={urlRarityToddlers} style={{ textDecoration: 'none' }} target='_blank' rel='noopener noreferrer'>
+														<HeaderButton key={btn} text='Toddlerpillar Rarity' vertical />
 													</a>
 												</Box>
 											)}

@@ -10,14 +10,6 @@ import config from '../../config'
 
 const Home = () => {
 	useEffect(() => {
-		if (location.hash === '#/#mint') {
-			setTimeout(() => {
-				document.getElementById('mint')?.scrollIntoView({ behavior: 'smooth' })
-			}, 500)
-		} else {
-			window.scrollTo(0, 0);
-		}
-
 		if (['#/#testnet', '#/#mainnet'].includes(location.hash)) {
 			const networkSetting = location.hash.replace(/^\#\/\#/, '')
 			console.log({networkSetting})
@@ -25,6 +17,16 @@ const Home = () => {
 			window.location = '/'
 		}
 	}, []);
+
+	useEffect(() => {
+		if (location.hash === '#/#mint') {
+			setTimeout(() => {
+				document.getElementById('mint')?.scrollIntoView({ behavior: 'smooth' })
+			}, 500)
+		} else {
+			window.scrollTo(0, 0);
+		}
+	})
 
 	return (
 		<>
