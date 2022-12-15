@@ -192,7 +192,7 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, onSetDiscounts }) => {
   const [burnCount, setBurnCount] = useState(0);
   const [discounts, setDiscounts] = useState([]);
   const [contractConfig, setContractConfig] = useState({
-    weiPrice: '30000000000000000',
+    weiPrice: '20000000000000000',
     ethPrice: 0.02,
 
     maxMint:      4,
