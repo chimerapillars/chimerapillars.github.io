@@ -195,8 +195,8 @@ const SaleCard = ({ setConfigs, setCheckoutVisible, onSetDiscounts }) => {
     weiPrice: '20000000000000000',
     ethPrice: 0.02,
 
-    maxMint:      4,
-    maxOrder:     4,
+    maxMint:      8,
+    maxOrder:     8,
     maxSupply: 8888,
 
     isClaimActive:    false,
