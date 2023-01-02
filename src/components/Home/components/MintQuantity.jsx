@@ -116,7 +116,8 @@ const MintQuantity = ({ title, price, maxAmount, discounts, onClickMint }) => {
         <Typography sx={{ fontStyle: 'italic', fontSize: '0.85em', marginBottom: 4 }}>
           {activeDiscount.percentOff === 100
             ? `*FREE mint for holding ${discountNames} NFT${discounts.length > 1 ? 's' : ''}`
-            : `*${activeDiscount.percentOff}% discount applied for holding ${discountNames} NFT${discounts.length > 1 ? 's' : ''}`
+            : `Discount applied for holding ${discountNames} NFT${discounts.length > 1 ? 's' : ''}`
+            // : `*${activeDiscount.percentOff}% discount applied for holding ${discountNames} NFT${discounts.length > 1 ? 's' : ''}`
           }
         </Typography>
       )}
