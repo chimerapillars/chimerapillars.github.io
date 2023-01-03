@@ -37,7 +37,7 @@ const Paragraph = ({
 				<>
 					{text.map((t, i) => (
 						<>
-							<Typography key={i.toString()} variant='text'>{t}</Typography>
+							<Typography key={i.toString()} variant='text'>{t instanceof Function ? t() : t}</Typography>
 							{i < text.length - 1 ? <br /> : ''}
 						</>
 					))}
