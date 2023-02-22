@@ -756,7 +756,7 @@ const MergeAndBurn = () => {
         <Divider titleDivider />
 
         <Typography variant="text" sx={{ mt: 4 }}>
-          Customise your Chimerapillars by merging your favourite traits from two NFTs into one & boost their rarity by combining rare traits. A Chimerapillar is burned with every merge, a noble sacrifice in the last stand against the Lonely Toddlerpillar.
+          Customise your Chimerapillars by merging your favourite traits from two Chimerapillars into one & boost their rarity by combining rare traits. A Chimerapillar is burned with every merge, a noble sacrifice in the last stand against the Lonely Toddlerpillar.
           <br/>
           <br/>
           <a href="/#/#mint" style={{color: colors.primary, textDecoration: 'underline' }}>Mint Chimerapillars</a> & find ultra-rare traits for the ultimate merge! With 888 traits, the options are almost unlimited!
